@@ -1,3 +1,6 @@
+
+alias push='sfdx force:source:push'
+alias pull='sfdx force:source:pull' 
 openr() {
 	if [ $# -eq 1 ]
 	then
