@@ -1,6 +1,7 @@
 
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
+alias orgs='sfdx force:org:list --all' 
 openr() {
 	if [ $# -eq 1 ]
 	then
