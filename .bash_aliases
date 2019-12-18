@@ -2,6 +2,16 @@
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
+
+newclass(){
+	if [ $# -eq 1 ]
+	then
+		sfdx force:apex:class:create -n $1 -d "force-app/main/default/classes"
+	else
+		echo "You need to specify a class name" 
+	fi
+}
+
 openr() {
 	if [ $# -eq 1 ]
 	then
