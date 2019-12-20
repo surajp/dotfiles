@@ -20,6 +20,7 @@ openr() {
 		sfdx force:org:open -r -p "/lightning/page/home"
 	fi
 }
+
 open() {
 	if [ $# -eq 1 ]
 	then
@@ -28,6 +29,7 @@ open() {
 		sfdx force:org:open -p "/lightning/page/home"
 	fi
 }
+
 createo() {
 	if [ $# -eq 1 ]
 	then
@@ -36,6 +38,7 @@ createo() {
 		sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 
 	fi
 }
+
 squery() {
 	if [ $# -eq 1 ]
 	then
@@ -45,4 +48,25 @@ squery() {
 		sfdx force:data:soql:query -q "$1" -u $2
 	fi
 }
+
+createchannel(){
+	if [ $# -eq 1 ]
+	then
+	echo "<?xml version="1.0" encoding="UTF-8"?>
+	<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+		<masterLabel>$1</masterLabel>
+		<isExposed>true</isExposed>
+		<description>This is a sample Lightning Message Channel.</description>
+
+		<lightningMessageFields>
+		  <fieldName>messageToSend</fieldName>
+			<description>message To Send</description>
+	 	</lightningMessageFields>
+
+	</LightningMessageChannel>" >> "force-app/main/default/messageChannels/$1.messageChannel-meta.xml"
+	else
+		echo "Message Channel name is required to be specified"
+	fi
+}
+
 alias orgs='sfdx force:org:list --all'
