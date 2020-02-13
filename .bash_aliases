@@ -69,4 +69,23 @@ createchannel(){
 	fi
 }
 
+createlwc(){
+	if [ $# -eq 1 ]
+	then
+		sfdx force:lightning:component:create --type lwc -d force-app/main/default/lwc -n "$1"
+	else
+		echo "LWC name is required"
+	fi
+}
+
+createaura(){
+	if [ $# -eq 1 ]
+	then
+		sfdx force:lightning:component:create --type aura -d force-app/main/default/aura -n "$1"
+	else
+		echo "Component name is required"
+	fi
+}
+
 alias orgs='sfdx force:org:list --all'
+alias python=python3
