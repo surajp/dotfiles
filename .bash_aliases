@@ -2,6 +2,7 @@
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
+alias isvim='env | grep -i vim'
 
 newclass(){
 	if [ $# -eq 1 ]

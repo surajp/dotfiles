@@ -8,6 +8,7 @@ set softtabstop=0
 set tabstop=2
 set shiftwidth=2
 set smartindent
+colorscheme desert
 
 au BufRead,BufNewFile *.cls set filetype=java
 au BufRead,BufNewFile *.cmp set filetype=html
