@@ -45,3 +45,6 @@ let g:netrw_winsize = 25
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+" Ctrl p exclude directories
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
