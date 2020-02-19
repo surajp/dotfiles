@@ -10,12 +10,15 @@ set shiftwidth=2
 set smartindent
 colorscheme desert
 
-au BufRead,BufNewFile *.cls set filetype=java
-au BufRead,BufNewFile *.trigger set filetype=java
-au BufRead,BufNewFile *.cmp set filetype=html
-au BufRead,BufNewFile *.vue set filetype=html
-au BufRead,BufNewFile *.tsx set filetype=javascript
-au BufRead,BufNewFile *.jsx set filetype=javascript
+augroup FileTypeGroup
+	autocmd!
+	au BufRead,BufNewFile *.cls set filetype=java
+	au BufRead,BufNewFile *.trigger set filetype=java
+	au BufRead,BufNewFile *.cmp set filetype=html
+	au BufRead,BufNewFile *.vue set filetype=html
+	au BufRead,BufNewFile *.tsx set filetype=javascript
+	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+augroup END
 
 call plug#begin('~/.vim/plugged')
 
@@ -53,3 +56,8 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+
+let g:ale_fixers = {'javascript': ['prettier', 'eslint']}
+
+let g:ale_sign_error='❌'
+let g:ale_sign_warning='⚠️'
