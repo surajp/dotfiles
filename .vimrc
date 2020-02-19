@@ -27,6 +27,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
 Plug 'dense-analysis/ale'
 
