@@ -11,6 +11,7 @@ set smartindent
 colorscheme desert
 
 au BufRead,BufNewFile *.cls set filetype=java
+au BufRead,BufNewFile *.trigger set filetype=java
 au BufRead,BufNewFile *.cmp set filetype=html
 au BufRead,BufNewFile *.vue set filetype=html
 au BufRead,BufNewFile *.tsx set filetype=javascript
@@ -26,6 +27,8 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 Plug 'SirVer/ultisnips'
+Plug 'pangloss/vim-javascript'
+Plug 'dense-analysis/ale'
 
 call plug#end()
 
@@ -36,9 +39,10 @@ let g:prettier#config#print_width = 150
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
-let g:netrw_banner = 0
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+" let g:netrw_banner = 0
 " let g:netrw_browse_split = 3 
-let g:netrw_winsize = 25
+" let g:netrw_winsize = 25
 " au BufRead /tmp/psql.edit.* set syntax=sql
 "
 " Ultisnips Trigger configuration
