@@ -1,6 +1,5 @@
 set relativenumber
 syntax on
-set cursorline
 set noexpandtab
 set copyindent
 set preserveindent
@@ -8,7 +7,7 @@ set softtabstop=0
 set tabstop=2
 set shiftwidth=2
 set smartindent
-colorscheme desert
+colorscheme elflord
 
 augroup FileTypeGroup
 	autocmd!
@@ -61,3 +60,6 @@ let g:ale_fixers = {'javascript': ['prettier', 'eslint']}
 
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
+
+let g:ale_javascript_eslint_executable = 'eslint'
+let g:ale_javascript_eslint_use_global = 1
