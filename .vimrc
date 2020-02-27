@@ -1,6 +1,5 @@
 set relativenumber
 syntax on
-set cursorline
 set noexpandtab
 set copyindent
 set preserveindent
@@ -62,3 +61,6 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
 let g:ale_fixers = {'javascript': ['eslint','prettier']}
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
+
+let g:ale_javascript_eslint_executable = 'eslint'
+let g:ale_javascript_eslint_use_global = 1
