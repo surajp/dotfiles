@@ -1,3 +1,20 @@
+call plug#begin('~/.vim/plugged')
+
+Plug 'prettier/vim-prettier', {
+  \ 'do': 'npm install',
+  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
+
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-vinegar'
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'
+Plug 'pangloss/vim-javascript'
+Plug 'dense-analysis/ale'
+Plug 'altercation/vim-colors-solarized'
+
+call plug#end()
+
 set relativenumber
 syntax on
 set noexpandtab
@@ -22,24 +39,12 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 augroup END
 
-call plug#begin('~/.vim/plugged')
-
-Plug 'prettier/vim-prettier', {
-  \ 'do': 'npm install',
-  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
-
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-vinegar'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'pangloss/vim-javascript'
-Plug 'dense-analysis/ale'
-Plug 'altercation/vim-colors-solarized'
-
-call plug#end()
-
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
+
+"Keymaps
+" Press Space to turn off highlighting and clear any message already displayed.
+let hlstate=0
+:nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 
 let g:prettier#config#print_width = 150
 
