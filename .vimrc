@@ -1,6 +1,5 @@
 set relativenumber
 syntax on
-set cursorline
 set noexpandtab
 set copyindent
 set preserveindent
@@ -10,7 +9,8 @@ set shiftwidth=2
 set smartindent
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
-colorscheme desert
+set background=dark
+colorscheme solarized
 
 augroup FileTypeGroup
 	autocmd!
@@ -35,6 +35,7 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
 Plug 'dense-analysis/ale'
+Plug 'altercation/vim-colors-solarized'
 
 call plug#end()
 
@@ -59,8 +60,7 @@ let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
 
-let g:ale_fixers = {'javascript': ['prettier', 'eslint']}
-
+let g:ale_fixers = {'javascript': ['eslint','prettier']}
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
 
