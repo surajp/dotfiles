@@ -1,25 +1,3 @@
-set relativenumber
-syntax on
-set noexpandtab
-set copyindent
-set preserveindent
-set softtabstop=0
-set tabstop=2
-set shiftwidth=2
-set smartindent
-set background=dark
-colorscheme solarized
-
-augroup FileTypeGroup
-	autocmd!
-	au BufRead,BufNewFile *.cls set filetype=java
-	au BufRead,BufNewFile *.trigger set filetype=java
-	au BufRead,BufNewFile *.cmp set filetype=html
-	au BufRead,BufNewFile *.vue set filetype=html
-	au BufRead,BufNewFile *.tsx set filetype=javascript
-	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
-augroup END
-
 call plug#begin('~/.vim/plugged')
 
 Plug 'prettier/vim-prettier', {
@@ -37,7 +15,36 @@ Plug 'altercation/vim-colors-solarized'
 
 call plug#end()
 
+set relativenumber
+syntax on
+set noexpandtab
+set copyindent
+set preserveindent
+set softtabstop=0
+set tabstop=2
+set shiftwidth=2
+set smartindent
+" Use ALE for Omnifunc
+set omnifunc=ale#completion#OmniFunc
+set background=dark
+colorscheme solarized
+
+augroup FileTypeGroup
+	autocmd!
+	au BufRead,BufNewFile *.cls set filetype=java
+	au BufRead,BufNewFile *.trigger set filetype=java
+	au BufRead,BufNewFile *.cmp set filetype=html
+	au BufRead,BufNewFile *.vue set filetype=html
+	au BufRead,BufNewFile *.tsx set filetype=javascript
+	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+augroup END
+
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
+
+"Keymaps
+" Press Space to turn off highlighting and clear any message already displayed.
+let hlstate=0
+:nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 
 let g:prettier#config#print_width = 150
 
@@ -64,3 +71,4 @@ let g:ale_sign_warning='⚠️'
 
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
+let g:ale_completion_tsserver_autoimport = 1
