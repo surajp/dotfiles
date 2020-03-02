@@ -56,7 +56,7 @@ let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " Ctrl p exclude directories
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
+let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
 let g:ale_fixers = {'javascript': ['eslint','prettier']}
 let g:ale_sign_error='❌'
