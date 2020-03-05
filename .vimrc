@@ -47,6 +47,7 @@ let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-e> :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
+:nnoremap <C-b> :ls<CR>:b<Space>
 
 let g:prettier#config#print_width = 150
 
