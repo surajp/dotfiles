@@ -45,6 +45,7 @@ command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endf
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
+:nnoremap <C-e> :bo 15sp +te<CR>A
 
 let g:prettier#config#print_width = 150
 
