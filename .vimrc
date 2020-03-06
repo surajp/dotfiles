@@ -39,6 +39,8 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 augroup END
 
+autocmd BufEnter * silent! lcd %:p:h
+
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
 
 "Keymaps
