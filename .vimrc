@@ -20,10 +20,12 @@ syntax on
 set noexpandtab
 set copyindent
 set preserveindent
-set softtabstop=0
+
+filetype plugin indent on
 set tabstop=2
 set shiftwidth=2
-set smartindent
+set expandtab
+
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 set background=dark
@@ -56,7 +58,6 @@ let g:prettier#config#print_width = 150
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
-let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git'
 " let g:netrw_banner = 0
 " let g:netrw_browse_split = 3 
 " let g:netrw_winsize = 25
