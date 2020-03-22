@@ -39,6 +39,8 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.vue set filetype=html
 	au BufRead,BufNewFile *.tsx set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+	"For Wix files
+	au BufRead,BufNewFile *.jsw set filetype=javascript
 augroup END
 
 autocmd BufEnter * silent! lcd %:p:h
