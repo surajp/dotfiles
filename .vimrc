@@ -15,7 +15,7 @@ Plug 'altercation/vim-colors-solarized'
 
 call plug#end()
 
-set relativenumber
+set number relativenumber
 syntax on
 set noexpandtab
 set copyindent
