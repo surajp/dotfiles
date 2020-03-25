@@ -33,8 +33,8 @@ colorscheme solarized
 
 augroup FileTypeGroup
 	autocmd!
-	au BufRead,BufNewFile *.cls set filetype=java
-	au BufRead,BufNewFile *.trigger set filetype=java
+	au BufRead,BufNewFile *.cls set filetype=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.trigger set filetype=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.cmp set filetype=html
 	au BufRead,BufNewFile *.vue set filetype=html
 	au BufRead,BufNewFile *.tsx set filetype=javascript
@@ -69,6 +69,10 @@ let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
 let g:UltiSnipsExpandTrigger="<tab>"
 let g:UltiSnipsJumpForwardTrigger="<tab>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+let g:UltiSnipsListSnippets="<s-tab>"
+let g:UltiSnipsUsePythonVersion = 3
+let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
+"let g:UltiSnipsSnippetsDir="/home/suraj/.vim/mysnips" 
 
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
