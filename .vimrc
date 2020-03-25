@@ -67,8 +67,8 @@ let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
 "
 " Ultisnips Trigger configuration
 let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
