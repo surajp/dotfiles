@@ -3,3 +3,37 @@ extends java
 snippet deb "debug" b
 system.debug(${1:message});
 endsnippet
+
+
+snippet list "Collections List" b
+List<${1:String}> ${2:list} = new List<$1>();
+endsnippet
+
+snippet map "Collections Map" b
+Map<${1:String}, ${2:String}> ${3:map} = new Map<$1, $2>();
+endsnippet
+
+snippet set "Collections Set" b
+Set<${1:String}> ${2:set} = new Set<$1>();
+endsnippet
+
+snippet fors "SOQL For Loop" b
+for(${1:SObject} ${2:rec}:[Select ${3:Id} from ${4:SObject}]){
+	${5}
+}
+endsnippet
+
+snippet fore "for each loop" b
+for(${1:String} ${2:theString}: ${3:strArray}){
+	$4
+}
+endsnippet
+
+snippet ase "assert equals" b
+system.assertEquals(${1:expected},${2:actual});
+endsnippet
+
+snippet asne "assert not equals" b
+system.assertNotEquals(${1:expected},${2:actual});
+endsnippet
+

@@ -1,0 +1,34 @@
+
+snippet fieldt "New Custom Field" b
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>${1:my_field__c}</fullName>
+    <description>${2:my_description}</description>
+    <externalId>${3:false}</externalId>
+    <inlineHelpText>${4:helptext}</inlineHelpText>
+    <label>${5:My Field}</label>
+    <length>${6:50}</length>
+    <required>${7:false}</required>
+    <trackTrending>${8:false}</trackTrending>
+    <type>Text</type>
+    <unique>${9:false}</unique>
+</CustomField>
+endsnippet
+
+snippet fielde "Email field" b
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>${1:my_email__c}</fullName>
+    <description>$2</description>
+    <externalId>${3:false}</externalId>
+    <inlineHelpText>$4</inlineHelpText>
+    <label>${5:My Email}</label>
+    <required>${6:false}</required>
+    <trackTrending>${7:false}</trackTrending>
+    <type>Email</type>
+    <unique>${8:false}</unique>
+</CustomField>
+endsnippet
+
+
+
