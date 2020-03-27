@@ -18,8 +18,8 @@ Set<${1:String}> ${2:set} = new Set<$1>();
 endsnippet
 
 snippet fors "SOQL For Loop" b
-for(${1:SObject} ${2:rec}:[Select ${3:Id} from ${4:SObject}]){
-	${5}
+for(${1:SObject} ${2:rec}:[Select ${3:Id} from $1]){
+	${4}
 }
 endsnippet
 
@@ -36,4 +36,35 @@ endsnippet
 snippet asne "assert not equals" b
 system.assertNotEquals(${1:expected},${2:actual});
 endsnippet
+
+snippet sqv "SOQL to variable" b
+List<${1:Account}> ${2:accts} = [Select ${3:Id} from $1];
+endsnippet
+
+
+snippet sqm "SOQL to Map variable" b
+Map<Id,${1:Account}> ${2:acctsMap} = new Map<Id,$1>([Select ${3:Id} from $1]);
+endsnippet
+	
+snippet batch "New Batch Class" b
+class `!p snip.rv = fn.replace('.cls','')` implements Database.Batchable<SObject>{
+	
+	public Database.Querylocator start(Database.BatchableContext bc){
+		$1
+	}
+
+	public void execute(Database.BatchableContext bc,List<SObject> scope){
+	}
+
+	public void finish(Database.BatchableContext bc){
+	}
+}
+endsnippet
+
+snippet cls "New Class" b
+public with sharing class `!p snip.rv=fn.replace('.cls','')`{
+	$1
+}
+endsnippet
+
 
