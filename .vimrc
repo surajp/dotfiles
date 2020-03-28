@@ -36,6 +36,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.cls set filetype=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.trigger set filetype=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.cmp set filetype=html
+	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch
 	au BufRead,BufNewFile *.vue set filetype=html
 	au BufRead,BufNewFile *.tsx set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
