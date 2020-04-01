@@ -73,6 +73,7 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint']}
 let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
