@@ -1,9 +1,5 @@
 call plug#begin('~/.vim/plugged')
 
-Plug 'prettier/vim-prettier', {
-  \ 'do': 'npm install',
-  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
-
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
@@ -33,8 +29,9 @@ colorscheme solarized
 
 augroup FileTypeGroup
 	autocmd!
-	au BufRead,BufNewFile *.cls set filetype=java | UltiSnipsAddFiletypes cls.java
-	au BufRead,BufNewFile *.trigger set filetype=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.cls set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.trigger set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.cmp set filetype=html
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch
 	au BufRead,BufNewFile *.vue set filetype=html
@@ -56,8 +53,6 @@ let hlstate=0
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-b> :ls<CR>:b<Space>
 
-let g:prettier#config#print_width = 150
-
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
@@ -78,7 +73,8 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
-let g:ale_fixers = {'javascript': ['eslint','prettier']}
+let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier']}
+let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
 
