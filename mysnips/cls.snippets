@@ -17,6 +17,11 @@ snippet set "Collections Set" b
 Set<${1:String}> ${2:set} = new Set<$1>();
 endsnippet
 
+snippet prop "Property"
+public ${1:Object} ${2:obj} {get;set;}
+endsnippet
+	
+
 snippet fors "SOQL For Loop" b
 for(${1:SObject} ${2:rec}:[Select ${3:Id} from $1]){
 	${4}
