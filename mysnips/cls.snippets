@@ -72,4 +72,14 @@ public with sharing class `!p snip.rv=fn.replace('.cls','')`{
 }
 endsnippet
 
+snippet rtype "Record Type lookup"
+Id ${1:recordtypeId} = Schema.SObjectType.${2:Account}.getRecordTypeInfosByDeveloperName.get('${3:record_type}').getRecordTypeId();
+endsnippet
 
+snippet user "Create User in Test Class"
+Profile ${1:p} = [SELECT Id FROM Profile WHERE Name='${2:Standard User}']; 
+User ${3:u} = new User(Alias = '${4:standt}', Email='${5:testuser@example.com}', 
+	EmailEncodingKey='UTF-8', LastName='${6:lastName}', LanguageLocaleKey='en_US', 
+	LocaleSidKey='en_US', ProfileId = $1.Id, 
+	TimeZoneSidKey='America/Los_Angeles', UserName='$5');
+endsnippet

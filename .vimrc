@@ -33,7 +33,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.trigger set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.cmp set filetype=html
-	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch
+	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue set filetype=html
 	au BufRead,BufNewFile *.tsx set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
@@ -68,7 +68,6 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 let g:UltiSnipsListSnippets="<s-tab>"
 let g:UltiSnipsUsePythonVersion = 3
 let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
-"let g:UltiSnipsSnippetsDir="/home/suraj/.vim/mysnips" 
 
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
