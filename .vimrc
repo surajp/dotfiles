@@ -55,6 +55,7 @@ let hlstate=0
 :nnoremap <C-e> :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-b> :ls<CR>:b<Space>
+:nnoremap <C-y> [{zf]}
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
