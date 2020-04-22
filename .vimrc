@@ -27,6 +27,9 @@ set omnifunc=ale#completion#OmniFunc
 set background=dark
 colorscheme solarized
 
+" Set foldmethod
+set foldmethod=marker
+
 augroup FileTypeGroup
 	autocmd!
 	au BufRead,BufNewFile *.cls set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
