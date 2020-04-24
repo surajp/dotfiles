@@ -89,8 +89,10 @@ createaura(){
 	fi
 }
 
+
 alias orgs='sfdx force:org:list --all'
 alias python=python3
 if type nvim > /dev/null 2>&1; then
 	alias vim='nvim'
 fi
+

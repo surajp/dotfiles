@@ -42,6 +42,10 @@ snippet asne "assert not equals" b
 system.assertNotEquals(${1:expected},${2:actual});
 endsnippet
 
+snippet soql "SOQL"
+[Select ${1:Id} from ${2:Account}];
+endsnippet
+
 snippet sqv "SOQL to variable" b
 List<${1:Account}> ${2:accts} = [Select ${3:Id} from $1];
 endsnippet

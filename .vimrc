@@ -21,6 +21,7 @@ filetype plugin indent on
 set tabstop=2
 set shiftwidth=2
 set expandtab
+set foldmethod=marker
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
@@ -44,7 +45,8 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsw set filetype=javascript
 augroup END
 
-autocmd BufEnter * silent! lcd %:p:h
+" Set current directory to the parent dir of the current file
+" autocmd BufEnter * silent! lcd %:p:h
 
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
 
@@ -76,8 +78,8 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint']}
-let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['pmd'],'jsw':['eslint']}
+let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
@@ -85,3 +87,7 @@ let g:ale_sign_warning='⚠️'
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_completion_tsserver_autoimport = 1
+
+if $PATH !~ "\.scripts"
+  let $PATH="~/.scripts/:".$PATH
+endif
