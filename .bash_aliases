@@ -3,7 +3,7 @@ alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
 alias isvim='env | grep -i vim'
-alias graph='git log --graph --all --decorate --oneline'
+alias graph='git log --graph --pretty="%C(Yellow)%h %C(Red)%d %C(reset)%ad (%C(Green)%cr%C(reset))%x09 %C(Cyan)%an: %C(reset)%s" --all'
 
 newclass(){
 	if [ $# -eq 1 ]
