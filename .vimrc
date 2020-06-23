@@ -56,6 +56,10 @@ let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-e> :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
+:nnoremap <C-w><Left> :vertical resize -5<CR>
+:nnoremap <C-w><Right> :vertical resize +5<CR>
+:nnoremap <C-w><Down> :resize +5<CR>
+:nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-b> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
 :command W w
@@ -80,7 +84,7 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['pmd'],'jsw':['eslint']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['javalsp','pmd'],'jsw':['eslint']}
 let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
