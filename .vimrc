@@ -7,7 +7,8 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
 Plug 'dense-analysis/ale'
-Plug 'altercation/vim-colors-solarized'
+"Plug 'altercation/vim-colors-solarized'
+Plug 'dart-lang/dart-vim-plugin'
 
 call plug#end()
 
@@ -26,7 +27,8 @@ set foldmethod=marker
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 set background=dark
-colorscheme solarized
+" colorscheme solarized
+colorscheme pablo
 
 " Set foldmethod
 set foldmethod=marker
@@ -58,6 +60,7 @@ let hlstate=0
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-b> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
+" use 'za' to toggle folds
 :command W w
 :command Wq wq
 
@@ -80,8 +83,11 @@ let g:UltiSnipsSnippetDirectories=["UltiSnips",$HOME."/.vim/mysnips"]
 " Ctrl p exclude directories
 let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['pmd'],'jsw':['eslint']}
-let g:ale_fixers = {'javascript': ['eslint','prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq']}
+" Only run linters named in ale_linters settings.
+let g:ale_linters_explicit = 1
+
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
