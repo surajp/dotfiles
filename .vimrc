@@ -58,6 +58,10 @@ let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-e> :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
+:nnoremap <C-w><Left> :vertical resize -5<CR>
+:nnoremap <C-w><Right> :vertical resize +5<CR>
+:nnoremap <C-w><Down> :resize +5<CR>
+:nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-b> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
 " use 'za' to toggle folds
