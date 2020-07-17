@@ -24,11 +24,14 @@ set shiftwidth=2
 set expandtab
 set foldmethod=marker
 
+"set cursor to blink
+"set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme pablo
+colorscheme evening
 
 " Set foldmethod
 set foldmethod=marker
@@ -38,6 +41,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.cls set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.trigger set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile *.cmp set filetype=html
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue set filetype=html
@@ -102,4 +106,9 @@ let g:ale_completion_tsserver_autoimport = 1
 
 if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
+endif
+
+
+if (has("termguicolors"))
+  set termguicolors
 endif
