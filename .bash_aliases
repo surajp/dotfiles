@@ -97,3 +97,4 @@ if type nvim > /dev/null 2>&1; then
 	alias vim='nvim'
 fi
 
+alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.scratchOrgs[] | select (.isExpired==true) | .username' | xargs -I % sh -c 'sfdx force:org:delete -u % -p'"
