@@ -55,10 +55,10 @@ squery() {
 createchannel(){
 	if [ $# -eq 1 ]
 	then
-	echo "<?xml version="1.0" encoding="UTF-8"?>
-	<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	<LightningMessageChannel xmlns=\"http://soap.sforce.com/2006/04/metadata\">
 		<masterLabel>$1</masterLabel>
-		<isExposed>true</isExposed>
+		<isExposed>false</isExposed>
 		<description>This is a sample Lightning Message Channel.</description>
 
 		<lightningMessageFields>
