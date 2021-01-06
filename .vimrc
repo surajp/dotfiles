@@ -18,11 +18,13 @@ set noexpandtab
 set copyindent
 set preserveindent
 
-filetype plugin indent on
+let $RTP = $XDG_CONFIG_HOME."/nvim"
 set tabstop=2
 set shiftwidth=2
 set expandtab
 set foldmethod=marker
+
+set colorcolumn=120
 
 "set cursor to blink
 "set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -36,19 +38,17 @@ colorscheme evening
 " Set foldmethod
 set foldmethod=marker
 
+filetype plugin on
+filetype plugin indent on
+
 augroup FileTypeGroup
 	autocmd!
-	au BufRead,BufNewFile *.cls set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
-	au BufRead,BufNewFile *.trigger set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
-	au BufRead,BufNewFile *.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
-	au BufRead,BufNewFile *.cmp set filetype=html
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
-	au BufRead,BufNewFile *.vue set filetype=html
-	au BufRead,BufNewFile *.tsx set filetype=javascript
+	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp set filetype=html
+	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
-	"For Wix files
-	au BufRead,BufNewFile *.jsw set filetype=javascript
 augroup END
 
 " Set current directory to the parent dir of the current file
@@ -66,11 +66,15 @@ let hlstate=0
 :nnoremap <C-w><Right> :vertical resize +5<CR>
 :nnoremap <C-w><Down> :resize +5<CR>
 :nnoremap <C-w><Up> :resize +5<CR>
-:nnoremap <C-b> :ls<CR>:b<Space>
+:nnoremap <C-s> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
+
+:nnoremap ++ :!git add %<CR>
+:nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
+
 " use 'za' to toggle folds
-:command W w
-:command Wq wq
+:command! W w
+:command! Wq wq
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -95,7 +99,7 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 let g:ale_linters_explicit = 1
 
 let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'java':['google_java_format']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
@@ -103,6 +107,7 @@ let g:ale_sign_warning='⚠️'
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_completion_tsserver_autoimport = 1
+let g:ale_java_google_java_format_executable = "~/.scripts/jformat.sh"
 
 if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
@@ -112,3 +117,6 @@ endif
 if (has("termguicolors"))
   set termguicolors
 endif
+
+syntax sync minlines=10000
+

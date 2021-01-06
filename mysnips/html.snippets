@@ -17,3 +17,14 @@ snippet for "for"
 </template>
 endsnippet
 
+snippet table "table" 
+	<lightning-datatable
+		key-field="$1"
+		columns={$2}
+		data={$3}
+		show-row-number-column
+		hide-checkbox-column
+		onrowaction={handleRowAction}
+	>
+	</lightning-datatable>
+endsnippet
