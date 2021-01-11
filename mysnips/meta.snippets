@@ -1,3 +1,4 @@
+extends xml
 
 snippet fieldt "New Custom Field" b
 <?xml version="1.0" encoding="UTF-8"?>
@@ -31,4 +32,13 @@ snippet fielde "Email field" b
 endsnippet
 
 
-
+snippet lwc "Meta xml for lwcs" b
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>48.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+      <target>${0:lightning__AppPage}</target>
+    </targets>
+</LightningComponentBundle>
+endsnippet
