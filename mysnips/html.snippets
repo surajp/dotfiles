@@ -1,0 +1,30 @@
+extends html
+
+snippet button "button" 
+<lightning-button label="$1" onclick={$2}></lightning-button>
+endsnippet
+
+
+snippet card "card"
+<lightning-card title="$1" icon-name="$2">
+</lightning-card>
+endsnippet
+
+snippet for "for"
+<template for:each={$1} for:item="$2" for:index="index">
+	<div key={$2.$3}>
+	</div>
+</template>
+endsnippet
+
+snippet table "table" 
+	<lightning-datatable
+		key-field="$1"
+		columns={$2}
+		data={$3}
+		show-row-number-column
+		hide-checkbox-column
+		onrowaction={handleRowAction}
+	>
+	</lightning-datatable>
+endsnippet

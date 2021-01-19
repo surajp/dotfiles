@@ -1,4 +1,3 @@
-
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
@@ -6,6 +5,7 @@ alias isvim='env | grep -i vim'
 alias graph='git log --graph --all --decorate --oneline'
 alias gco='git checkout'
 alias pmd="$HOME/softwares/pmd-bin-6.23.0/bin/run.sh pmd"
+alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
 
 newclass(){
 	if [ $# -eq 1 ]
@@ -25,41 +25,19 @@ openr() {
 	fi
 }
 
-open() {
-	if [ $# -eq 1 ]
-	then
-		sfdx force:org:open -u "$1" -p "/lightning/page/home"
-	else
-		sfdx force:org:open -p "/lightning/page/home"
-	fi
-}
+alias open='sfdx force:org:open -p "/lightning/page/home" -u '
 
-createo() {
-	if [ $# -eq 1 ]
-	then
-		sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"
-	else
-		sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 
-	fi
-}
+alias createo='sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"'
 
-squery() {
-	if [ $# -eq 1 ]
-	then
-		sfdx force:data:soql:query -q "$1"
-	elif [ $# -eq 2 ]
-	then
-		sfdx force:data:soql:query -q "$1" -u $2
-	fi
-}
+alias squery='sfdx force:data:soql:query -q "$1"'
 
 createchannel(){
 	if [ $# -eq 1 ]
 	then
-	echo "<?xml version="1.0" encoding="UTF-8"?>
-	<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+	echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+	<LightningMessageChannel xmlns=\"http://soap.sforce.com/2006/04/metadata\">
 		<masterLabel>$1</masterLabel>
-		<isExposed>true</isExposed>
+		<isExposed>false</isExposed>
 		<description>This is a sample Lightning Message Channel.</description>
 
 		<lightningMessageFields>
@@ -97,5 +75,7 @@ alias python=python3
 if type nvim > /dev/null 2>&1; then
 	alias vim='nvim'
 fi
+
+alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.scratchOrgs[] | select (.isExpired==true) | .username' | xargs -I % sh -c 'sfdx force:org:delete -u % -p'"
 
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
