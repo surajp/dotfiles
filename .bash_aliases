@@ -4,6 +4,7 @@ alias pull='sfdx force:source:pull'
 alias orgs='sfdx force:org:list --all' 
 alias isvim='env | grep -i vim'
 alias graph='git log --graph --all --decorate --oneline'
+alias gco='git checkout'
 alias pmd="$HOME/softwares/pmd-bin-6.23.0/bin/run.sh pmd"
 
 newclass(){
@@ -97,3 +98,4 @@ if type nvim > /dev/null 2>&1; then
 	alias vim='nvim'
 fi
 
+alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'

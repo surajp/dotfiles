@@ -1,6 +1,6 @@
 call plug#begin('~/.vim/plugged')
 
-Plug 'ctrlpvim/ctrlp.vim'
+"Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
 Plug 'SirVer/ultisnips'
@@ -8,7 +8,12 @@ Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
 Plug 'dense-analysis/ale'
 "Plug 'altercation/vim-colors-solarized'
+
 Plug 'dart-lang/dart-vim-plugin'
+"Plug 'neovim/nvim-lspconfig'
+
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 call plug#end()
 
@@ -60,7 +65,7 @@ command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endf
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
-:nnoremap <C-e> :bo 15sp +te<CR>A
+:nnoremap <C-j>t :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-w><Left> :vertical resize -5<CR>
 :nnoremap <C-w><Right> :vertical resize +5<CR>
@@ -68,9 +73,17 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-b> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
+noremap <C-e> :tabnew ~/.vimrc<CR>
+:nnoremap <C-p> :GFiles<CR>
+
+
 " use 'za' to toggle folds
-:command W w
-:command Wq wq
+:command! W w
+:command! Wq wq
+:command! Wqa wqa
+
+:command! Q q
+:command! Qa qa
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -95,7 +108,7 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 let g:ale_linters_explicit = 1
 
 let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='❌'
 let g:ale_sign_warning='⚠️'
@@ -112,3 +125,6 @@ endif
 if (has("termguicolors"))
   set termguicolors
 endif
+
+"Ignore folders from vim grep
+set wildignore=*/node_modules/*
