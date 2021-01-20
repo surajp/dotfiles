@@ -82,6 +82,7 @@ noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
 :nnoremap <C-\>t f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
 :nnoremap ]a :!sfdx force:source:push<CR>
+:nnoremap ]af :!sfdx force:source:push -f<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
 

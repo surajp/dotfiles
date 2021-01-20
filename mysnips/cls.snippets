@@ -34,6 +34,14 @@ for(${1:String} ${2:theString}: ${3:strArray}){
 }
 endsnippet
 
+snippet mapl "Check Map and Add to List" b
+if(${1:MapName}.containsKey(${2:key}){
+	$1.get($2).add(${3:newValue});
+}else{
+	$1.put($2,new List<${4:Object}>{$3});
+}
+endsnippet
+
 snippet ase "assert equals" b
 system.assertEquals(${1:expected},${2:actual});
 endsnippet
