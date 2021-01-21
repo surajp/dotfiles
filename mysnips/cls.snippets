@@ -1,7 +1,7 @@
 extends java
 
-snippet deb "debug" b
-system.debug(${1:message});
+snippet deb "salesforce debug" b
+System.debug(${1:message});
 endsnippet
 
 
@@ -124,5 +124,13 @@ snippet /** "Class Javadoc"
 *** @date: ${3:`date +%m/%Y`}
 *** @description: ${1}
 *** 
-*/
+**/
+endsnippet
+
+snippet mad "ApexDoc for methods"
+/****
+** @description ${1:what does the method do}
+** @param ${2:paramname} ${3:describe what this param is}
+** @return ${4:what does this method return}
+**/
 endsnippet

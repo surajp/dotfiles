@@ -1,3 +1,5 @@
+let g:ale_completion_enabled = 1
+
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -85,14 +87,22 @@ noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ]af :!sfdx force:source:push -f<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
+:nnoremap ]e :!sfdx force:apex:execute -f %<CR>
 
 " use 'za' to toggle folds
+" Prevent wq accidents
 :command! W w
 :command! Wq wq
 :command! Wqa wqa
 
 :command! Q q
 :command! Qa qa
+
+
+"Remap arrow keys
+:nnoremap <Up> ddkP
+:nnoremap <Down> ddp
+
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
@@ -126,6 +136,8 @@ let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_completion_tsserver_autoimport = 1
 let g:ale_java_google_java_format_executable = "~/.scripts/jformat.sh"
+let g:ale_apex_apexlsp_executable = "/usr/bin/java"
+
 
 if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
@@ -136,8 +148,11 @@ if (has("termguicolors"))
   set termguicolors
 endif
 
+"search recursively in subfolders using 'find'
+set path+=**
+
 "Ignore folders from vim grep
-set wildignore=*/node_modules/*
+set wildignore+=**/node_modules/**
 
 syntax sync minlines=10000
 
