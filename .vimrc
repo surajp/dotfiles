@@ -1,5 +1,3 @@
-let g:ale_completion_enabled = 1
-
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -78,8 +76,7 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 :nnoremap <C-y> [{zf]}
-noremap <C-e> :tabnew ~/.vimrc<CR>
-:nnoremap <C-p> :GFiles<CR>
+:noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
 :nnoremap <C-\>t f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
@@ -88,6 +85,14 @@ noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
 :nnoremap ]e :!sfdx force:apex:execute -f %<CR>
+
+"fzf key bindings
+:nnoremap <C-p> :GFiles<CR>
+:nnoremap <silent> <C-a>b :Buffers<CR>
+:nnoremap <silent> <C-a>s :Snippets<CR>
+
+"ale key bindings
+:nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
 
 " use 'za' to toggle folds
 " Prevent wq accidents
