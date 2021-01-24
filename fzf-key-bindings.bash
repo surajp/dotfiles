@@ -60,13 +60,14 @@ __fzf_history__() {
 }
 
 __fzf_emojis__(){
-  selectedSmiley="$(cat ./.emojis.txt | fzf | cut --fields=1 --delimiter=' ')"
-  echo $selectedSmiley 
+  selectedSmiley="$(cat ~/.emojis.txt | $(__fzfcmd) | cut --fields=1 --delimiter=' ')"
+  READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selectedSmiley${READLINE_LINE:$READLINE_POINT}"
+  READLINE_POINT=$(( READLINE_POINT + ${#selectedSmiley} ))
 }
 
 __fzf_flags__(){
   local selected="$1"
-  local ret=`cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | fzf -m --bind 'ctrl-z:ignore' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\").value"' --preview-window='right:60%'`
+  local ret=`cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind 'ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\").value"' --preview-window='right:wrap'`
   echo $ret
 }
 
@@ -86,7 +87,7 @@ __fzf_sfdx__(){
       READLINE_POINT=$(( ${#fullcmd} + ${#flag} + 3 ))
     fi
   else
-    local selected="$(cat ~/.sfdxcommands.json | jq -r '.[].id' | fzf +m --bind 'ctrl-z:ignore' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select (.id==\""{}"\") | [\"Description: \"+.description,\"Usage: \"+.usage][]"' --preview-window='right:75%')"
+    local selected="$(cat ~/.sfdxcommands.json | jq -r '.[].id' | $(__fzfcmd) +m --bind 'ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select (.id==\""{}"\") | [\"Description: \"+.description,\"Usage: \"+.usage][]"' --preview-window='right:wrap')"
     if [[ "$selected" != "" ]]; then
       READLINE_LINE="sfdx $selected"
       READLINE_POINT=$(( 5 + ${#selected} ))
