@@ -66,7 +66,7 @@ __fzf_emojis__(){
 
 __fzf_flags__(){
   local selected="$1"
-  local ret=`cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | fzf -m --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\").value"' --preview-window='right:60%'`
+  local ret=`cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | fzf -m --bind 'ctrl-z:ignore' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\").value"' --preview-window='right:60%'`
   echo $ret
 }
 
@@ -86,9 +86,11 @@ __fzf_sfdx__(){
       READLINE_POINT=$(( ${#fullcmd} + ${#flag} + 3 ))
     fi
   else
-    local selected="sfdx $(cat ~/.sfdxcommands.json | jq -r '.[].id' |fzf +m --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select (.id==\""{}"\")"')"
-    READLINE_LINE="$selected"
-    READLINE_POINT=$(( ${#selected} ))
+    local selected="$(cat ~/.sfdxcommands.json | jq -r '.[].id' | fzf +m --bind 'ctrl-z:ignore' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select (.id==\""{}"\") | [\"Description: \"+.description,\"Usage: \"+.usage][]"' --preview-window='right:75%')"
+    if [[ "$selected" != "" ]]; then
+      READLINE_LINE="sfdx $selected"
+      READLINE_POINT=$(( 5 + ${#selected} ))
+    fi
   fi
 }
 
