@@ -74,13 +74,11 @@ __fzf_flags__(){
 __fzf_sfdx__(){
   local fullcmd="$READLINE_LINE"
   local cmd="$(echo $fullcmd | awk '{print $1}')"
-  local len="$(echo $fullcmd | awk '{print NF}')"
-  local strlen=$((${#fullcmd}-1))
-  local lastchar="${fullcmd:$strlen:1}"
-  if [[ $cmd = "sfdx" && ( $len -gt 2 || ( $len -eq 2 && $lastchar = " " ) ) ]]
+  local subcmd="$(echo $fullcmd | awk '{print $2}')"
+  local match="$(cat ~/.sfdxcommands.json | jq -r '.[] | select(.id=="'$subcmd'")')"
+  if [[ "$cmd" = "sfdx" && "$match" != "" ]]
   then
-    cmd="$(echo $fullcmd | awk '{print $2}')"
-    local flag="$(__fzf_flags__ $cmd)"
+    local flag="$(__fzf_flags__ $subcmd)"
     if [[ "$flag" != "" ]]
     then
       READLINE_LINE="$fullcmd --$flag"
