@@ -87,9 +87,11 @@ let hlstate=0
 :nnoremap ]e :!sfdx force:apex:execute -f %<CR>
 
 "fzf key bindings
-:nnoremap <C-p> :GFiles<CR>
-:nnoremap <silent> <C-a>b :Buffers<CR>
-:nnoremap <silent> <C-a>s :Snippets<CR>
+:nnoremap <C-p> :GFiles!<CR>
+:nnoremap <silent> <C-f>b :Buffers!<CR>
+:nnoremap <silent> <C-f>s :Snippets!<CR>
+:nnoremap <silent> <C-f>g :Commits!<CR>
+:nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
