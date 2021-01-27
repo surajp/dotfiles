@@ -65,6 +65,12 @@ __fzf_emojis__(){
   READLINE_POINT=$(( READLINE_POINT + ${#selectedSmiley} ))
 }
 
+__fzf_sfdx_alias__(){
+  selected="$(cat ~/.sfdxaliases | $(__fzfcmd) +m | awk '{print $1}')"
+  READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+  READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+}
+
 __fzf_sfdx_flags__(){
   local selected="$1"
   local fullcmd=""
@@ -141,13 +147,17 @@ else
   bind -m vi-command -x '"\C-r": __fzf_history__'
   bind -m vi-insert -x '"\C-r": __fzf_history__'
 
-  bind -m emacs-standard -x '"\C-e": __fzf_emojis__'
-  bind -m vi-command -x '"\C-e": __fzf_emojis__'
-  bind -m vi-insert -x '"\C-e": __fzf_emojis__'
+  bind -m emacs-standard -x '"\C-3": __fzf_emojis__'
+  bind -m vi-command -x '"\C-3": __fzf_emojis__'
+  bind -m vi-insert -x '"\C-3": __fzf_emojis__'
 
-  bind -m emacs-standard -x '"\C-l": __fzf_sfdx__'
-  bind -m vi-command -x '"\C-l": __fzf_sfdx__'
-  bind -m vi-insert -x '"\C-l": __fzf_sfdx__'
+  bind -m emacs-standard -x '"\C-e": __fzf_sfdx__'
+  bind -m vi-command -x '"\C-e": __fzf_sfdx__'
+  bind -m vi-insert -x '"\C-e": __fzf_sfdx__'
+
+  bind -m emacs-standard -x '"\C-n": __fzf_sfdx_alias__'
+  bind -m vi-command -x '"\C-n": __fzf_sfdx_alias__'
+  bind -m vi-insert -x '"\C-n": __fzf_sfdx_alias__'
 
 fi
 
