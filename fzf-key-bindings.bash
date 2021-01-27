@@ -66,8 +66,19 @@ __fzf_emojis__(){
 }
 
 __fzf_soql(){
+  local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
+  local query="$(echo $linethusfar | awk '{print $NF}')"
   if [[ -f "./schema.txt" ]]; then
-    local selected="$(cat ./schema.txt | $(__fzfcmd) | awk -F ' ' '{print $1}')"
+    if [[ "$linethusfar" != *" " ]]; then
+      local selected="$(cat ./schema.txt | $(__fzfcmd) -i --query $query | awk -F ' ' '{print $1}')"
+      local tempReadPoint=$(( READLINE_POINT - ${#query} ))
+      READLINE_LINE="${READLINE_LINE:0:$tempReadPoint}${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$tempReadPoint
+    elif [[ "$query" = "from" && -f "./objects.txt" ]]; then
+      local selected="$(cat ./objects.txt | $(__fzfcmd) -i)"
+    else
+      local selected="$(cat ./schema.txt | $(__fzfcmd) -i | awk -F ' ' '{print $1}')"
+    fi
     READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
     READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
   fi

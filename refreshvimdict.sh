@@ -33,6 +33,9 @@ cat schema.txt | awk -F ',' '{len=length($1);i=0;while(i<40-len){$1=$1" ";i++};p
 
 mv schema1.txt schema.txt
 
+cat standard_objects.txt > objects.txt
+cat custom_objects.txt >> objects.txt
+
 #add schema.txt to your vim dictionary using
 #set dictionary+=<your pwd path>/schema.txt
 #for autocomplete from dictionary use <Ctrl-X><Ctrl-k> in insert mode
