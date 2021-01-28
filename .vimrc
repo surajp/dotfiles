@@ -82,6 +82,8 @@ let hlstate=0
 :nnoremap <C-\>t f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
 :nnoremap ]a :!sfdx force:source:push<CR>
 :nnoremap ]af :!sfdx force:source:push -f<CR>
+:nnoremap ]u :!sfdx force:source:pull<CR>
+:nnoremap ]uf :!sfdx force:source:pull -f<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
 :nnoremap ]e :!sfdx force:apex:execute -f %<CR>
