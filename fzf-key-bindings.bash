@@ -179,8 +179,8 @@ else
   bind -m vi-insert -x '"\C-n": __fzf_sfdx_alias'
 
   bind -m emacs-standard -x '"\C-y": __fzf_soql'
-  bind -m vi-command -x '"\C-q": __fzf_soql'
-  bind -m vi-insert -x '"\C-q": __fzf_soql'
+  bind -m vi-command -x '"\C-y": __fzf_soql'
+  bind -m vi-insert -x '"\C-y": __fzf_soql'
 
 fi
 
