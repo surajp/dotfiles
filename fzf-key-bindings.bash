@@ -132,8 +132,8 @@ __fzf_sfdx__(){
 __fzf_search_packages__(){
   read -p "Enter Package Name: " packagename 
   #echo $packagename
-  selectedPackage="$(apt search $packagename | fzf)"
-  echo $selectedPackage
+  selectedPackage="$(apt-cache search $packagename | fzf -m | awk '{print $1}')"
+  echo "$(sudo apt-get install $selectedPackage)"
 }
 
 alias pacs='__fzf_search_packages__'

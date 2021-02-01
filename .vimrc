@@ -89,7 +89,7 @@ let hlstate=0
 :nnoremap ]e :!sfdx force:apex:execute -f %<CR>
 
 "fzf key bindings
-:nnoremap <C-p> :GFiles!<CR>
+:nnoremap <C-p> :Files!<CR>
 :nnoremap <silent> <C-f>b :Buffers!<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
@@ -138,15 +138,15 @@ let g:ale_linters_explicit = 1
 let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint']}
 let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format']}
 let g:ale_fix_on_save= 1
-let g:ale_sign_error='❌'
-let g:ale_sign_warning='⚠️'
+let g:ale_sign_error='>>'
+"let g:ale_sign_warning='⚠️'
+let g:ale_sign_warning='--'
 
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_completion_tsserver_autoimport = 1
 let g:ale_java_google_java_format_executable = "~/.scripts/jformat.sh"
 let g:ale_apex_apexlsp_executable = "/usr/bin/java"
-
 
 if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
