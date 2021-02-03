@@ -86,7 +86,8 @@ let hlstate=0
 :nnoremap ]uf :!sfdx force:source:pull -f<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
-:nnoremap ]e :!sfdx force:apex:execute -f %<CR>
+:nnoremap ]e :!sfdx force:apex:execute -f % -u 
+:nnoremap ]ee :!sfdx force:apex:execute -f %<CR>
 
 "fzf key bindings
 :nnoremap <C-p> :Files!<CR>
