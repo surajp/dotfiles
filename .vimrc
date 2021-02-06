@@ -15,6 +15,8 @@ Plug 'dart-lang/dart-vim-plugin'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
+Plug 'tpope/vim-fugitive'
+
 call plug#end()
 
 set number relativenumber
@@ -27,7 +29,6 @@ let $RTP = $XDG_CONFIG_HOME."/nvim"
 set tabstop=2
 set shiftwidth=2
 set expandtab
-set foldmethod=marker
 
 set colorcolumn=120
 
@@ -38,10 +39,10 @@ set colorcolumn=120
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme evening
+colorscheme murphy
 
 " Set foldmethod
-set foldmethod=marker
+set foldmethod=syntax
 
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -75,7 +76,7 @@ let hlstate=0
 :nnoremap <C-w><Down> :resize +5<CR>
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
-:nnoremap <C-y> [{zf]}
+":nnoremap <C-y> [{zf%
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
@@ -136,8 +137,8 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 " Only run linters named in ale_linters settings.
 let g:ale_linters_explicit = 1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
