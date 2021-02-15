@@ -39,10 +39,12 @@ set colorcolumn=120
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme murphy
+colorscheme desert
 
 " Set foldmethod
 set foldmethod=syntax
+set foldlevel=1
+set foldnestmax=2
 
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -77,6 +79,7 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 ":nnoremap <C-y> [{zf%
+:nnoremap zM zMza
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
