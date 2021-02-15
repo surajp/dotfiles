@@ -79,7 +79,8 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 ":nnoremap <C-y> [{zf%
-:nnoremap zM zMza
+:nnoremap zm zMza
+:nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
