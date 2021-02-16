@@ -17,6 +17,9 @@ Plug 'junegunn/fzf.vim'
 
 Plug 'tpope/vim-fugitive'
 
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+
 call plug#end()
 
 set number relativenumber
@@ -80,8 +83,8 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 ":nnoremap <C-y> [{zf%
-:noremap zM zMza
-:noremap zr zR
+:nnoremap zm zMza
+:nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
@@ -172,3 +175,14 @@ set wildignore+=**/node_modules/**
 
 syntax sync minlines=10000
 
+function! StatuslineSfdx(...) abort
+  if !exists('./sfdx/sfdx-config.json')
+    return ''
+  endif
+  return system("if [ -f './.sfdx/sfdx-config.json' ];then cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername' 2>/dev/null; fi")
+endfunction
+
+" status line changes
+set laststatus=2
+let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
+"set statusline='%{StatuslineSfdx()}'
