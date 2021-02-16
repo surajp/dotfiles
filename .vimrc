@@ -39,10 +39,12 @@ set colorcolumn=120
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme murphy
+colorscheme desert
 
 " Set foldmethod
 set foldmethod=syntax
+set foldlevel=1
+set foldnestmax=2
 
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -53,6 +55,7 @@ filetype plugin indent on
 augroup FileTypeGroup
 	autocmd!
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp set filetype=html
@@ -77,6 +80,8 @@ let hlstate=0
 :nnoremap <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 ":nnoremap <C-y> [{zf%
+:noremap zM zMza
+:noremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
 :nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
@@ -120,7 +125,7 @@ let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
 " let g:netrw_banner = 0
 " let g:netrw_browse_split = 3 
-" let g:netrw_winsize = 25
+ let g:netrw_winsize = 25
 " au BufRead /tmp/psql.edit.* set syntax=sql
 "
 " Ultisnips Trigger configuration
