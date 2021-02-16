@@ -1,3 +1,6 @@
+#Add sfdx default org to prompt
+export PS1="\w $(if [ -f './.sfdx/sfdx-config.json' ]; then cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername';else echo '';fi) \$ "
+
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
@@ -79,3 +82,5 @@ fi
 alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.scratchOrgs[] | select (.isExpired==true) | .username' | xargs -I % sh -c 'sfdx force:org:delete -u % -p'"
 
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
+
+alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=51 && mv report?version=51 ~/.mdapiReport.json'
