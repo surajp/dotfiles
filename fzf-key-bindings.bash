@@ -90,6 +90,12 @@ __fzf_sfdx_alias(){
   READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
 }
 
+__fzf_sfdx_mdapiTypes(){
+  local selected="$(jq -r '.types | to_entries[] | select (.value.metadataApi=true).key' ~/.mdapiReport.json | $(__fzfcmd) -i)"
+  READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+  READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
+}
+
 __fzf_sfdx_flags__(){
   local selected="$1"
   local fullcmd=""
@@ -181,6 +187,10 @@ else
   bind -m emacs-standard -x '"\C-y": __fzf_soql'
   bind -m vi-command -x '"\C-y": __fzf_soql'
   bind -m vi-insert -x '"\C-y": __fzf_soql'
+
+  bind -m emacs-standard -x '"\C-_": __fzf_sfdx_mdapiTypes'
+  bind -m vi-command -x '"\C-_": __fzf_sfdx_mdapiTypes'
+  bind -m vi-insert -x '"\C-_": __fzf_sfdx_mdapiTypes'
 
 fi
 
