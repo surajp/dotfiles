@@ -1,6 +1,3 @@
-#Add sfdx default org to prompt
-export PS1="\w $(show_default_org) \$ "
-
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull' 
 alias orgs='sfdx force:org:list --all' 
@@ -18,6 +15,9 @@ show_default_org(){
     echo ''
   fi
 }
+
+#Add sfdx default org to prompt
+export PS1="\w $(show_default_org) \$ "
 
 
 newclass(){
