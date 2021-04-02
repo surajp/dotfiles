@@ -37,6 +37,7 @@ set colorcolumn=120
 
 "set cursor to blink
 "set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+set cursorline
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
@@ -60,9 +61,10 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
-	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp set filetype=html
+	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page set filetype=html
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 augroup END
 
 " Set current directory to the parent dir of the current file
@@ -185,3 +187,4 @@ endfunction
 set laststatus=2
 let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
+

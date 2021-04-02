@@ -38,7 +38,16 @@ openr() {
 	fi
 }
 
-alias open='sfdx force:org:open -p "/lightning/page/home" -u '
+openo() {
+	if [ $# -eq 1 ]
+	then
+		sfdx force:org:open -u "$1" -p "/lightning/page/home"
+	else
+		sfdx force:org:open -p "/lightning/page/home"
+	fi
+}
+
+alias open=openo # bash won't let me create a function called `open`
 
 alias createo='sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"'
 
