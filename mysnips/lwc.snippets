@@ -1,0 +1,47 @@
+snippet iui "UiRecordApi imports"
+import { ${1:getRecord}, ${2:getFieldValue}, ${3:updateRecord}, ${4:createRecord},${5:deleteRecord},${6:getRecordNotifyChange} } from "lightning/uiRecordApi";
+endsnippet
+
+snippet itoast "Import Platform Toast"
+import { ShowToastEvent } from "lightning/platformShowToastEvent";
+endsnippet
+
+snippet inav "Import Navigation Mixin"
+import { NavigationMixin } from "lightning/navigation";
+endsnippet
+
+snippet iapex "Import Apex Method"
+import ${1:method} from "@salesforce/apex/${2:classname}.$1";
+endsnippet
+
+snippet ifield "Import Object Field"
+import ${1:MY_FIELD} from "@salesforce/schema/${2:Account}.${3:fieldApiName}";
+endsnippet
+
+snippet iurl "Import static resource url"
+import ${1:resourceName} from "@salesforce/resourceUrl/$1";
+endsnippet
+
+snippet ilib "Import JS/CSS library"
+import ${1:resourceName}Url from "@salesforce/resourceUrl/$1";
+import {loadStyle,loadScript} from "lightning/platformResourceLoader";
+endsnippet
+
+snippet ilabel "Import Custom Label"
+import ${1:labelName} from '@salesforce/label/${2:labelReference}';
+endsnippet
+
+snippet cc "Connected Callback"
+	connectedCallback(){
+		$1
+	}
+endsnippet
+
+snippet rc "Rendered Callback"
+	renderedCallback(){
+		if(this.${1:flag})
+			return;
+		this.$1=true;
+		$2
+	}
+endsnippet

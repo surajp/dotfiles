@@ -35,10 +35,23 @@ endsnippet
 snippet lwc "Meta xml for lwcs" b
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>48.0</apiVersion>
+    <apiVersion>51.0</apiVersion>
     <isExposed>true</isExposed>
     <targets>
       <target>${0:lightning__AppPage}</target>
     </targets>
 </LightningComponentBundle>
+endsnippet
+
+snippet props "LWC Properties"
+<targetConfigs>
+  <targetConfig targets="${1:lightning__AppPage}">
+  	<property name="${2:name}" type="${3:type}" default="${4:default}" label="${5:label}" description="${6:description}"/>
+  </targetConfigs>
+  </targetConfigs>
+endsnippet
+
+
+snippet prop "LWC Property"
+  <property name="${1:name}" type="${2:type}" default="${3:default}" label="${4:label}" description="${5:description}"/>
 endsnippet

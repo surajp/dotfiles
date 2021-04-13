@@ -37,6 +37,7 @@ set colorcolumn=120
 
 "set cursor to blink
 "set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+set cursorline
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
@@ -61,9 +62,10 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
-	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp set filetype=html
+	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page set filetype=html
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 augroup END
 
 " Set current directory to the parent dir of the current file
@@ -87,8 +89,8 @@ let hlstate=0
 :nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add %<CR>
-:nnoremap <C-\> :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
-:nnoremap <C-\>t f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
+:nnoremap ]t :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
+:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
 :nnoremap ]a :!sfdx force:source:push<CR>
 :nnoremap ]af :!sfdx force:source:push -f<CR>
 :nnoremap ]u :!sfdx force:source:pull<CR>
@@ -186,3 +188,4 @@ endfunction
 set laststatus=2
 let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
+
