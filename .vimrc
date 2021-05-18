@@ -99,6 +99,9 @@ let hlstate=0
 :nnoremap ]e :!sfdx force:apex:execute -f % -u 
 :nnoremap ]ee :!sfdx force:apex:execute -f %<CR>
 
+"remap 'U' to revert to previous save
+nnoremap U :ea 1f<CR>
+
 "fzf key bindings
 :nnoremap <C-p> :Files!<CR>
 :nnoremap <silent> <C-f>b :Buffers!<CR>
