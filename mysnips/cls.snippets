@@ -85,7 +85,7 @@ public with sharing class `!p snip.rv=fn.replace('.cls','')`{
 endsnippet
 
 snippet rtype "Record Type lookup"
-Id ${1:recordtypeId} = Schema.SObjectType.${2:Account}.getRecordTypeInfosByDeveloperName.get('${3:record_type}').getRecordTypeId();
+Id ${1:recordtypeId} = Schema.SObjectType.${2:Account}.getRecordTypeInfosByDeveloperName().get('${3:record_type}').getRecordTypeId();
 endsnippet
 
 snippet cusr "Create User in Test Class"
@@ -133,4 +133,17 @@ snippet mad "ApexDoc for methods"
 ** @param ${2:paramname} ${3:describe what this param is}
 ** @return ${4:what does this method return}
 **/
+endsnippet
+
+snippet switch "Switch Case"
+switch on ${1:var}{
+	when ${2:val1} {
+		$4
+	}
+	when ${3:val2} {
+	}
+	when else{
+		$5
+	}
+}
 endsnippet
