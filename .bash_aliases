@@ -49,7 +49,14 @@ openo() {
 
 alias open=openo # bash won't let me create a function called `open`
 
-alias createo='sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"'
+neworg() {
+  if [ $# -eq 1 ]
+	then
+    sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"
+  else
+    sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 
+  fi
+}
 
 alias squery='sfdx force:data:soql:query -q "$1"'
 
