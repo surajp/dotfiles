@@ -31,6 +31,10 @@ snippet ilabel "Import Custom Label"
 import ${1:labelName} from '@salesforce/label/${2:labelReference}';
 endsnippet
 
+snippet iencode "Import Encode Field Values"
+import { encodeDefaultFieldValues } from 'lightning/pageReferenceUtils';
+endsnippet
+
 snippet cc "Connected Callback"
 	connectedCallback(){
 		$1
