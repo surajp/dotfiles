@@ -22,6 +22,7 @@ Plug 'vim-airline/vim-airline-themes'
 
 call plug#end()
 
+
 set number relativenumber
 syntax on
 set noexpandtab
@@ -50,6 +51,10 @@ set foldmethod=syntax
 set foldlevel=1
 set foldnestmax=2
 
+" Dictionary
+set dictionary+=/usr/share/dict/words
+set complete+=k
+
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
 
@@ -59,6 +64,7 @@ filetype plugin indent on
 augroup FileTypeGroup
 	autocmd!
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page set filetype=html
@@ -66,6 +72,8 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 augroup END
+
+
 
 " Set current directory to the parent dir of the current file
 " autocmd BufEnter * silent! lcd %:p:h
@@ -109,6 +117,8 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 
+inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
 
@@ -132,7 +142,7 @@ let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
 " let g:netrw_banner = 0
 " let g:netrw_browse_split = 3 
-" let g:netrw_winsize = 25
+ let g:netrw_winsize = 25
 " au BufRead /tmp/psql.edit.* set syntax=sql
 "
 " Ultisnips Trigger configuration
