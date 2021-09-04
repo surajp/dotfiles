@@ -10,7 +10,9 @@ alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replac
 show_default_org(){
   if [ -f './.sfdx/sfdx-config.json' ]
   then
-    cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername'
+    defaultusername="$(cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername')"
+    [[ "$defaultusername" = "null" ]] && defaultusername=""
+    echo $defaultusername
   else
     echo ''
   fi
@@ -110,3 +112,11 @@ alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.s
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
 
 alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=53 && mv report?version=53 ~/.mdapiReport.json'
+
+updateOrgTimeZone(){
+  if [[ $# -eq 1 ]]; then
+    node -e "console.log(\"update new User(Id=UserInfo.getUserId(),TimeZoneSidKey='\"+Intl.DateTimeFormat().resolvedOptions().timeZone+\"');\")" | sfdx force:apex:execute -u "$1"
+  else
+    node -e "console.log(\"update new User(Id=UserInfo.getUserId(),TimeZoneSidKey='\"+Intl.DateTimeFormat().resolvedOptions().timeZone+\"');\")" | sfdx force:apex:execute
+  fi
+}
