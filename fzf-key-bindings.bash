@@ -101,13 +101,13 @@ __fzf_sfdx_flags__(){
   local selected="$1"
   local fullcmd=""
   for i in "${@:2}"
-  do fullcmd+=" $i"
+  do fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
   done
   local ret=`cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind 'ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat ~/.sfdxcommands.json | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\") | [\"Command:\n'"$fullcmd"'\n\",\"Flag Description:\",.value][]"' --preview-window='right:wrap'`
   echo "${ret//$'\n'/ --}"
 }
 
-__fzf_sfdx__(){
+fzf-sfdx(){
   local fullcmd="$READLINE_LINE"
   local cmd="$(echo $fullcmd | awk '{print $1}')"
   local subcmd="$(echo $fullcmd | awk '{print $2}')"
@@ -177,9 +177,9 @@ else
   bind -m vi-command -x '"\C-3": __fzf_emojis__'
   bind -m vi-insert -x '"\C-3": __fzf_emojis__'
 
-  bind -m emacs-standard -x '"\C-e": __fzf_sfdx__'
-  bind -m vi-command -x '"\C-e": __fzf_sfdx__'
-  bind -m vi-insert -x '"\C-e": __fzf_sfdx__'
+  bind -m emacs-standard -x '"\C-e": fzf-sfdx'
+  bind -m vi-command -x '"\C-e": fzf-sfdx'
+  bind -m vi-insert -x '"\C-e": fzf-sfdx'
 
   bind -m emacs-standard -x '"\C-n": __fzf_sfdx_alias'
   bind -m vi-command -x '"\C-n": __fzf_sfdx_alias'
