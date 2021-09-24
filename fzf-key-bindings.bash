@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #     ____      ____
 #    / __/___  / __/
 #   / /_/_  / / /_
@@ -60,15 +59,15 @@ __fzf_history__() {
   fi
 }
 
-__fzf_emojis__(){
+fzf-emojis(){
   selectedSmiley="$(cat ~/.emojis.txt | $(__fzfcmd) | cut --fields=1 --delimiter=' ')"
   READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selectedSmiley${READLINE_LINE:$READLINE_POINT}"
   READLINE_POINT=$(( READLINE_POINT + ${#selectedSmiley} ))
 }
 
-__fzf_soql(){
+fzf-soql(){
   local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
-  local query="$(echo $linethusfar | awk -F '[ ,.]' '{print $NF}')"
+  local query="$(echo ${linethusfar%* } | awk -F '[ ,.]' '{print $NF}')"
   if [[ -f "./schema.txt" ]]; then
     if [[ "$linethusfar" != *" " && "$linethusfar" != *"." && "$linethusfar" != *","   ]]; then
       local selected="$(cat ./schema.txt | $(__fzfcmd) -m -i --query $query | awk -F ' ' '{printf $1","}')"
@@ -85,13 +84,13 @@ __fzf_soql(){
   fi
 }
 
-__fzf_sfdx_alias(){
+fzf-sfdx-alias(){
   local selected="$(cat ~/.sfdxaliases | $(__fzfcmd) | awk '{print $2}')"
   READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
   READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
 }
 
-__fzf_sfdx_mdapiTypes(){
+fzf-sfdx-mdapiTypes(){
   local selected="$(jq -r '.types | to_entries[] | select (.value.metadataApi=true).key' ~/.mdapiReport.json | $(__fzfcmd) -i)"
   READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
   READLINE_POINT=$(( READLINE_POINT + ${#selected} ))
@@ -107,7 +106,7 @@ __fzf_sfdx_flags__(){
   echo "${ret//$'\n'/ --}"
 }
 
-__fzf_sfdx__(){
+fzf-sfdx(){
   local fullcmd="$READLINE_LINE"
   local cmd="$(echo $fullcmd | awk '{print $1}')"
   local subcmd="$(echo $fullcmd | awk '{print $2}')"
@@ -136,14 +135,14 @@ __fzf_sfdx__(){
   fi
 }
 
-__fzf_search_packages__(){
+fzf-search-packages(){
   read -p "Enter Package Name: " packagename 
   #echo $packagename
   selectedPackage="$(apt-cache search $packagename | fzf -m | awk '{print $1}')"
   echo "$(sudo apt-get install $selectedPackage)"
 }
 
-alias pacs='__fzf_search_packages__'
+alias pacs='fzf-search-packages'
 
 # Required to refresh the prompt after fzf
 bind -m emacs-standard '"\er": redraw-current-line'
@@ -152,7 +151,7 @@ bind -m vi-command '"\C-z": emacs-editing-mode'
 bind -m vi-insert '"\C-z": emacs-editing-mode'
 bind -m emacs-standard '"\C-z": vi-editing-mode'
 
-if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+if (( BASH_VERSINFO[0] < 4 )); then
   # CTRL-T - Paste the selected file path into the command line
   bind -m emacs-standard '"\C-t": " \C-b\C-k \C-u`__fzf_select__`\e\C-e\er\C-a\C-y\C-h\C-e\e \C-y\ey\C-x\C-x\C-f"'
   bind -m vi-command '"\C-t": "\C-z\C-t\C-z"'
@@ -173,25 +172,30 @@ else
   bind -m vi-command -x '"\C-r": __fzf_history__'
   bind -m vi-insert -x '"\C-r": __fzf_history__'
 
-  bind -m emacs-standard -x '"\C-3": __fzf_emojis__'
-  bind -m vi-command -x '"\C-3": __fzf_emojis__'
-  bind -m vi-insert -x '"\C-3": __fzf_emojis__'
+  # CTRL-3 - Paste the selected emoji into the command line
+  bind -m emacs-standard -x '"\C-3": fzf-emojis'
+  bind -m vi-command -x '"\C-3": fzf-emojis'
+  bind -m vi-insert -x '"\C-3": fzf-emojis'
 
-  bind -m emacs-standard -x '"\C-e": __fzf_sfdx__'
-  bind -m vi-command -x '"\C-e": __fzf_sfdx__'
-  bind -m vi-insert -x '"\C-e": __fzf_sfdx__'
+  # CTRL-e - Search for and paste the selected sfdx command onto the command line
+  bind -m emacs-standard -x '"\C-e": fzf-sfdx'
+  bind -m vi-command -x '"\C-e": fzf-sfdx'
+  bind -m vi-insert -x '"\C-e": fzf-sfdx'
 
-  bind -m emacs-standard -x '"\C-n": __fzf_sfdx_alias'
-  bind -m vi-command -x '"\C-n": __fzf_sfdx_alias'
-  bind -m vi-insert -x '"\C-n": __fzf_sfdx_alias'
+  # CTRL-n - Search for and paste the selected sfdx org from the authorized orglist onto the command line
+  bind -m emacs-standard -x '"\C-n": fzf-sfdx-alias'
+  bind -m vi-command -x '"\C-n": fzf-sfdx-alias'
+  bind -m vi-insert -x '"\C-n": fzf-sfdx-alias'
 
-  bind -m emacs-standard -x '"\C-y": __fzf_soql'
-  bind -m vi-command -x '"\C-y": __fzf_soql'
-  bind -m vi-insert -x '"\C-y": __fzf_soql'
+  # CTRL-y - Search for and paste the selected field or SObject into your SOQL query
+  bind -m emacs-standard -x '"\C-y": fzf-soql'
+  bind -m vi-command -x '"\C-y": fzf-soql'
+  bind -m vi-insert -x '"\C-y": fzf-soql'
 
-  bind -m emacs-standard -x '"\C-_": __fzf_sfdx_mdapiTypes'
-  bind -m vi-command -x '"\C-_": __fzf_sfdx_mdapiTypes'
-  bind -m vi-insert -x '"\C-_": __fzf_sfdx_mdapiTypes'
+  # CTRL-/ - Search for paste the selected metadata type onto the command line for retrieving
+  bind -m emacs-standard -x '"\C-/": fzf-sfdx-mdapiTypes'
+  bind -m vi-command -x '"\C-/": fzf-sfdx-mdapiTypes'
+  bind -m vi-insert -x '"\C-/": fzf-sfdx-mdapiTypes'
 
 fi
 
