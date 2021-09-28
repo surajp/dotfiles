@@ -95,17 +95,17 @@ let hlstate=0
 :nnoremap zm zMza
 :nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
-:nnoremap ++ :!git add %<CR>
-:nnoremap ]t :!sfdx force:apex:test:run -y -r human -c -w 5 -n %:t:r --verbose<CR>
-:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t %:t:r.<C-r>"<CR>
+:nnoremap ++ :!git add "%"<CR>
+:nnoremap ]t :!sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
+:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
 :nnoremap ]a :!sfdx force:source:push<CR>
 :nnoremap ]af :!sfdx force:source:push -f<CR>
 :nnoremap ]u :!sfdx force:source:pull<CR>
 :nnoremap ]uf :!sfdx force:source:pull -f<CR>
 :nnoremap ]d :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
 :nnoremap ]dd :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :!sfdx force:apex:execute -f % -u 
-:nnoremap ]ee :!sfdx force:apex:execute -f %<CR>
+:nnoremap ]e :!sfdx force:apex:execute -f "%" -u 
+:nnoremap ]ee :!sfdx force:apex:execute -f "%"<CR>
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
