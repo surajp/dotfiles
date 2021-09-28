@@ -102,8 +102,8 @@ let hlstate=0
 :nnoremap ]af :!sfdx force:source:push -f<CR>
 :nnoremap ]u :!sfdx force:source:pull<CR>
 :nnoremap ]uf :!sfdx force:source:pull -f<CR>
-:nnoremap ]d :!sfdx force:source:deploy -p % -l NoTestRun -w 5 -u 
-:nnoremap ]dd :!sfdx force:source:deploy -p % -l NoTestRun -w 5<CR>
+:nnoremap ]d :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
+:nnoremap ]dd :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
 :nnoremap ]e :!sfdx force:apex:execute -f % -u 
 :nnoremap ]ee :!sfdx force:apex:execute -f %<CR>
 
