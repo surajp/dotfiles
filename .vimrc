@@ -20,6 +20,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
+
 call plug#end()
 
 
@@ -63,7 +64,8 @@ filetype plugin indent on
 
 augroup FileTypeGroup
 	autocmd!
-	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
+	au BufRead,BufNewFile *.cls,*.trigger,*.apex setlocal filetype=apex 
+	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json

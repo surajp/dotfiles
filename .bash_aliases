@@ -4,7 +4,7 @@ alias orgs='sfdx force:org:list --all'
 alias isvim='env | grep -i vim'
 alias graph='git log --graph --all --decorate --oneline'
 alias gco='git checkout'
-alias pmd="$HOME/softwares/pmd-bin-6.30.0/bin/run.sh pmd"
+alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
 
 show_default_org(){
