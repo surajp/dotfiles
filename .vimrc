@@ -138,6 +138,10 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 :nnoremap <Up> ddkP
 :nnoremap <Down> ddp
 
+"Remap Esc key
+:inoremap kj <Esc>
+:inoremap jk <Esc>
+
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
