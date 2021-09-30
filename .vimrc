@@ -50,7 +50,7 @@ colorscheme desert
 " Set foldmethod
 set foldmethod=syntax
 set foldlevel=1
-set foldnestmax=2
+set foldnestmax=3
 
 " Dictionary
 set dictionary+=/usr/share/dict/words
