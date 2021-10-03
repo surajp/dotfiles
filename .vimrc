@@ -20,9 +20,10 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
+Plug 'dylanaraps/wal.vim'
+
 
 call plug#end()
-
 
 set number relativenumber
 syntax on
@@ -45,7 +46,8 @@ set cursorline
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme desert
+"colorscheme slate
+colorscheme wal
 
 " Set foldmethod
 set foldmethod=syntax
@@ -182,10 +184,10 @@ if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
 endif
 
-
-if (has("termguicolors"))
-  set termguicolors
-endif
+" Commenting so it doesn't mess with pywal
+"if (has("termguicolors"))
+"  set termguicolors
+"endif
 
 "search recursively in subfolders using 'find'
 set path+=**
