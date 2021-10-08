@@ -142,6 +142,9 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 :inoremap kj <Esc>
 :inoremap jk <Esc>
 
+"sudo save
+cmap w!! w !sudo tee > /dev/null %
+
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
