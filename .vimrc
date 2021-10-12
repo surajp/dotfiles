@@ -20,6 +20,13 @@ Plug 'tpope/vim-fugitive'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
+Plug 'unblevable/quick-scope'
+Plug 'wellle/targets.vim'
+
+"New Color scheme
+Plug 'wuelnerdotexe/vim-enfocado'
+
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 
 call plug#end()
 
@@ -45,12 +52,16 @@ set cursorline
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme desert
+"colorscheme desert
+autocmd VimEnter * ++nested colorscheme enfocado
+
 
 " Set foldmethod
-set foldmethod=syntax
+set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
+set foldexpr=nvim_treesitter#foldexpr()
+"set foldmethod=syntax
 set foldlevel=1
-set foldnestmax=3
+set foldnestmax=3 " tree sitter only seems to fold at the method level
 
 " Dictionary
 set dictionary+=/usr/share/dict/words
@@ -63,8 +74,7 @@ filetype plugin on
 filetype plugin indent on
 
 augroup FileTypeGroup
-	autocmd!
-	au BufRead,BufNewFile *.cls,*.trigger,*.apex setlocal filetype=apex 
+	au BufRead,BufNewFile *.cls,*.trigger,*.apex setlocal filetype=apex
 	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
@@ -209,4 +219,24 @@ endfunction
 set laststatus=2
 let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ignore_install = {}, -- List of parsers to ignore installing
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = {},  -- list of language that will be disabled
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false
+  }
+}
+
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.java.used_by = "apex"
+
+EOF
 
