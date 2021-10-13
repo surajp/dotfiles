@@ -48,11 +48,46 @@ snippet props "LWC Properties"
 <targetConfigs>
   <targetConfig targets="${1:lightning__AppPage}">
   	<property name="${2:name}" type="${3:type}" default="${4:default}" label="${5:label}" description="${6:description}"/>
-  </targetConfigs>
-  </targetConfigs>
+  </targetConfig>
+</targetConfigs>
 endsnippet
 
 
 snippet prop "LWC Property"
   <property name="${1:name}" type="${2:type}" default="${3:default}" label="${4:label}" description="${5:description}"/>
+endsnippet
+
+snippet event "Dynamic Interaction Events"
+<event name="${1:itemselected}" label="${2:Event Label}" description="${3:This event fires when an item is selected}">
+
+	<schema>
+	{
+
+  	"type": "object",
+
+    	"properties": {
+
+      	"recordId": {
+
+        	"type": "string",
+
+        	"title": "Record ID",
+
+      	},
+
+      	"apiName": {
+
+        	"type": "string"
+
+      	},
+      	"$4":{
+      		"type": "${5:string}",
+      		"title": "${6:title}"
+      	}
+    	}
+	}
+
+	</schema>
+
+</event>
 endsnippet
