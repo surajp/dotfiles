@@ -155,6 +155,10 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 "sudo save
 cmap w!! w !sudo tee > /dev/null %
 
+"remove all tabs and spaces from lines with just tabs and spaces to make them
+"truly blank lines
+:command! BL %s/^\(\s\|\t\)*$//g
+
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
