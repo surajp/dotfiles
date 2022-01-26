@@ -128,6 +128,7 @@ let hlstate=0
 :nnoremap ]ee <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:execute -f "%"<CR>
 
 "apex logs
+:nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color -u <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
 :nnoremap ]ll :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color <bar> tee /tmp/apexlogs.log<CR>
 
 "remap 'U' to revert to previous save
