@@ -1,3 +1,5 @@
+lua require 'init'
+
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -140,8 +142,11 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
+":nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+
+inoremap <expr> <c-x><c-s> fzf#vim#complete('cat ~/.sldsclasses.txt') 
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
@@ -159,10 +164,6 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 "Remap arrow keys
 :nnoremap <Up> ddkP
 :nnoremap <Down> ddp
-
-"Remap Esc key
-:inoremap kj <Esc>
-:inoremap jk <Esc>
 
 "sudo save
 cmap w!! w !sudo tee > /dev/null %
