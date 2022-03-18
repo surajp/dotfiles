@@ -112,7 +112,7 @@ let hlstate=0
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
-:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
+:nnoremap <silent> ]tt ?@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
 :nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
 :nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
 :nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>

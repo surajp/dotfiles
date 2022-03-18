@@ -49,7 +49,7 @@ openo() {
 	fi
 }
 
-alias open=openo # bash won't let me create a function called `open`
+#alias open=openo # bash won't let me create a function called `open`
 
 neworg() {
   if [ $# -eq 1 ]
@@ -111,7 +111,7 @@ alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.s
 
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
 
-alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=53 && mv report?version=53 ~/.mdapiReport.json'
+alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=54 && mv report?version=54 ~/.mdapiReport.json'
 
 updateOrgTimeZone(){
   if [[ $# -eq 1 ]]; then
@@ -120,3 +120,5 @@ updateOrgTimeZone(){
     node -e "console.log(\"update new User(Id=UserInfo.getUserId(),TimeZoneSidKey='\"+Intl.DateTimeFormat().resolvedOptions().timeZone+\"');\")" | sfdx force:apex:execute
   fi
 }
+
+alias xaa='exa -lhi --icons -snew'
