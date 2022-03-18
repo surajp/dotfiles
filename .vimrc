@@ -23,8 +23,13 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'unblevable/quick-scope'
 Plug 'wellle/targets.vim'
 
+Plug 'ncm2/float-preview.nvim'
+
 "New Color scheme
-Plug 'wuelnerdotexe/vim-enfocado'
+"Plug 'wuelnerdotexe/vim-enfocado'
+
+Plug 'rust-lang/rust.vim'
+
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 
 
@@ -51,12 +56,12 @@ set cursorline
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-"colorscheme desert
-autocmd VimEnter * ++nested colorscheme enfocado
+colorscheme desert
+"autocmd VimEnter * ++nested colorscheme enfocado
 
 " Set foldmethod
 "set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
-set foldexpr=nvim_treesitter#foldexpr()
+"set foldexpr=nvim_treesitter#foldexpr()
 set foldmethod=syntax
 set foldlevel=1
 set foldnestmax=3 " tree sitter only seems to fold at the method level
@@ -106,16 +111,20 @@ let hlstate=0
 :nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add "%"<CR>
-:nnoremap ]t :!sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
-:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw:!sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
-:nnoremap ]a :!sfdx force:source:push<CR>
-:nnoremap ]af :!sfdx force:source:push -f<CR>
-:nnoremap ]u :!sfdx force:source:pull<CR>
-:nnoremap ]uf :!sfdx force:source:pull -f<CR>
-:nnoremap ]d :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
-:nnoremap ]dd :!sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :!sfdx force:apex:execute -f "%" -u 
-:nnoremap ]ee :!sfdx force:apex:execute -f "%"<CR>
+:nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
+:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
+:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
+:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
+:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>
+:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull -f<CR>
+:nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
+:nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
+:nnoremap ]e <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:execute -f "%" -u 
+:nnoremap ]ee <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:execute -f "%"<CR>
+
+"apex logs
+:nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color -u <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
+:nnoremap ]ll :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color <bar> tee /tmp/apexlogs.log<CR>
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
@@ -180,12 +189,16 @@ let g:ctrlp_custom_ignore = 'node_modules\|DS_Store\|git\|src'
 " Only run linters named in ale_linters settings.
 let g:ale_linters_explicit = 1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier']}
+"Dock floating preview window
+let g:float_preview#docked=1
+
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
 let g:ale_sign_warning='--'
+let g:ale_floating_preview=1
 
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
@@ -222,23 +235,23 @@ set laststatus=2
 let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
 
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-  ignore_install = {}, -- List of parsers to ignore installing
-  highlight = {
-    enable = true,              -- false will disable the whole extension
-    disable = {},  -- list of language that will be disabled
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = "apex"
-  }
-}
-
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.java.used_by = "apex"
-
-EOF
+"lua <<EOF
+"require'nvim-treesitter.configs'.setup {
+"  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+"  ignore_install = {}, -- List of parsers to ignore installing
+"  highlight = {
+"    enable = true,              -- false will disable the whole extension
+"    disable = {},  -- list of language that will be disabled
+"    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+"    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+"    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+"    -- Instead of true it can also be a list of languages
+"    additional_vim_regex_highlighting = "apex"
+"  }
+"}
+"
+"local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+"parser_config.java.used_by = "apex"
+"
+"EOF
 
