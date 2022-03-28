@@ -122,3 +122,6 @@ updateOrgTimeZone(){
 }
 
 alias xaa='exa -lhi --icons -snew'
+
+#clear source tracking (beta)
+alias ctrack='sfdx force:source:beta:tracking:clear -p && sfdx force:source:beta:tracking:reset -p'
