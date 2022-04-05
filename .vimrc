@@ -119,11 +119,11 @@ let hlstate=0
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
-:nnoremap <silent> ]tt ?@isTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull -f<CR>
+:nnoremap <silent> ]tt ?@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
+:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push<CR>
+:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push -f<CR>
+:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull<CR>
+:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull -f<CR>
 :nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
 :nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
 :nnoremap ]e <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:execute -f "%" -u 
@@ -241,23 +241,23 @@ set laststatus=2
 let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 set statusline='%{StatuslineSfdx()}'
 
-"lua <<EOF
-"require'nvim-treesitter.configs'.setup {
-"  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-"  ignore_install = {}, -- List of parsers to ignore installing
-"  highlight = {
-"    enable = true,              -- false will disable the whole extension
-"    disable = {},  -- list of language that will be disabled
-"    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-"    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-"    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-"    -- Instead of true it can also be a list of languages
-"    additional_vim_regex_highlighting = false
-"  }
-"}
-"
-"local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-"parser_config.java.used_by = "apex"
-"
-"EOF
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ignore_install = {}, -- List of parsers to ignore installing
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = {},  -- list of language that will be disabled
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false
+  }
+}
+
+local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
+ft_to_parser.apex = "java" 
+
+EOF
 
