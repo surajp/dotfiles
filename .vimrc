@@ -146,7 +146,7 @@ nnoremap U :ea 1f<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
 
-inoremap <expr> <C-x><c-c> fzf#vim#complete('cat ~/.sldsclasses.txt') 
+inoremap <expr> <C-x>c fzf#vim#complete('cat ~/.sldsclasses.txt') 
 inoremap <expr> <Leader>s fzf#vim#complete({
       \ 'source': 'cat schema.txt',
       \ 'reducer': { lines -> split(lines[0],' ')[0]}})
