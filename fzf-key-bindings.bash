@@ -193,9 +193,9 @@ else
   bind -m vi-insert -x '"\C-y": fzf-soql'
 
   # CTRL-/ - Search for paste the selected metadata type onto the command line for retrieving
-  bind -m emacs-standard -x '"\C-/": fzf-sfdx-mdapiTypes'
-  bind -m vi-command -x '"\C-/": fzf-sfdx-mdapiTypes'
-  bind -m vi-insert -x '"\C-/": fzf-sfdx-mdapiTypes'
+  bind -m emacs-standard -x '"\C-_": fzf-sfdx-mdapiTypes'
+  bind -m vi-command -x '"\C-_": fzf-sfdx-mdapiTypes'
+  bind -m vi-insert -x '"\C-_": fzf-sfdx-mdapiTypes'
 
 fi
 

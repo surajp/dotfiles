@@ -1,3 +1,5 @@
+lua require 'init'
+
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -31,6 +33,7 @@ Plug 'ncm2/float-preview.nvim'
 Plug 'rust-lang/rust.vim'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
 
 call plug#end()
@@ -57,12 +60,16 @@ set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
 colorscheme desert
-"autocmd VimEnter * ++nested colorscheme enfocado
+"autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
+
+"save state on quit
+"autocmd VimLeave * :mksession! .last.sess
+
 
 " Set foldmethod
-"set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
-"set foldexpr=nvim_treesitter#foldexpr()
-set foldmethod=syntax
+set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
+set foldexpr=nvim_treesitter#foldexpr()
+"set foldmethod=syntax
 set foldlevel=1
 set foldnestmax=3 " tree sitter only seems to fold at the method level
 
@@ -113,10 +120,10 @@ let hlstate=0
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
 :nnoremap <silent> ]tt ?@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull -f<CR>
+:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push<CR>
+:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push -f<CR>
+:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull<CR>
+:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull -f<CR>
 :nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
 :nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
 :nnoremap ]e <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:execute -f "%" -u 
@@ -135,8 +142,14 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
+":nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+
+inoremap <expr> <C-x>c fzf#vim#complete('cat ~/.sldsclasses.txt') 
+inoremap <expr> <Leader>s fzf#vim#complete({
+      \ 'source': 'cat schema.txt',
+      \ 'reducer': { lines -> split(lines[0],' ')[0]}})
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
@@ -150,14 +163,12 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 :command! Q q
 :command! Qa qa
 
+" Prevent gq accidents
+:nnoremap gQ gq
 
 "Remap arrow keys
 :nnoremap <Up> ddkP
 :nnoremap <Down> ddp
-
-"Remap Esc key
-:inoremap kj <Esc>
-:inoremap jk <Esc>
 
 "sudo save
 cmap w!! w !sudo tee > /dev/null %
@@ -232,26 +243,26 @@ endfunction
 
 " status line changes
 set laststatus=2
-let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
+"let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
 
-"lua <<EOF
-"require'nvim-treesitter.configs'.setup {
-"  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-"  ignore_install = {}, -- List of parsers to ignore installing
-"  highlight = {
-"    enable = true,              -- false will disable the whole extension
-"    disable = {},  -- list of language that will be disabled
-"    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-"    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-"    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-"    -- Instead of true it can also be a list of languages
-"    additional_vim_regex_highlighting = "apex"
-"  }
-"}
-"
-"local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-"parser_config.java.used_by = "apex"
-"
-"EOF
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ignore_install = {}, -- List of parsers to ignore installing
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = {},  -- list of language that will be disabled
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false
+  }
+}
+
+local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
+ft_to_parser.apex = "java" 
+
+EOF
 
