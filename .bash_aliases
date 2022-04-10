@@ -109,7 +109,7 @@ fi
 
 alias deleteexpiredscratchorgs="sfdx force:org:list --all --json | jq '.result.scratchOrgs[] | select (.isExpired==true) | .username' | xargs -I % sh -c 'sfdx force:org:delete -u % -p'"
 
-alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
+alias gentags='ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
 
 alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=54 && mv report?version=54 ~/.mdapiReport.json'
 
