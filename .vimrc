@@ -67,9 +67,9 @@ colorscheme desert
 
 
 " Set foldmethod
-"set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
-"set foldexpr=nvim_treesitter#foldexpr()
-set foldmethod=syntax
+set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable vim syntax on top of treesitter which can affect performance
+set foldexpr=nvim_treesitter#foldexpr()
+"set foldmethod=syntax
 set foldlevel=1
 set foldnestmax=3 " tree sitter only seems to fold at the method level
 
@@ -146,7 +146,10 @@ nnoremap U :ea 1f<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
 
-inoremap <expr> <c-x><c-s> fzf#vim#complete('cat ~/.sldsclasses.txt') 
+inoremap <expr> <C-x><c-c> fzf#vim#complete('cat ~/.sldsclasses.txt') 
+inoremap <expr> <Leader>s fzf#vim#complete({
+      \ 'source': 'cat schema.txt',
+      \ 'reducer': { lines -> split(lines[0],' ')[0]}})
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
@@ -160,6 +163,8 @@ inoremap <expr> <c-x><c-s> fzf#vim#complete('cat ~/.sldsclasses.txt')
 :command! Q q
 :command! Qa qa
 
+" Prevent gq accidents
+:nnoremap gQ gq
 
 "Remap arrow keys
 :nnoremap <Up> ddkP
@@ -238,8 +243,8 @@ endfunction
 
 " status line changes
 set laststatus=2
-let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
-set statusline='%{StatuslineSfdx()}'
+"let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
+"set statusline='%{StatuslineSfdx()}'
 
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
