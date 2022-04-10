@@ -7,8 +7,10 @@ alias gco='git checkout'
 alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
 
-# you need 'ripgrep' installed for the below command to work
-export FZF_DEFAULT_COMMAND="rg --hidden"
+# you need 'fd-find' installed for the commands below
+export FZF_DEFAULT_COMMAND="fd -t f --exclude={.git,node_modules}"
+export FZF_ALT_C_COMMAND="fd -t d --exclude={.git,node_modules}"
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 show_default_org(){
   if [ -f './.sfdx/sfdx-config.json' ]
