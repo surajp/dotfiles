@@ -35,6 +35,8 @@ Plug 'rust-lang/rust.vim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
+Plug 'gruvbox-community/gruvbox'
+
 call plug#end()
 
 
@@ -43,6 +45,8 @@ syntax on
 set noexpandtab
 set copyindent
 set preserveindent
+set lazyredraw
+set ignorecase smartcase
 
 let $RTP = $XDG_CONFIG_HOME."/nvim"
 set tabstop=2
@@ -50,6 +54,9 @@ set shiftwidth=2
 set expandtab
 
 set colorcolumn=120
+
+set hidden
+set scrolloff=8
 
 "set cursor to blink
 "set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -59,7 +66,8 @@ set cursorline
 set omnifunc=ale#completion#OmniFunc
 set background=dark
 " colorscheme solarized
-colorscheme desert
+"colorscheme desert
+colorscheme gruvbox
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
 "save state on quit
@@ -117,6 +125,7 @@ let hlstate=0
 :nnoremap zm zMza
 :nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
+:noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
 :nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
@@ -248,7 +257,7 @@ set laststatus=2
 
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"java","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"java","json","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = {}, -- List of parsers to ignore installing
   highlight = {
     enable = true,              -- false will disable the whole extension
