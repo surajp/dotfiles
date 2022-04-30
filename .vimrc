@@ -212,8 +212,8 @@ let g:ale_linters_explicit = 1
 "Dock floating preview window
 let g:float_preview#docked=1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['prettier']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
