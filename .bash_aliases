@@ -1,3 +1,8 @@
+#some history options since these will be common across all my setups
+export HISTCONTROL=ignoreboth
+export HISTTIMEFORMAT="%Y-%m-%d %T "
+export HISTSIZE=100000
+
 alias push='sfdx force:source:beta:push'
 alias pull='sfdx force:source:beta:pull' 
 alias orgs='sfdx force:org:list --all' 
