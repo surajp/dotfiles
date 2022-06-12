@@ -1,5 +1,3 @@
-lua require 'init'
-
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -84,6 +82,7 @@ filetype plugin on
 filetype plugin indent on
 
 augroup FileTypeGroup
+	autocmd!
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex setlocal filetype=apex
 	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
@@ -103,6 +102,11 @@ augroup END
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
 
 "Keymaps
+
+"Remap jk and kj to Esc
+inoremap jk <Esc>
+inoremap kj <Esc>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
