@@ -113,6 +113,9 @@ command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endf
 
 "Keymaps
 
+" Set current directory to the parent dir of the current file
+nnoremap <leader>d  :lcd %:p:h<CR>
+
 "Remap jk for <Esc>
 inoremap jk <Esc>
 inoremap kj <Esc>
