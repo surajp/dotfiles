@@ -135,3 +135,15 @@ alias xaa='exa -lhi --icons -snew'
 
 #clear source tracking (beta)
 alias ctrack='sfdx force:source:beta:tracking:clear -p && sfdx force:source:beta:tracking:reset -p'
+
+#Get host ip address in WSL
+hostip(){
+  cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
+}
+
+#Convert keyring to apt format
+function gpgconv(){
+  gpg --no-default-keyring --keyring ./temp-keyring.gpg --import "$1"
+  gpg --no-default-keyring --keyring ./temp-keyring.gpg --export --output "$1.converted.gpg"
+  rm ./temp-keyring.gpg
+}

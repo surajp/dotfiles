@@ -5,6 +5,7 @@ call plug#begin('~/.vim/plugged')
 "Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-commentary'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
@@ -16,6 +17,9 @@ Plug 'dart-lang/dart-vim-plugin'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+"
+" Dictionary using wordnet and fzf
+Plug 'Avi-D-coder/fzf-wordnet.vim'
 
 Plug 'tpope/vim-fugitive'
 
@@ -85,6 +89,9 @@ set foldnestmax=3 " tree sitter only seems to fold at the method level
 set dictionary+=/usr/share/dict/words
 set complete+=k
 
+" Thesaurus
+set tsr+=/home/suraj/.mthesaur.txt
+
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
 
@@ -92,7 +99,7 @@ filetype plugin on
 filetype plugin indent on
 
 augroup FileTypeGroup
-	au BufRead,BufNewFile *.cls,*.trigger,*.apex setlocal filetype=apex
+	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex
 	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
@@ -128,6 +135,7 @@ let hlstate=0
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
+":nnoremap ]t :set mp="sfdx force:apex:test:run -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
 :nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
 :nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push<CR>
 :nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push -f<CR>
@@ -154,6 +162,9 @@ nnoremap U :ea 1f<CR>
 ":nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
+
+" Dictionary using fzf and wordnet
+imap <C-S> <Plug>(fzf-complete-wordnet)
 
 inoremap <expr> <C-x>c fzf#vim#complete('cat ~/.sldsclasses.txt') 
 inoremap <expr> <Leader>s fzf#vim#complete({
@@ -186,6 +197,8 @@ cmap w!! w !sudo tee > /dev/null %
 "truly blank lines
 :command! BL %s/^\(\s\|\t\)*$//g
 
+"set local directory to current file's directory
+:nnoremap <Leader>lcd :lcd %:p:h<CR>
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
