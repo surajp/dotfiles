@@ -227,3 +227,5 @@ if [[ $- =~ i ]]; then
   bind -m vi-insert '"\ec": "\C-z\ec\C-z"'
 
 fi
+
+source ~/fzf-extras.bash
