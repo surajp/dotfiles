@@ -1,4 +1,4 @@
-lua require 'init'
+"lua require 'init'
 
 call plug#begin('~/.vim/plugged')
 
@@ -118,6 +118,14 @@ augroup END
 command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endfor
 
 "Keymaps
+
+" Set current directory to the parent dir of the current file
+nnoremap <leader>d  :lcd %:p:h<CR>
+
+"Remap jk for <Esc>
+inoremap jk <Esc>
+inoremap kj <Esc>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
@@ -160,6 +168,9 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 ":nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
+
+"git log graph using fugitive
+:nnoremap <silent> <leader>g :G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>
 
 inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})
 
