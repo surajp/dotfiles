@@ -157,8 +157,11 @@ if [[ $- =~ i ]]; then
   fzf-search-packages() {
     read -p "Enter Package Name: " packagename
     #echo $packagename
-    selectedPackage="$(apt-cache search $packagename | fzf -m | awk '{print $1}')"
-    echo "$(sudo apt-get install $selectedPackage)"
+    selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up | awk '{print $1}')"
+    # selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up --preview 'echo "{}" | awk ''{print $1}'' | apt show' --preview-window='right:wrap' | awk '{print $1}')"
+    if [[ "$selectedPackage" != "" ]]; then
+      echo "$(sudo apt-get install $selectedPackage)"
+    fi
   }
 
   alias pacs='fzf-search-packages'
@@ -224,3 +227,5 @@ if [[ $- =~ i ]]; then
   bind -m vi-insert '"\ec": "\C-z\ec\C-z"'
 
 fi
+
+source ~/fzf-extras.bash
