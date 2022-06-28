@@ -11,6 +11,7 @@ alias graph='git log --graph --all --decorate --oneline'
 alias gco='git checkout'
 alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
+alias fd='fdfind'
 
 # you need 'fd-find' installed for the commands below
 export FZF_DEFAULT_COMMAND="fd -t f --exclude={.git,node_modules}"
