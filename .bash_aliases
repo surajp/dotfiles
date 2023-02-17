@@ -5,7 +5,7 @@ export HISTSIZE=100000
 
 alias push='sfdx force:source:push'
 alias pull='sfdx force:source:pull'
-alias orgs='sfdx force:org:list --all'
+alias orgs='sfdx org:list --all --skip-connection-status'
 alias isvim='env | grep -i vim'
 alias graph='git log --graph --all --decorate --oneline'
 alias gco='git checkout'
@@ -53,17 +53,17 @@ newclass() {
 
 openr() {
 	if [ $# -eq 1 ]; then
-		sfdx force:org:open -r -u "$1" -p "/lightning/page/home"
+		sfdx org:open -r -o "$1" -p "/lightning/page/home"
 	else
-		sfdx force:org:open -r -p "/lightning/page/home"
+		sfdx org:open -r -p "/lightning/page/home"
 	fi
 }
 
 openo() {
 	if [ $# -eq 1 ]; then
-		sfdx force:org:open -u "$1" -p "/lightning/page/home"
+		sfdx org:open -u "$1" -p "/lightning/page/home"
 	else
-		sfdx force:org:open -p "/lightning/page/home"
+		sfdx org:open -p "/lightning/page/home"
 	fi
 }
 
@@ -71,13 +71,13 @@ openo() {
 
 neworg() {
 	if [ $# -eq 1 ]; then
-		sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"
+		sfdx org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"
 	else
-		sfdx force:org:create -s -f config/project-scratch-def.json -d 20 -w 5
+		sfdx org:create -s -f config/project-scratch-def.json -d 20 -w 5
 	fi
 }
 
-alias squery='sfdx force:data:soql:query -q "$1"'
+alias squery='sfdx data:query -q "$1"'
 
 createchannel() {
 	if [ $# -eq 1 ]; then
@@ -114,13 +114,12 @@ createaura() {
 	fi
 }
 
-alias orgs='sfdx force:org:list --all'
 alias python=python3
 if type nvim >/dev/null 2>&1; then
 	alias vim='nvim'
 fi
 
-alias yeet="sfdx force:org:list --clean -p"
+alias yeet="sfdx org:list --clean -p"
 
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
 
