@@ -125,7 +125,8 @@ alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-a
 
 alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=57 && mv report?version=57 ~/.mdapiReport.json'
 
-alias sfrest="$PROJECTS_HOME/dotfiles/sfRestApi.sh"
+alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
+alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
 
 updateOrgTimeZone() {
 	if [[ $# -eq 1 ]]; then
