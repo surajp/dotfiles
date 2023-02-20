@@ -128,6 +128,9 @@ alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/r
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
 
+# update system date
+alias syncdate="sudo ntpdate pool.ntp.org"
+
 updateOrgTimeZone() {
 	if [[ $# -eq 1 ]]; then
 		node -e "console.log(\"update new User(Id=UserInfo.getUserId(),TimeZoneSidKey='\"+Intl.DateTimeFormat().resolvedOptions().timeZone+\"');\")" | sfdx force:apex:execute -u "$1"
