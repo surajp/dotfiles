@@ -117,7 +117,7 @@ if [[ $- =~ i ]]; then
 		for i in "${@:2}"; do
 			fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
 		done
-		local ret=$(cat $thefile | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat '$thefile' | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\") | [\"Command:\n'"$fullcmd"'\n\",\"Flag Description:\",.value][]"' --preview-window='right:wrap')
+		local ret=$(cat $thefile | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat '$thefile' | jq -r ".[] | select(.id==\"'"$selected"'\") | .flags | to_entries[] | select (.key==\""{}"\") | [\"Command:\n'"$fullcmd"'\n\",\"Flag Description:\",.value][]"' --preview-window='right:wrap')
 		echo "${ret//$'\n'/ --}"
 	}
 
@@ -131,10 +131,12 @@ if [[ $- =~ i ]]; then
 		if [[ $thefile == "" ]]; then
 			return 0
 		fi
-		local subcmd="$(echo $fullcmd | awk '{print $2}')"
-		local match="$(cat "$thefile" | jq -r '.[] | select(.id=="'$subcmd'")')"
+		local subcmd="$(echo $fullcmd | sed -r 's/\w* ?//' | awk -F "-" '{print $1}')"
+		echo "subcmd is $subcmd"
+		local match="$(cat "$thefile" | jq -r '.[] | select(.id=="'"$subcmd"'")')"
 		if [[ "$match" != "" ]]; then
-			local flag="$(fzf-sfdx-flags $subcmd $fullcmd)"
+			echo "matched"
+			local flag="$(fzf-sfdx-flags "$subcmd" "$fullcmd")"
 			if [[ "$flag" != "" ]]; then
 				READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}--$flag${READLINE_LINE:$READLINE_POINT}"
 				READLINE_POINT=$((READLINE_POINT + ${#flag} + 3))
