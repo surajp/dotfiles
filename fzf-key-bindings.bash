@@ -131,11 +131,9 @@ if [[ $- =~ i ]]; then
 		if [[ $thefile == "" ]]; then
 			return 0
 		fi
-		local subcmd="$(echo $fullcmd | sed -r 's/\w* ?//' | awk -F "-" '{print $1}')"
-		echo "subcmd is $subcmd"
+		local subcmd="$(echo $fullcmd | sed -r 's/\w* ?//' | awk -F "-" '{print $1}' | awk '{$1=$1};1')" #The last awk removes leading and trailing spaces
 		local match="$(cat "$thefile" | jq -r '.[] | select(.id=="'"$subcmd"'")')"
 		if [[ "$match" != "" ]]; then
-			echo "matched"
 			local flag="$(fzf-sfdx-flags "$subcmd" "$fullcmd")"
 			if [[ "$flag" != "" ]]; then
 				READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}--$flag${READLINE_LINE:$READLINE_POINT}"
