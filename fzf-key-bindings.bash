@@ -29,9 +29,11 @@ __fzf_select__() {
 if [[ $- =~ i ]]; then
 
 	declare -A commandsmap
-	commandsmap[heroku]=~/.herokucommands.json
-	commandsmap[sfdx]=~/.sfdxcommands.json
-	commandsmap[sf]=~/.sfcommands.json
+	commandsmap=(
+		["heroku"]="$HOME/.herokucommands.json"
+		["sfdx"]="$HOME/.sfdxcommands.json"
+		["sf"]="$HOME/.sfcommands.json"
+	)
 
 	__fzfcmd() {
 		[ -n "$TMUX_PANE" ] && { [ "${FZF_TMUX:-0}" != 0 ] || [ -n "$FZF_TMUX_OPTS" ]; } &&
@@ -103,11 +105,9 @@ if [[ $- =~ i ]]; then
 		READLINE_POINT=$((READLINE_POINT + ${#selected}))
 	}
 
-	fzf-sfdx-flags() {
-		local cmd="$(echo $2 | awk '{print $1}')"
-		if [[ "$cmd" == "" ]]; then
-			cmd="sfdx"
-		fi
+	fzf_sfdx_flags() {
+		local cmd="${2%% *}"
+		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
 		thefile=${commandsmap[$cmd]}
 		if [[ $thefile == "" ]]; then
 			return 0
@@ -117,41 +117,47 @@ if [[ $- =~ i ]]; then
 		for i in "${@:2}"; do
 			fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
 		done
-		local ret=$(cat $thefile | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat '$thefile' | jq -r ".[] | select(.id==\"'"$selected"'\") | .flags | to_entries[] | select (.key==\""{}"\") | [\"Command:\n'"$fullcmd"'\n\",\"Flag Description:\",.value][]"' --preview-window='right:wrap')
+		local ret=$(jq -r --arg sel "$selected" '.[] | select(.id==$sel) | .flags | keys[]' "$thefile" | fzf -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview="jq -r --arg sel '$selected' --arg key {} '.[] | select(.id==\$sel) | .flags | to_entries[] | select(.key==\$key) | [\"Command:\n$fullcmd\n\",\"Flag Description:\",.value][]' $thefile" --preview-window='right:wrap')
 		echo "${ret//$'\n'/ --}"
 	}
 
 	fzf-autocomp() {
 		local fullcmd="$READLINE_LINE"
-		local cmd="$(echo $fullcmd | awk '{print $1}')"
-		if [[ "$cmd" == "" ]]; then
-			cmd="sfdx"
-		fi
-		thefile=${commandsmap[$cmd]}
-		if [[ $thefile == "" ]]; then
+		local cmd="${fullcmd%% *}"
+		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+		local thefile="${commandsmap[$cmd]:-}"
+		if [[ -z "$thefile" ]]; then
 			return 0
 		fi
-		local subcmd="$(echo $fullcmd | sed -r 's/\w* ?//' | awk -F "-" '{print $1}' | awk '{$1=$1};1')" #The last awk removes leading and trailing spaces
-		local match="$(cat "$thefile" | jq -r '.[] | select(.id=="'"$subcmd"'")')"
-		if [[ "$match" != "" ]]; then
-			local flag="$(fzf-sfdx-flags "$subcmd" "$fullcmd")"
-			if [[ "$flag" != "" ]]; then
+
+		local subcmd
+		subcmd=$(echo "${fullcmd#$cmd}" | awk -F "-" '{print $1}' | awk '{$1=$1};1')
+		local match
+		match=$(jq -r --arg subcmd "$subcmd" '.[] | select(.id==$subcmd)' "$thefile")
+
+		if [[ -n "$match" ]]; then
+			local flag
+			flag=$(fzf_sfdx_flags "$subcmd" "$fullcmd")
+			if [[ -n "$flag" ]]; then
 				READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}--$flag${READLINE_LINE:$READLINE_POINT}"
 				READLINE_POINT=$((READLINE_POINT + ${#flag} + 3))
 			fi
 		else
 			local querystr=""
-			if [[ "$subcmd" != "" ]]; then
+			if [[ -n "$subcmd" ]]; then
 				querystr="--query=$subcmd"
 			fi
-			local selected="$(cat $thefile | jq -r '.[].id' | $(__fzfcmd) +m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up --preview='cat '$thefile' | jq -r ".[] | select (.id==\""{}"\") | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+select(has(\"usage\")).usage, \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]"' --preview-window='right:wrap' $querystr)"
-			if [[ "$selected" != "" ]]; then
+			local selected
+			selected=$(jq -r '.[].id' "$thefile" |
+				fzf +m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' \
+					--preview="jq -r --arg id {} '.[] | select(.id==\$id) | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+(select(has(\"usage\")).usage), \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]' $thefile" \
+					--preview-window='right:wrap' $querystr)
+			if [[ -n "$selected" ]]; then
 				READLINE_LINE="$cmd $selected"
-				READLINE_POINT=$((${#cmd} + ${#selected} + 1))
+
+				READLINE_POINT=$((READLINE_POINT + ${#cmd} + ${#selected} + 1))
 			fi
 		fi
-		local ret=$?
-		return $ret
 	}
 
 	fzf-search-packages() {
