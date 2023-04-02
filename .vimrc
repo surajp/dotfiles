@@ -13,7 +13,7 @@ Plug 'dense-analysis/ale'
 "Plug 'altercation/vim-colors-solarized'
 
 Plug 'dart-lang/dart-vim-plugin'
-"Plug 'neovim/nvim-lspconfig'
+" Plug 'neovim/nvim-lspconfig'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -41,6 +41,11 @@ Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
 Plug 'gruvbox-community/gruvbox'
 
+
+" Plug 'preservim/tagbar'
+
+Plug 'stevearc/aerial.nvim'
+
 call plug#end()
 
 
@@ -66,12 +71,18 @@ set scrolloff=8
 "set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
 set cursorline
 
+"disable mouse
+set mouse=
+
+"set spellcheck
+set spell
+set spelllang=en_us
+
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 set background=dark
-" colorscheme solarized
-"colorscheme desert
-colorscheme gruvbox
+" colorscheme gruvbox "using default colorscheme for now
+
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
 "save state on quit
@@ -83,7 +94,7 @@ set foldmethod=expr " if we set foldmethod to 'syntax' we would have to enable v
 set foldexpr=nvim_treesitter#foldexpr()
 "set foldmethod=syntax
 set foldlevel=1
-set foldnestmax=3 " tree sitter only seems to fold at the method level
+set foldnestmax=30 " tree sitter only seems to fold at the method level
 
 " Dictionary
 set dictionary+=/usr/share/dict/words
@@ -99,16 +110,19 @@ filetype plugin on
 filetype plugin indent on
 
 augroup FileTypeGroup
-	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex
+	au!
+	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=apex
 	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
-	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page set filetype=html
+	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page,*.component set filetype=html
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
+	au FileType qf :nnoremap <buffer> <CR> <CR>
 augroup END
+
 
 
 
@@ -126,6 +140,12 @@ nnoremap <leader>d  :lcd %:p:h<CR>
 inoremap jk <Esc>
 inoremap kj <Esc>
 
+"Remap Enter to :
+nnoremap <CR> :
+
+"Remap in terminal mode
+tnoremap <C-]> <C-\><C-n>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
@@ -142,21 +162,26 @@ let hlstate=0
 :noremap <C-e> :tabnew ~/.vimrc<CR>
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
-:nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 -n "%:t:r" --verbose<CR>
-":nnoremap ]t :set mp="sfdx force:apex:test:run -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
-:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx force:apex:test:run -y -r human -c -w 5 --verbose -t "%:t:r".<C-r>"<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:push -f<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:beta:pull -f<CR>
+:nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
+:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
+:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
+:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
+:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>
+:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull -f<CR>
 :nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
 :nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :tabnew \| read !sfdx force:apex:execute -f "#" -u 
-:nnoremap ]ee :tabnew \| read !sfdx force:apex:execute -f "#"<CR>
+:nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -u 
+:nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
+
+"vim grep current word
+:nnoremap ]ss yiw:vim /\c<C-r>"/g
 
 "apex logs
 :nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color -u <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
 :nnoremap ]ll :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color <bar> tee /tmp/apexlogs.log<CR>
+:nnoremap ]li :tabnew \| read !sfdx force:apex:log:list
+:nnoremap ]gl 0/\%<C-r>=line('.')<CR>l07L<CR>:nohlsearch<CR>"ayiw :tabnew \| read !sfdx force:apex:log:get -i <C-r>a
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
@@ -167,7 +192,7 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
-":nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
+:nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 
 "git log graph using fugitive
 :nnoremap <silent> <leader>g :G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>
@@ -211,6 +236,13 @@ cmap w!! w !sudo tee > /dev/null %
 "set local directory to current file's directory
 :nnoremap <Leader>lcd :lcd %:p:h<CR>
 
+"aerial maps
+:nnoremap mm :AerialToggle<CR>
+
+"xml to json map
+:nnoremap <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
+:nnoremap <Leader># :ea 1f<CR>:set ft=xml<CR>
+
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 let g:ctrlp_root_markers = ['.git','pom.xml','.ssh','node_modules']
@@ -237,8 +269,8 @@ let g:ale_linters_explicit = 1
 "Dock floating preview window
 let g:float_preview#docked=1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['prettier']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
+let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['shfmt'],'xml':['tidy']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
@@ -249,7 +281,27 @@ let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
 let g:ale_completion_tsserver_autoimport = 1
 let g:ale_java_google_java_format_executable = "~/.scripts/jformat.sh"
-let g:ale_apex_apexlsp_executable = "/usr/bin/java"
+" let g:ale_apex_apexlsp_executable = "/usr/bin/java"
+
+"Command to toggle fixers
+command! ALEDisableFixers execute "let b:ale_fix_on_save = 0"
+command! ALEToggleFixers execute "let b:ale_fix_on_save = get(b:,'ale_fix_on_save',0)?0:1"
+
+function! CheckDisableALE() abort
+  if luaeval('vim.fn.line("$")') > 500
+    execute "ALEDisableBuffer"
+    execute "ALEDisableFixers"
+  endif
+endfunction
+
+augroup ALEGroup
+  au!
+  au BufRead * call CheckDisableALE() "diable ALE and fixers for big files
+augroup END
+
+if filereadable('config/pmd-rules.xml')
+  let g:ale_apex_pmd_options = " -R config/pmd-rules.xml"
+endif
 
 if $PATH !~ "\.scripts"
   let $PATH="~/.scripts/:".$PATH
@@ -280,9 +332,55 @@ set laststatus=2
 "let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
 
+let g:tagbar_type_apex = {
+    \ 'ctagstype': 'java',
+    \ 'kinds' : [
+        \ 'p:packages:1:0',
+        \ 'f:fields:0:0',
+        \ 'g:enum types',
+        \ 'e:enum constants:0:0',
+        \ 'i:interfaces',
+        \ 'c:classes',
+        \ 'm:methods',
+        \ '?:unknown',
+    \ ],
+\ }
+
 lua <<EOF
+
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.apex = {
+  install_info = {
+    url = "/home/suraj/projects/tree-sitter-sfapex/apex", -- local path or git repo
+    files = {"src/parser.c"},
+    branch = "main", -- default branch in case of git repo if different from master
+    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
+  }
+}
+
+parser_config.soql = {
+  install_info = {
+    url = "/home/suraj/projects/tree-sitter-sfapex/soql", -- local path or git repo
+    files = {"src/parser.c"},
+    branch = "main", -- default branch in case of git repo if different from master
+    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
+  }
+}
+
+parser_config.sosl = {
+  install_info = {
+    url = "/home/suraj/projects/tree-sitter-sfapex/sosl", -- local path or git repo
+    files = {"src/parser.c"},
+    branch = "main", -- default branch in case of git repo if different from master
+    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
+    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
+  }
+}
+
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"java","json","javascript","bash","lua","vim","comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"java","json","javascript","bash","lua","vim","comment","markdown","apex","soql","sosl"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = {}, -- List of parsers to ignore installing
   highlight = {
     enable = true,              -- false will disable the whole extension
@@ -295,7 +393,13 @@ require'nvim-treesitter.configs'.setup {
   }
 }
 
+
 local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
-ft_to_parser.apex = "java" 
+ft_to_parser.apex = "java"
+
+
+require('aerial').setup({})
 
 EOF
+
+" :lua require('lsp') need to figure out how to get this to work
