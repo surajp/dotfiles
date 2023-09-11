@@ -3,11 +3,11 @@ export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%Y-%m-%d %T "
 export HISTSIZE=100000
 
-alias push='sfdx force:source:push'
-alias pull='sfdx force:source:pull'
+alias push='sfdx project:deploy:start'
+alias pull='sfdx project:retrieve:start'
 alias orgs='sfdx org:list --all --skip-connection-status'
 alias isvim='env | grep -i vim'
-alias graph='git log --graph --all --decorate --oneline'
+alias graph='git log --all --graph --decorate --pretty=format:"%C(auto)%h %C(reset)%C(blue)%ad%C(reset) %C(auto)%d %s %C(cyan)<%an>%C(reset)" --date=format:"%Y-%m-%d %H:%M"'
 alias gco='git checkout'
 alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
@@ -45,7 +45,7 @@ export PS1='\w $(show_default_org) \$ '
 
 newclass() {
 	if [ $# -eq 1 ]; then
-		sfdx force:apex:class:create -n $1 -d "force-app/main/default/classes"
+		sfdx apex:generate:class -n $1 -d "force-app/main/default/classes"
 	else
 		echo "You need to specify a class name"
 	fi
@@ -100,7 +100,7 @@ createchannel() {
 
 createlwc() {
 	if [ $# -eq 1 ]; then
-		sfdx force:lightning:component:create --type lwc -d force-app/main/default/lwc -n "$1"
+		sfdx lightning:generate:component --type lwc -d force-app/main/default/lwc -n "$1"
 	else
 		echo "LWC name is required"
 	fi
@@ -123,7 +123,7 @@ alias yeet="sfdx org:list --clean -p"
 
 alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
 
-alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=57 && mv report?version=57 ~/.mdapiReport.json'
+alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=58 && mv report?version=58 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -141,8 +141,14 @@ updateOrgTimeZone() {
 
 alias xaa='exa -lhi --icons -snew'
 
-#clear source tracking (beta)
-alias ctrack='sfdx force:source:beta:tracking:clear -p && sfdx force:source:beta:tracking:reset -p'
+#clear source tracking
+function ctrack() {
+	if [ $# -eq 1 ]; then
+		sfdx project:delete:tracking -p -u "$1" && sfdx project:reset:tracking -p -u "$1"
+	else
+		sfdx project:delete:tracking -p && sfdx project:reset:tracking -p
+	fi
+}
 
 #Get host ip address in WSL
 hostip() {
@@ -155,3 +161,6 @@ function gpgconv() {
 	gpg --no-default-keyring --keyring ./temp-keyring.gpg --export --output "$1.converted.gpg"
 	rm ./temp-keyring.gpg
 }
+
+#start echo server
+alias localhost="node $HOME/libs/echo.js"

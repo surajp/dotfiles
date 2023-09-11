@@ -131,7 +131,7 @@ if [[ $- =~ i ]]; then
 		fi
 
 		local subcmd
-		subcmd=$(echo "${fullcmd#$cmd}" | awk -F "-" '{print $1}' | awk '{$1=$1};1')
+		subcmd=$(echo "${fullcmd#$cmd}" | awk -F " -" '{print $1}' | awk '{$1=$1};1')
 		local match
 		match=$(jq -r --arg subcmd "$subcmd" '.[] | select(.id==$subcmd)' "$thefile")
 
@@ -234,4 +234,6 @@ if [[ $- =~ i ]]; then
 
 fi
 
-source ~/fzf-extras.bash
+if [[ -f ~/fzf-extras.bash ]]; then
+	source ~/fzf-extras.bash
+fi

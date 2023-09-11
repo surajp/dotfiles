@@ -25,8 +25,8 @@ function! ale_linters#apex#apexlsp#Command(buffer) abort
     \ ale_linters#apex#apexlsp#Executable(a:buffer),
     \ '-cp '.ale_linters#apex#apexlsp#Jar(a:buffer),
     \ '-Xmx'.ale_linters#apex#apexlsp#JavaMem(a:buffer),
-    \ '-XX:+UnlockExperimentalVMOptions',
-    \ '-XX:+UseZGC',
+    \ '-Dlwc.typegeneration.disabled=true',
+    \ '-Ddebug.semantic.errors=false',
     \ '-Ddebug.internal.errors=true',
     \ 'apex.jorje.lsp.ApexLanguageServerLauncher'
     \]

@@ -120,7 +120,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
-	au FileType qf :nnoremap <buffer> <CR> <CR>
+	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
 augroup END
 
 
@@ -163,24 +163,30 @@ let hlstate=0
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+
+"detailed coverage
+:nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
+:nnoremap <leader>c :tabnew /tmp/coverage<CR>
+
 ":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
-:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx force:source:push -f<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx force:source:pull -f<CR>
-:nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5 -u 
-:nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx force:source:deploy -p "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -u 
+:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
+:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
+:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
+:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
+:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
+:nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
+:nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
+:nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
 :nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
+:nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
 
 "apex logs
-:nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color -u <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
-:nnoremap ]ll :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx force:apex:log:tail --color <bar> tee /tmp/apexlogs.log<CR>
-:nnoremap ]li :tabnew \| read !sfdx force:apex:log:list
+:nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color -o <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
+:nnoremap ]ll :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color <bar> tee /tmp/apexlogs.log<CR>
+:nnoremap ]li :tabnew \| read !sfdx apex:log:list
 :nnoremap ]gl 0/\%<C-r>=line('.')<CR>l07L<CR>:nohlsearch<CR>"ayiw :tabnew \| read !sfdx force:apex:log:get -i <C-r>a
 
 "remap 'U' to revert to previous save
@@ -193,6 +199,9 @@ nnoremap U :ea 1f<CR>
 :nnoremap <silent> <C-f>g :Commits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
+
+"fzf options
+let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
 
 "git log graph using fugitive
 :nnoremap <silent> <leader>g :G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>
@@ -212,12 +221,12 @@ inoremap <expr> <Leader>s fzf#vim#complete({
 
 " use 'za' to toggle folds
 " Prevent wq accidents
-:command! W w
-:command! Wq wq
-:command! Wqa wqa
+:command! -bang W w
+:command! -bang Wq wq
+:command! -bang Wqa wqa
 
-:command! Q q
-:command! Qa qa
+:command! -bang Q q
+:command! -bang Qa qa
 
 " Prevent gq accidents
 :nnoremap gQ gq
@@ -232,9 +241,6 @@ cmap w!! w !sudo tee > /dev/null %
 "remove all tabs and spaces from lines with just tabs and spaces to make them
 "truly blank lines
 :command! BL %s/^\(\s\|\t\)*$//g
-
-"set local directory to current file's directory
-:nnoremap <Leader>lcd :lcd %:p:h<CR>
 
 "aerial maps
 :nnoremap mm :AerialToggle<CR>
@@ -269,13 +275,14 @@ let g:ale_linters_explicit = 1
 "Dock floating preview window
 let g:float_preview#docked=1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
 let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['shfmt'],'xml':['tidy']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
 let g:ale_sign_warning='--'
 let g:ale_floating_preview=1
+let g:ale_apex_apexlsp_jarfile='/home/suraj/libs/apex-jorje-lsp.jar'
 
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
@@ -402,4 +409,7 @@ require('aerial').setup({})
 
 EOF
 
+" Copilot mappings
+let g:copilot_assume_mapped = v:true
+imap <silent><expr> <C-Space> copilot#Accept('\<CR>')
 " :lua require('lsp') need to figure out how to get this to work
