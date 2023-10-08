@@ -50,6 +50,9 @@ call plug#end()
 
 lua require 'init'
 
+"Disable netrw
+" let g:loaded_netrwPlugin=1
+
 set number relativenumber
 syntax on
 set noexpandtab
@@ -186,6 +189,10 @@ let hlstate=0
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
+
+"Buffer navigation
+:nnoremap gn :bnext<CR>
+:nnoremap gp :bprev<CR>
 
 "apex logs
 :nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color -o <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
