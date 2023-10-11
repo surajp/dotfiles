@@ -131,7 +131,16 @@ alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
 # update system date
 alias syncdate="sudo ntpdate pool.ntp.org"
 
-updateOrgTimeZone() {
+function failedResults() {
+	if [[ $# -eq 1 ]]; then
+		orgName=$(show_default_org)
+		sfrest $orgName "/v58.0/jobs/ingest/$1/failedResults"
+	else
+		sfrest $1 "/v58.0/jobs/ingest/$2/failedResults"
+	fi
+}
+
+function updateOrgTimeZone() {
 	if [[ $# -eq 1 ]]; then
 		node -e "console.log(\"update new User(Id=UserInfo.getUserId(),TimeZoneSidKey='\"+Intl.DateTimeFormat().resolvedOptions().timeZone+\"');\")" | sfdx force:apex:execute -u "$1"
 	else
