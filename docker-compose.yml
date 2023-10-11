@@ -2,6 +2,9 @@ version: "3.9"
 services:
   app:
     build: .
+    image: surajp/setup:v1
     volumes:
       - .:/dotfiles
+    stdin_open: true
+    tty: true
     entrypoint: "/bin/bash"
