@@ -1,0 +1,17 @@
+<rule name="SpecifyNullsFirstOrLast" language="apex" message="Add Nulls First or Nulls Last after Order By" class="net.sourceforge.pmd.lang.rule.XPathRule">
+    <description>
+      When using an Order By Clause, specify Nulls First or Nulls
+      Last to avoid unexpected results
+   </description>
+    <priority>3</priority>
+    <properties>
+        <property name="version" value="2.0" />
+        <property name="xpath">
+            <value>
+                <![CDATA[
+//SoqlExpression[matches(@Query,"ORDER BY.*",'i') and not(matches(@Query,"ORDER BY .* (ASC|DESC)? NULLS (FIRST|LAST)"))]
+]]>
+            </value>
+        </property>
+    </properties>
+</rule>
