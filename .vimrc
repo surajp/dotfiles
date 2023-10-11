@@ -1,10 +1,11 @@
-"lua require 'init'
 
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-vinegar'
+" Plug 'tpope/vim-vinegar'
+Plug 'stevearc/oil.nvim'
+
 Plug 'tpope/vim-commentary'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
@@ -46,8 +47,13 @@ Plug 'gruvbox-community/gruvbox'
 
 Plug 'stevearc/aerial.nvim'
 
+
+Plug 'smoka7/hop.nvim'
+
 call plug#end()
 
+lua require 'init'
+lua require 'keymaps'
 
 set number relativenumber
 syntax on
@@ -160,6 +166,7 @@ let hlstate=0
 :nnoremap zm zMza
 :nnoremap zr zR
 :noremap <C-e> :tabnew ~/.vimrc<CR>
+:noremap <Leader>a :tabnew ~/.config/nvim/lua<CR>
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
@@ -182,6 +189,10 @@ let hlstate=0
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
+
+"Buffer navigation
+:nnoremap gn :bnext<CR>
+:nnoremap gN :bprev<CR>
 
 "apex logs
 :nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color -o <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
@@ -355,37 +366,6 @@ let g:tagbar_type_apex = {
 
 lua <<EOF
 
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.apex = {
-  install_info = {
-    url = "/home/suraj/projects/tree-sitter-sfapex/apex", -- local path or git repo
-    files = {"src/parser.c"},
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
-  }
-}
-
-parser_config.soql = {
-  install_info = {
-    url = "/home/suraj/projects/tree-sitter-sfapex/soql", -- local path or git repo
-    files = {"src/parser.c"},
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
-  }
-}
-
-parser_config.sosl = {
-  install_info = {
-    url = "/home/suraj/projects/tree-sitter-sfapex/sosl", -- local path or git repo
-    files = {"src/parser.c"},
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = true, -- if folder contains pre-generated src/parser.c
-  }
-}
-
 require'nvim-treesitter.configs'.setup {
   ensure_installed = {"java","json","javascript","bash","lua","vim","comment","markdown","apex","soql","sosl"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = {}, -- List of parsers to ignore installing
@@ -399,10 +379,6 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false
   }
 }
-
-
-local ft_to_parser = require"nvim-treesitter.parsers".filetype_to_parsername
-ft_to_parser.apex = "java"
 
 
 require('aerial').setup({})

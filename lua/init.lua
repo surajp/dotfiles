@@ -1,5 +1,10 @@
-local opts = {noremap=true,silent=true}
+require("oil").setup({
+  keymaps={
+    ["<C-p>"]=":Files!<CR>"
+  }
+})
 
-vim.api.nvim_set_keymap('i','jk','<Esc>',opts)
-vim.api.nvim_set_keymap('i','kj','<Esc>',opts)
-vim.api.nvim_set_keymap('n','<C-f>l',':Helptags!<CR>',opts)
+require('hop').setup()
+vim.cmd('hi HopNextKey guifg=#c2c52d')
+vim.cmd('hi HopNextKey1 guifg=#c2c52d')
+vim.cmd('hi HopNextKey2 guifg=#c2c52d')
