@@ -46,6 +46,8 @@ Plug 'gruvbox-community/gruvbox'
 
 Plug 'stevearc/aerial.nvim'
 
+Plug 'smoka7/hop.nvim'
+
 call plug#end()
 
 lua require 'init'
@@ -61,7 +63,7 @@ set preserveindent
 set lazyredraw
 set ignorecase smartcase
 
-let $RTP = $XDG_CONFIG_HOME."/nvim"
+let $RTP = ($XDG_CONFIG_HOME ? $XDG_CONFIG_HOME : "$HOME/.config")."/nvim"
 set tabstop=2
 set shiftwidth=2
 set expandtab
@@ -166,7 +168,7 @@ let hlstate=0
 ":nnoremap <C-y> [{zf%
 :nnoremap zm zMza
 :nnoremap zr zR
-:noremap <C-e> :tabnew ~/.vimrc<CR>
+:noremap <C-e> :execute 'tabnew $RTP/init.vim'<CR>
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
