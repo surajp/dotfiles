@@ -2,7 +2,8 @@ local opts = {noremap=true,silent=true}
 
 require("oil").setup({
   keymaps={
-    ["<C-p>"]=":Files!<CR>"
+    ["<C-p>"]=":Files!<CR>",
+    ["<C-i>"]="actions.preview"
   },
   view_options={
     show_hidden=true
