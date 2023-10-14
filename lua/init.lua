@@ -1,6 +1,7 @@
 require("oil").setup({
   keymaps={
-    ["<C-p>"]=":Files!<CR>"
+    ["<C-p>"]=":Files!<CR>",
+    ["<C-i>"]="actions.preview"
   }
 })
 
