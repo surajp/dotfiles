@@ -1,7 +1,6 @@
 
 call plug#begin('~/.vim/plugged')
 
-"Plug 'ctrlpvim/ctrlp.vim'
 Plug 'tpope/vim-surround'
 " Plug 'tpope/vim-vinegar'
 Plug 'stevearc/oil.nvim'
@@ -47,6 +46,8 @@ Plug 'gruvbox-community/gruvbox'
 Plug 'stevearc/aerial.nvim'
 
 Plug 'smoka7/hop.nvim'
+
+Plug 'github/copilot.vim'
 
 call plug#end()
 
@@ -129,8 +130,19 @@ augroup FileTypeGroup
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
 augroup END
 
-
-
+"toggle transparent background
+let t:is_transparent = 0
+function! Toggle_transparent_background()
+  if t:is_transparent == 0
+    hi Normal guibg=#111111 ctermbg=black
+    let t:is_transparent = 1
+  else
+    hi Normal guibg=NONE ctermbg=NONE
+    let t:is_transparent = 0
+    echo "is transparent"
+  endif
+endfunction
+nnoremap <C-x><C-t> :call Toggle_transparent_background()<CR>
 
 " Set current directory to the parent dir of the current file
 " autocmd BufEnter * silent! lcd %:p:h
@@ -154,6 +166,10 @@ nnoremap Y y$
 
 "Remap in terminal mode
 tnoremap <C-]> <C-\><C-n>
+
+"Remap for quickfix
+nnoremap <C-j> :cnext<CR>
+nnoremap <C-k> :cprev<CR>
 
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
