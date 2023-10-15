@@ -209,7 +209,7 @@ let hlstate=0
 :nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
 
 "vim grep current word
-:nnoremap ]ss yiw:vim /\c<C-r>"/g
+:nnoremap ]ss "syiw:Rg <C-r>s<CR>
 
 "Buffer navigation
 :nnoremap gn :bnext<CR>
@@ -247,6 +247,9 @@ endif
 :nnoremap <silent> <C-f>p :Rg 
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
+
+nmap <leader><tab> <plug>(fzf-maps-n)
+nmap <leader>f <plug>(ale_find_references)
 
 "fzf options
 let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
