@@ -49,6 +49,8 @@ Plug 'smoka7/hop.nvim'
 
 Plug 'github/copilot.vim'
 
+Plug 'mbbill/undotree'
+
 call plug#end()
 
 lua require 'init'
@@ -220,6 +222,20 @@ let hlstate=0
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
+
+"undotree
+nnoremap <leader>u :UndotreeToggle<CR>
+if has("persistent_undo")
+   let target_path = expand('~/.undodir')
+    " create the directory and any parent directories
+    " if the location does not exist.
+    if !isdirectory(target_path)
+        call mkdir(target_path, "p", 0700)
+    endif
+
+    let &undodir=target_path
+    set undofile
+endif
 
 "fzf key bindings
 :nnoremap <C-p> :Files!<CR>
@@ -406,4 +422,3 @@ EOF
 " Copilot mappings
 let g:copilot_assume_mapped = v:true
 imap <silent><expr> <C-Space> copilot#Accept('\<CR>')
-" :lua require('lsp') need to figure out how to get this to work
