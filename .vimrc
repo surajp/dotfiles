@@ -131,6 +131,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
+	au FileType fugitive :nnoremap <buffer> ]p :G push<CR> | :nnoremap <buffer> ]pf :G push -f<CR>
 augroup END
 
 "toggle transparent background
