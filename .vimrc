@@ -37,6 +37,7 @@ Plug 'rust-lang/rust.vim'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+Plug 'nvim-treesitter/nvim-treesitter-context'
 
 Plug 'gruvbox-community/gruvbox'
 
@@ -241,7 +242,9 @@ endif
 :nnoremap <C-p> :Files!<CR>
 :nnoremap <silent> <C-f>b :Buffers!<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
-:nnoremap <silent> <C-f>g :Commits!<CR>
+:nnoremap <silent> <C-f>g :BCommits!<CR>
+:nnoremap <silent> <C-f>t :Filetypes!<CR>
+:nnoremap <silent> <C-f>p :Rg 
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 
