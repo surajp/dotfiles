@@ -50,6 +50,8 @@ Plug 'stevearc/aerial.nvim'
 
 Plug 'smoka7/hop.nvim'
 
+Plug 'mbbill/undotree'
+
 call plug#end()
 
 lua require 'init'
@@ -153,6 +155,10 @@ nnoremap <CR> :
 "Remap in terminal mode
 tnoremap <C-]> <C-\><C-n>
 
+"Remap for quickfix
+nnoremap <C-j> :cnext<CR>
+nnoremap <C-k> :cprev<CR>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
@@ -203,6 +209,20 @@ let hlstate=0
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
+
+"undotree
+nnoremap <leader>u :UndotreeToggle<CR>
+if has("persistent_undo")
+   let target_path = expand('~/.undodir')
+    " create the directory and any parent directories
+    " if the location does not exist.
+    if !isdirectory(target_path)
+        call mkdir(target_path, "p", 0700)
+    endif
+
+    let &undodir=target_path
+    set undofile
+endif
 
 "fzf vim grep
 command! -bang -nargs=* GGrep
