@@ -1,4 +1,7 @@
 require("oil").setup({
+  view_options={
+    show_hidden=true
+  },
   keymaps={
     ["<C-p>"]=":Files!<CR>",
     ["<C-i>"]="actions.preview"

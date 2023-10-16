@@ -127,6 +127,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
+	au FileType fugitive :nnoremap <buffer> ]p :G push<CR> | :nnoremap <buffer> ]pf :G push -f | :nnoremap [p :G pull<CR>
 augroup END
 
 
@@ -203,13 +204,28 @@ let hlstate=0
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
 
+"fzf vim grep
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number -- '.fzf#shellescape(<q-args>),
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+
+command! -bang -nargs=* GGrepI
+  \ call fzf#vim#grep(
+  \   'git grep -i --line-number -- '.fzf#shellescape(<q-args>),
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+
 "fzf key bindings
 :nnoremap <C-p> :Files!<CR>
 :nnoremap <silent> <C-f>b :Buffers!<CR>
 :nnoremap <silent> <C-f>s :Snippets!<CR>
-:nnoremap <silent> <C-f>g :Commits!<CR>
+:nnoremap <silent> <C-f>c :BCommits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
+:nnoremap <silent> <C-f>g "syiw:GGrepI <C-r>s<CR>
+:nnoremap <silent> <leader><tab> <plug>(fzf-maps-n)
+:nnoremap <silent>  <leader>f <plug>(ale_find_references)
+:nnoremap <silent> <leader>t :Filetypes!<CR>
 
 "fzf options
 let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
