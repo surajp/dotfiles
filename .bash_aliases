@@ -41,7 +41,7 @@ show_default_org() {
 }
 
 #Add sfdx default org to prompt
-export PS1='\w $(show_default_org) \$ '
+export PS1="%1~ $(show_default_org)\$ "
 
 newclass() {
 	if [ $# -eq 1 ]; then

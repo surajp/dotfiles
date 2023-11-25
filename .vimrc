@@ -76,7 +76,7 @@ set hidden
 set scrolloff=8
 
 "set cursor to blink
-"set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
 set cursorline
 
 "disable mouse
@@ -88,8 +88,8 @@ set spelllang=en_us
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
-set background=dark
-" colorscheme gruvbox "using default colorscheme for now
+" set background=dark
+colorscheme gruvbox "using default colorscheme for now
 
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
@@ -161,7 +161,7 @@ nnoremap <C-k> :cprev<CR>
 
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
-:nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
+:nnoremap <silent> ; :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-j>t :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-w><Left> :vertical resize -5<CR>
@@ -172,7 +172,7 @@ let hlstate=0
 ":nnoremap <C-y> [{zf%
 :nnoremap zm zMza
 :nnoremap zr zR
-:noremap <C-e> :tabnew ~/.vimrc<CR>
+:noremap <C-e> :tabnew ~/.config/nvim/init.vim<CR>
 :noremap <Leader>a :tabnew ~/.config/nvim/lua<CR>
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
@@ -243,6 +243,7 @@ command! -bang -nargs=* GGrepI
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 :nnoremap <silent> <C-f>g "syiw:GGrepI <C-r>s<CR>
+:nnoremap <silent> fg :G<CR>
 :nnoremap <silent> <leader><tab> <plug>(fzf-maps-n)
 :nnoremap <silent>  <leader>f <plug>(ale_find_references)
 :nnoremap <silent> <leader>t :Filetypes!<CR>
@@ -363,7 +364,7 @@ endif
 
 
 if (has("termguicolors"))
-  set termguicolors
+  " set termguicolors
 endif
 
 "search recursively in subfolders using 'find'
