@@ -33,15 +33,21 @@ fi
 show_default_org() {
 	if [ -f './.sfdx/sfdx-config.json' ]; then
 		defaultusername="$(cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername')"
-		[[ "$defaultusername" = "null" ]] && defaultusername=""
-		echo $defaultusername
+		[[ "$defaultusername" = "null" ]] && defaultusername="" #if defaultusername is null set it to empty string
+		export DEFAULT_SF_ORG=$defaultusername
 	else
-		echo ''
+		export DEFAULT_SF_ORG=
 	fi
 }
 
+# Check if show_default_org is not already in the precmd_functions array. This is to evaluate show_default_org before every prompt
+if [[ -z "${precmd_functions[(Ie)show_default_org]}" ]]; then
+  # Add show_default_org to precmd_functions if it's not there
+  precmd_functions+=(show_default_org)
+fi
+
 #Add sfdx default org to prompt
-export PS1="%1~ $(show_default_org)\$ "
+PROMPT='%1~ $DEFAULT_SF_ORG \$ '
 
 newclass() {
 	if [ $# -eq 1 ]; then
@@ -121,9 +127,9 @@ fi
 
 alias yeet="sfdx org:list --clean -p"
 
-alias gentags='ctags --extra=+q --langmap=java:.cls.trigger -f ./tags -R force-app/main/default/classes/'
+alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
-alias refreshmdapi='wget https://mdcoverage.secure.force.com/services/apexrest/report?version=58 && mv report?version=58 ~/.mdapiReport.json'
+alias refreshmdapi='wget "https://mdcoverage.secure.force.com/services/apexrest/report?version=59" && mv report?version=59 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -173,3 +179,30 @@ function gpgconv() {
 
 #start echo server
 alias localhost="node $HOME/libs/echo.js"
+
+function tm(){
+  if [[ $# -eq 1 ]]; then
+    selected=$1
+  else
+    selected=$(find ~/projects -mindepth 1 -maxdepth 1 -type d | fzf)
+  fi
+
+  if [[ -z $selected ]]; then
+    exit 0
+  fi
+
+  selected_name=$(basename "$selected" | tr . _)
+  tmux_running=$(pgrep tmux)
+
+  if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+    tmux new-session -s $selected_name -c $selected
+    exit 0
+  fi
+
+  if ! tmux has-session -t=$selected_name 2> /dev/null; then
+    tmux new-session -ds $selected_name -c $selected
+  fi
+
+  tmux switch-client -t $selected_name
+
+}

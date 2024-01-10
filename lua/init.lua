@@ -1,6 +1,9 @@
 require("oil").setup({
   view_options={
-    show_hidden=true
+    show_hidden=true,
+    is_always_hidden = function(name, bufnr)
+      return name == ".."
+    end
   },
   keymaps={
     ["<C-p>"]=":Files!<CR>",

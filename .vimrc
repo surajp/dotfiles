@@ -42,6 +42,7 @@ Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
 Plug 'gruvbox-community/gruvbox'
 
+Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
 " Plug 'preservim/tagbar'
 
@@ -52,10 +53,14 @@ Plug 'smoka7/hop.nvim'
 
 Plug 'mbbill/undotree'
 
+Plug 'TabbyML/vim-tabby'
+
 call plug#end()
 
 lua require 'init'
 lua require 'keymaps'
+
+let mapleader=" "
 
 set number relativenumber
 syntax on
@@ -89,7 +94,8 @@ set spelllang=en_us
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 " set background=dark
-colorscheme gruvbox "using default colorscheme for now
+" colorscheme gruvbox "using default colorscheme for now
+colorscheme catppuccin-mocha
 
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
@@ -156,26 +162,26 @@ nnoremap <CR> :
 tnoremap <C-]> <C-\><C-n>
 
 "Remap for quickfix
-nnoremap <C-j> :cnext<CR>
-nnoremap <C-k> :cprev<CR>
+nnoremap <silent> <C-j> :cnext<CR>
+nnoremap <silent> <C-k> :cprev<CR>
 
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> ; :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-j>t :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
-:nnoremap <C-w><Left> :vertical resize -5<CR>
-:nnoremap <C-w><Right> :vertical resize +5<CR>
-:nnoremap <C-w><Down> :resize +5<CR>
-:nnoremap <C-w><Up> :resize +5<CR>
+:nnoremap <silent> <C-w><Left> :vertical resize -5<CR>
+:nnoremap <silent> <C-w><Right> :vertical resize +5<CR>
+:nnoremap <silent> <C-w><Down> :resize +5<CR>
+:nnoremap <silent> <C-w><Up> :resize +5<CR>
 :nnoremap <C-s> :ls<CR>:b<Space>
 ":nnoremap <C-y> [{zf%
 :nnoremap zm zMza
 :nnoremap zr zR
-:noremap <C-e> :tabnew ~/.config/nvim/init.vim<CR>
-:noremap <Leader>a :tabnew ~/.config/nvim/lua<CR>
-:noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
-:nnoremap ++ :!git add "%"<CR>
+:noremap <silent> <C-e> :tabnew ~/.config/nvim/init.vim<CR>
+:noremap <silent> <Leader>a :tabnew ~/.config/nvim/lua<CR>
+:noremap <silent> <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
+:nnoremap <silent> ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
 
 "detailed coverage
@@ -184,22 +190,23 @@ let hlstate=0
 
 ":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
 :nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
+:nnoremap <silent> ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
+:nnoremap <silent> ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
+:nnoremap <silent> ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
+:nnoremap <silent> ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
 :nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
-:nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
+:nnoremap <silent> ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
 :nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
-:nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
-:nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
+:nnoremap <silent> ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
+:nnoremap <silent> ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
 
 "Buffer navigation
-:nnoremap gn :bnext<CR>
-:nnoremap gN :bprev<CR>
+:nnoremap <silent> gn :bnext<CR>
+:nnoremap <silent> gN :bprev<CR>
+:nnoremap <silent> <leader>- :bdelete!<CR>
 
 "apex logs
 :nnoremap ]l :tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color -o <bar> tee /tmp/apexlogs.log<C-left><C-left><C-left>
@@ -260,7 +267,7 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 imap <C-S> <Plug>(fzf-complete-wordnet)
 
 inoremap <expr> <C-x>c fzf#vim#complete('cat ~/.sldsclasses.txt') 
-inoremap <expr> <Leader>s fzf#vim#complete({
+inoremap <expr> <C-x>m fzf#vim#complete({
       \ 'source': 'cat schema.txt',
       \ 'reducer': { lines -> split(lines[0],' ')[0]}})
 

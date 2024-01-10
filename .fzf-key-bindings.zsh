@@ -70,6 +70,7 @@ __fzfcmd() {
     zle reset-prompt
     return $ret
   }
+
   zle -N fzf-sfdx-mdapiTypes{,}
   bindkey "^_" fzf-sfdx-mdapiTypes
 
