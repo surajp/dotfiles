@@ -14,7 +14,7 @@ Plug 'dense-analysis/ale'
 "Plug 'altercation/vim-colors-solarized'
 
 Plug 'dart-lang/dart-vim-plugin'
-" Plug 'neovim/nvim-lspconfig'
+Plug 'neovim/nvim-lspconfig'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -59,6 +59,7 @@ call plug#end()
 
 lua require 'init'
 lua require 'keymaps'
+lua require 'lsp'
 
 let mapleader=" "
 
@@ -165,6 +166,9 @@ tnoremap <C-]> <C-\><C-n>
 nnoremap <silent> <C-j> :cnext<CR>
 nnoremap <silent> <C-k> :cprev<CR>
 
+"Fugitive Git status quick launch
+nnoremap <silent> fg :G<CR>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
 :nnoremap <silent> ; :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
@@ -250,10 +254,9 @@ command! -bang -nargs=* GGrepI
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
 :nnoremap <silent> <C-f>g "syiw:GGrepI <C-r>s<CR>
-:nnoremap <silent> fg :G<CR>
-:nnoremap <silent> <leader><tab> <plug>(fzf-maps-n)
-:nnoremap <silent>  <leader>f <plug>(ale_find_references)
-:nnoremap <silent> <leader>t :Filetypes!<CR>
+:nnoremap <silent> <C-f>m <plug>(fzf-maps-n)
+:nnoremap <silent> <C-f>r <plug>(ale_find_references)
+:nnoremap <silent> <C-f>t :Filetypes!<CR>
 
 "fzf options
 let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
@@ -303,6 +306,9 @@ cmap w!! w !sudo tee > /dev/null %
 "xml to json map
 :nnoremap <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
 :nnoremap <Leader># :ea 1f<CR>:set ft=xml<CR>
+
+"Run prettier on-demand
+nnoremap <silent> <leader>fo :!npx prettier -w %<CR>
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'

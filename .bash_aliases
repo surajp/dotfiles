@@ -11,7 +11,7 @@ alias graph='git log --all --graph --decorate --pretty=format:"%C(auto)%h %C(res
 alias gco='git checkout'
 alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
-alias fd='fdfind'
+# alias fd='fdfind'
 
 # you need 'fd-find' installed for the commands below
 export FZF_DEFAULT_COMMAND="fd -t f --exclude={.git,node_modules}"
@@ -47,7 +47,7 @@ if [[ -z "${precmd_functions[(Ie)show_default_org]}" ]]; then
 fi
 
 #Add sfdx default org to prompt
-PROMPT='%1~ $DEFAULT_SF_ORG \$ '
+PROMPT="%1~ $DEFAULT_SF_ORG \$ "
 
 newclass() {
 	if [ $# -eq 1 ]; then
