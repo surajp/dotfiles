@@ -47,7 +47,7 @@ if [[ -z "${precmd_functions[(Ie)show_default_org]}" ]]; then
 fi
 
 #Add sfdx default org to prompt
-PROMPT="%1~ $DEFAULT_SF_ORG \$ "
+export PS1='%1~ $DEFAULT_SF_ORG \$ '
 
 newclass() {
 	if [ $# -eq 1 ]; then
