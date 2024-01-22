@@ -3,6 +3,7 @@ export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%Y-%m-%d %T "
 export HISTSIZE=100000
 
+alias .='nvim .'
 alias push='sfdx project:deploy:start'
 alias pull='sfdx project:retrieve:start'
 alias orgs='sfdx org:list --all --skip-connection-status'
