@@ -256,7 +256,20 @@ command! -bang -nargs=* GGrepI
 
 
 "fzf options
-let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
+let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down,ctrl-a:select-all --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
+
+" CTRL-Q to build quickfix list
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+
+let g:fzf_action = {
+  \ 'ctrl-q': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
 
 "git log graph using fugitive
 :nnoremap <silent> <leader>g :G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>
