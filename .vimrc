@@ -236,11 +236,6 @@ if has("persistent_undo")
 endif
 
 "fzf vim grep
-command! -bang -nargs=* GGrep
-  \ call fzf#vim#grep(
-  \   'git grep --line-number -- '.fzf#shellescape(<q-args>),
-  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
-
 command! -bang -nargs=* GGrepI
   \ call fzf#vim#grep(
   \   'git grep -i --line-number -- '.fzf#shellescape(<q-args>),
@@ -257,6 +252,8 @@ command! -bang -nargs=* GGrepI
 :nnoremap <silent> <C-f>m <plug>(fzf-maps-n)
 :nnoremap <silent> <C-f>r <plug>(ale_find_references)
 :nnoremap <silent> <C-f>t :Filetypes!<CR>
+:nnoremap <silent> <C-f>o :Colors<CR>
+
 
 "fzf options
 let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
