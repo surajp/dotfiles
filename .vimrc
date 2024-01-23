@@ -136,7 +136,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
-	au FileType fugitive :nnoremap <buffer> ]p :G push<CR> | :nnoremap <buffer> ]pf :G push -f | :nnoremap [p :G pull<CR>
+	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G push -f | :nnoremap <leader>l :G pull<CR>
 augroup END
 
 
@@ -209,7 +209,7 @@ let hlstate=0
 
 "Buffer navigation
 :nnoremap <silent> gn :bnext<CR>
-:nnoremap <silent> gN :bprev<CR>
+:nnoremap <silent> gp :bprev<CR>
 :nnoremap <silent> <leader>- :bdelete!<CR>
 
 "apex logs
