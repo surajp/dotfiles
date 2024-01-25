@@ -70,12 +70,9 @@ if [[ $- =~ i ]]; then
   bindkey "^_" fzf-sfdx-mdapiTypes
 
   fzf-sfdx-flags(){
-    local cmd="$(echo $2 | awk '{print $1}')"
-    if [[ "$cmd" == "" ]];
-    then
-      cmd="sfdx"
-    fi
-    thefile=${commandsmap[$cmd]}
+    local cmd="${2%% *}"
+    cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+		thefile=${commandsmap[$cmd]}
     if [[ $thefile == "" ]]; then
      return 0
     fi
@@ -84,38 +81,40 @@ if [[ $- =~ i ]]; then
     for i in "${@:2}"
     do fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
     done
-    local ret=`cat $thefile | jq -r ".[] | select(.id==\"$selected\") | .flags | keys[]" | $(__fzfcmd) -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview='cat '$thefile' | jq -r ".[] | select(.id==\"'$selected'\") | .flags | to_entries[] | select (.key==\""{}"\") | [\"Command:\n'"$fullcmd"'\n\",\"Flag Description:\",.value][]"' --preview-window='right:wrap'`
+    local ret=$(jq -r --arg sel "$selected" '.[] | select(.id==$sel) | .flags | keys[]' "$thefile" | fzf -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview="jq -r --arg sel '$selected' --arg key {} '.[] | select(.id==\$sel) | .flags | to_entries[] | select(.key==\$key) | [\"Command:\n$fullcmd\n\",\"Flag Description:\",.value][]' $thefile" --preview-window='right:wrap')
     echo "${ret//$'\n'/ --}"
   }
 
   fzf-autocomp(){
     local fullcmd="$LBUFFER"
-    local cmd="$(echo $fullcmd | awk '{print $1}')"
-    if [[ "$cmd" == "" ]];
-    then
-      cmd="sfdx"
-    fi
-    thefile=${commandsmap[$cmd]}
+    local cmd="${fullcmd%% *}"
+		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+		local thefile="${commandsmap[$cmd]:-}"
     if [[ $thefile == "" ]]; then
      return 0
     fi
-    local subcmd="$(echo $fullcmd | awk '{print $2}')"
-    local match="$(cat "$thefile" | jq -r '.[] | select(.id=="'$subcmd'")')"
+    local subcmd=$(echo "${fullcmd#$cmd}" | awk -F " -" '{print $1}' | awk '{$1=$1};1')
+    local match=$(jq -r --arg subcmd "$subcmd" '.[] | select(.id==$subcmd)' "$thefile")
     if [[ "$match" != "" ]]
     then
-      local flag="$(fzf-sfdx-flags $subcmd $fullcmd)"
+      local flag=$(fzf-sfdx-flags "$subcmd" "$fullcmd")
       if [[ "$flag" != "" ]]
       then
         LBUFFER="${LBUFFER:0:$CURSOR}--$flag${LBUFFER:$CURSOR}"
+        CURSOR=$((CURSOR + ${#flag} + 3))
       fi
     else
       local querystr=""
-      if [[ "$subcmd" != "" ]]; then
+      if [[ -n "$subcmd" ]]; then
        querystr="--query=$subcmd"
       fi
-      local selected="$(cat $thefile | jq -r '.[].id' | $(__fzfcmd) +m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up --preview='cat '$thefile' | jq -r ".[] | select (.id==\""{}"\") | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+select(has(\"usage\")).usage, \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]"' --preview-window='right:wrap' $querystr)"
+      local selected=$(jq -r '.[].id' "$thefile" |
+				fzf +m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' \
+					--preview="jq -r --arg id {} '.[] | select(.id==\$id) | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+(select(has(\"usage\")).usage), \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]' $thefile" \
+					--preview-window='right:wrap' $querystr)
       if [[ "$selected" != "" ]]; then
         LBUFFER="$cmd $selected"
+        CURSOR=$((CURSOR + ${#cmd} + ${#selected} + 1))
       fi
     fi
     local ret=$?

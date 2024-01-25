@@ -168,7 +168,7 @@ nnoremap <silent> <C-j> :cnext<CR>
 nnoremap <silent> <C-k> :cprev<CR>
 
 "Fugitive Git status quick launch
-nnoremap <silent> fg :G<CR>
+nnoremap <silent> <leader>m :G<CR>
 
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
@@ -328,8 +328,8 @@ cmap w!! w !sudo tee > /dev/null %
 :nnoremap <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
 :nnoremap <Leader># :ea 1f<CR>:set ft=xml<CR>
 
-"Run prettier on-demand
-nnoremap <silent> <leader>fo :!npx prettier -w %<CR>
+"Run fixers on-demand
+nnoremap <silent> <leader>fo :ALEFix<CR>
 
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
