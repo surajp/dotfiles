@@ -96,7 +96,8 @@ set spelllang=en_us
 set omnifunc=ale#completion#OmniFunc
 " set background=dark
 " colorscheme gruvbox "using default colorscheme for now
-colorscheme catppuccin-mocha
+" colorscheme catppuccin-mocha
+colorscheme habamax
 
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
@@ -241,10 +242,20 @@ command! -bang -nargs=* GGrepI
   \   'git grep -i --line-number -- '.fzf#shellescape(<q-args>),
   \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
 
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(
+  \   <q-args>,
+  \   {'options':['--preview','bat {} --color always']},<bang>0)
+
+command! -bang -nargs=? -complete=file Commits
+  \ call fzf#vim#commits(
+  \   <q-args>,
+  \   {'options':['--preview','git show --color=always $(cut -d " " -f1 {})']},<bang>0)
+
 "fzf key bindings
 :nnoremap <C-p> :Files!<CR>
-:nnoremap <silent> <C-f>b :Buffers!<CR>
-:nnoremap <silent> <C-f>s :Snippets!<CR>
+:nnoremap <silent> <C-f>b :Buffers<CR>
+:nnoremap <silent> <C-f>s :Snippets<CR>
 :nnoremap <silent> <C-f>c :BCommits!<CR>
 :nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
 :nnoremap <silent> <C-f>l <Esc><Esc>:Helptags!<CR>
@@ -256,7 +267,7 @@ command! -bang -nargs=* GGrepI
 
 
 "fzf options
-let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down,ctrl-a:select-all --preview='if [[ -f {} || -d {} ]];then batcat {};fi'"
+let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down,ctrl-a:select-all"
 
 " CTRL-Q to build quickfix list
 function! s:build_quickfix_list(lines)
