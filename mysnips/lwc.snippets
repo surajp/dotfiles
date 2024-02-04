@@ -14,6 +14,10 @@ snippet iapex "Import Apex Method"
 import ${1:method} from "@salesforce/apex/${2:classname}.$1";
 endsnippet
 
+snippet iflow "Import Flow Support"
+import {FlowNavigationFinishEvent,FlowAttributeChangeEvent,FlowNavigationBackEvent,FlowNavigationNextEvent,FlowNavigationPauseEvent} from "lightning/flowSupport";
+endsnippet
+
 snippet ifield "Import Object Field"
 import ${1:MY_FIELD} from "@salesforce/schema/${2:Account}.${3:fieldApiName}";
 endsnippet

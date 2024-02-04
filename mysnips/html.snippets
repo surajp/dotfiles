@@ -22,8 +22,15 @@ snippet table "table"
 		key-field="$1"
 		columns={$2}
 		data={$3}
+		column-widths-mode="${4|auto,fixed|}"
 		show-row-number-column
 		hide-checkbox-column
+		default-sort-direction="${5|asc,desc|}"
+		enable-infinite-loading
+		show-row-number-column
+		suppress-bottom-bar
+		wrap-table-header
+		wrap-text-max-lines="3"
 		onrowaction={handleRowAction}
 	>
 	</lightning-datatable>
@@ -31,23 +38,23 @@ endsnippet
 
 snippet ll "lightning layout"
 	<lightning-layout
-		horizontal-align="spread"
+		horizontal-align="${1|center,space,spread,end|}"
 		multiple-rows
-		pull-to-boundary="small"
-		vertical-align="center"
+		pull-to-boundary="${2|small,medium,large|}"
+		vertical-align="${3|start|center|end|stretch|}"
 	>
 	</lightning-layout>
 endsnippet
 
 snippet lli "lightning layout item"
 	<lightning-layout-item
-		alignment-bump="left"
-		flexibility="auto"
+		alignment-bump="${1|top,right,bottom,left|}"
+		flexibility="${2|auto,shrink,no-shrink,grow,no-grow,no-flex|}"
 		large-device-size="12"
 		medium-device-size="12"
 		small-device-size="12"
 		size="12"
-		padding="around-small"
+		padding="${3|horizontal-small,horizontal-medium,horizontal-large,around-small,around-medium,around-large|}"
 	>
 	</lightning-layout-item>
 endsnippet
