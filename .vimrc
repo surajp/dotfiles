@@ -88,6 +88,33 @@ set cursorline
 "disable mouse
 set mouse=
 
+"disable scroll
+:nmap <ScrollWheelUp> <nop>
+:nmap <S-ScrollWheelUp> <nop>
+:nmap <C-ScrollWheelUp> <nop>
+:nmap <ScrollWheelDown> <nop>
+:nmap <S-ScrollWheelDown> <nop>
+:nmap <C-ScrollWheelDown> <nop>
+:nmap <ScrollWheelLeft> <nop>
+:nmap <S-ScrollWheelLeft> <nop>
+:nmap <C-ScrollWheelLeft> <nop>
+:nmap <ScrollWheelRight> <nop>
+:nmap <S-ScrollWheelRight> <nop>
+:nmap <C-ScrollWheelRight> <nop>
+
+:imap <ScrollWheelUp> <nop>
+:imap <S-ScrollWheelUp> <nop>
+:imap <C-ScrollWheelUp> <nop>
+:imap <ScrollWheelDown> <nop>
+:imap <S-ScrollWheelDown> <nop>
+:imap <C-ScrollWheelDown> <nop>
+:imap <ScrollWheelLeft> <nop>
+:imap <S-ScrollWheelLeft> <nop>
+:imap <C-ScrollWheelLeft> <nop>
+:imap <ScrollWheelRight> <nop>
+:imap <S-ScrollWheelRight> <nop>
+:imap <C-ScrollWheelRight> <nop>
+
 "set spellcheck
 set spell
 set spelllang=en_us
@@ -130,14 +157,14 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=apex
 	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
-	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page,*.component set filetype=html
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
+	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
-	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G push -f | :nnoremap <leader>l :G pull<CR>
+	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <leader>l :G pull<CR>
 augroup END
 
 
@@ -188,6 +215,7 @@ let hlstate=0
 :noremap <silent> <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap <silent> ++ :!git add "%"<CR>
 :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+:nnoremap ]T <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r" -o 
 
 "detailed coverage
 :nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
@@ -195,6 +223,7 @@ let hlstate=0
 
 ":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
 :nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
+:nnoremap ]TT ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:nohlsearch<CR>:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>" -o 
 :nnoremap <silent> ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
 :nnoremap <silent> ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
 :nnoremap <silent> ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
