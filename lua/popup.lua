@@ -1,4 +1,18 @@
 -- Run an asynchronous command in a popup that minimizes and is automatically restored when the command finishes execution
+local M = {}
+
+M.config = {
+  timeout = 180000,
+  sleep = 2,
+  height = 30,
+  width = 120,
+  left = 10,
+  top = 5
+}
+
+M.setup= function(userconfig)
+  M.config = vim.tbl_deep_extend('force',M.config,userconfig)
+end
 
 local function minimize_popup(win)
   vim.api.nvim_win_close(win, true)
@@ -41,10 +55,10 @@ local function create_popup()
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, {"Running command..."})
   local opts = {
     relative = 'editor',
-    row = 5,
-    col = 10,
-    width = 120,
-    height = 30,
+    row = M.config.top,
+    col = M.config.left,
+    width = M.config.width,
+    height = M.config.height,
     style = 'minimal',
     border = 'single',
     title = 'Async Command',
@@ -62,7 +76,7 @@ local function run_async_command(cmd)
 
   vim.system(cmd, {
     text = true,
-    timeout=50000,
+    timeout= M.config.timeout,
     stdout = function(_, data)
       vim.schedule(function()
         if data then
@@ -102,7 +116,7 @@ local function run_async_command(cmd)
 
   -- Minimize the popup window after starting the job
   vim.schedule(function()
-    sleep(2)
+    sleep(M.config.sleep)
     if complete == false then
       minimize_popup(win)
     end
@@ -119,3 +133,5 @@ vim.api.nvim_create_user_command('RunAsync', function(opts)
   -- local cmd = opts.args
   run_async_command(cmd)
 end, { nargs = "*" })
+
+return M
