@@ -52,6 +52,8 @@ Plug 'smoka7/hop.nvim'
 
 Plug 'mbbill/undotree'
 
+Plug 'github/copilot.vim'
+
 call plug#end()
 
 lua require 'init'
@@ -77,6 +79,34 @@ set colorcolumn=120
 
 set hidden
 set scrolloff=8
+
+
+"disable scroll
+:nmap <ScrollWheelUp> <nop>
+:nmap <S-ScrollWheelUp> <nop>
+:nmap <C-ScrollWheelUp> <nop>
+:nmap <ScrollWheelDown> <nop>
+:nmap <S-ScrollWheelDown> <nop>
+:nmap <C-ScrollWheelDown> <nop>
+:nmap <ScrollWheelLeft> <nop>
+:nmap <S-ScrollWheelLeft> <nop>
+:nmap <C-ScrollWheelLeft> <nop>
+:nmap <ScrollWheelRight> <nop>
+:nmap <S-ScrollWheelRight> <nop>
+:nmap <C-ScrollWheelRight> <nop>
+
+:imap <ScrollWheelUp> <nop>
+:imap <S-ScrollWheelUp> <nop>
+:imap <C-ScrollWheelUp> <nop>
+:imap <ScrollWheelDown> <nop>
+:imap <S-ScrollWheelDown> <nop>
+:imap <C-ScrollWheelDown> <nop>
+:imap <ScrollWheelLeft> <nop>
+:imap <S-ScrollWheelLeft> <nop>
+:imap <C-ScrollWheelLeft> <nop>
+:imap <ScrollWheelRight> <nop>
+:imap <S-ScrollWheelRight> <nop>
+:imap <C-ScrollWheelRight> <nop>
 
 "set cursor to blink
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -132,7 +162,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
-	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <leader>l :G pull<CR>
+	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <leader>l :G pull<CR> | nnoremap <leader>f :G fetch<CR> | nnoremap <leader>fp :G fetch --prune<CR> | nnoremap <leader>o :G log<CR>
 augroup END
 
 
@@ -184,6 +214,7 @@ let hlstate=0
 :nnoremap ++ :!git add "%"<CR>
 " :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
 :nnoremap <silent> ]t :RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r<CR>
+:nnoremap ]T :RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r -o
 
 "detailed coverage
 " :nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
@@ -206,7 +237,7 @@ let hlstate=0
 " :nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
 :nnoremap <silent> ]dd :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>
 " :nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
-:nnoremap ]e :RunAsync !sfdx apex:run -f % -o 
+:nnoremap ]e :RunAsync sfdx apex:run -f % -o 
 " :nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
 :nnoremap <silent> ]ee :RunAsync sfdx apex:run -f %<CR>
 " :nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
@@ -277,9 +308,10 @@ inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'window': { 'width': 0.2, 'hei
 imap <C-S> <Plug>(fzf-complete-wordnet)
 
 inoremap <expr> <C-x>c fzf#vim#complete('cat ~/.sldsclasses.txt') 
-inoremap <expr> <Leader>s fzf#vim#complete({
-      \ 'source': 'cat schema.txt',
-      \ 'reducer': { lines -> split(lines[0],' ')[0]}})
+
+" inoremap <expr> <Leader>s fzf#vim#complete({
+"       \ 'source': 'cat schema.txt',
+"       \ 'reducer': { lines -> split(lines[0],' ')[0]}})
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
