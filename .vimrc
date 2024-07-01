@@ -14,7 +14,7 @@ Plug 'dense-analysis/ale'
 "Plug 'altercation/vim-colors-solarized'
 
 Plug 'dart-lang/dart-vim-plugin'
-" Plug 'neovim/nvim-lspconfig'
+Plug 'neovim/nvim-lspconfig'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -56,6 +56,9 @@ call plug#end()
 
 lua require 'init'
 lua require 'keymaps'
+lua require 'lsp'
+
+let mapleader=" "
 
 set number relativenumber
 syntax on
@@ -76,7 +79,7 @@ set hidden
 set scrolloff=8
 
 "set cursor to blink
-"set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
 set cursorline
 
 "disable mouse
@@ -89,7 +92,7 @@ set spelllang=en_us
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
 set background=dark
-" colorscheme gruvbox "using default colorscheme for now
+colorscheme gruvbox 
 
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
@@ -129,7 +132,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
-	au FileType fugitive :nnoremap <buffer> ]p :G push<CR> | :nnoremap <buffer> ]pf :G push -f | :nnoremap [p :G pull<CR>
+	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <leader>l :G pull<CR>
 augroup END
 
 
@@ -159,9 +162,12 @@ tnoremap <C-]> <C-\><C-n>
 nnoremap <C-j> :cnext<CR>
 nnoremap <C-k> :cprev<CR>
 
+"Fugitive Git status quick launch
+nnoremap <silent> <leader>m :G<CR>
+
 " Press Space to turn off highlighting and clear any message already displayed.
 let hlstate=0
-:nnoremap <silent> <Space> :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
+:nnoremap <silent> ; :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
 :nnoremap <C-j>t :bo 15sp +te<CR>A
 :nnoremap <C-w>m <C-w>_<C-w>\|
 :nnoremap <C-w><Left> :vertical resize -5<CR>
@@ -176,23 +182,35 @@ let hlstate=0
 :noremap <Leader>a :tabnew ~/.config/nvim/lua<CR>
 :noremap <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap ++ :!git add "%"<CR>
-:nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+" :nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+:nnoremap <silent> ]t :RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r<CR>
 
 "detailed coverage
-:nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
+" :nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
+:nnoremap <silent> ]td :RunAsync sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n %:t:r<CR>
 :nnoremap <leader>c :tabnew /tmp/coverage<CR>
 
 ":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
-:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
-:nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
-:nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
-:nnoremap ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
-:nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
-:nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
-:nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
-:nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
-:nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
+" :nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
+:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(h"tyiw:execute "RunAsync sfdx apex:run:test -y -c -r human -w 5 -t " . expand("%:t:r") . ".<C-r>t"<CR>:nohlsearch<CR>
+" :nnoremap ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
+:nnoremap ]a :RunAsync sfdx project:deploy:start<CR>
+" :nnoremap ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
+:nnoremap <silent> ]af :RunAsync sfdx project:deploy:start -c<CR>
+" :nnoremap <silent> ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
+:nnoremap <silent> ]u :RunAsync sfdx project:retrieve:start<CR>
+" :nnoremap ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
+:nnoremap <silent> ]uf :RunAsync sfdx project:retrieve:start -c<CR>
+" :nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d % -l NoTestRun -w 5 -o 
+:nnoremap  ]d :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -o 
+" :nnoremap ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
+:nnoremap <silent> ]dd :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>
+" :nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
+:nnoremap ]e :RunAsync !sfdx apex:run -f % -o 
+" :nnoremap ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
+:nnoremap <silent> ]ee :RunAsync sfdx apex:run -f %<CR>
+" :nnoremap ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
+:nnoremap <silent> ]ej :RunAsync sfdx apex:run -f % --json<CR>
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
@@ -277,6 +295,9 @@ inoremap <expr> <Leader>s fzf#vim#complete({
 
 " Prevent gq accidents
 :nnoremap gQ gq
+
+
+nnoremap qq :q<CR>
 
 "Remap arrow keys
 :nnoremap <Up> ddkP
@@ -403,7 +424,7 @@ let g:tagbar_type_apex = {
 lua <<EOF
 
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"java","json","javascript","bash","lua","vim","comment","markdown","apex","soql","sosl"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"java","json","javascript","bash","lua","vim","comment","markdown","apex","soql","sosl","lua","vimdoc"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = {}, -- List of parsers to ignore installing
   highlight = {
     enable = true,              -- false will disable the whole extension
@@ -418,6 +439,14 @@ require'nvim-treesitter.configs'.setup {
 
 
 require('aerial').setup({})
+
+require('popup').setup({
+  sleep=1,
+  left=150,
+  top=3,
+  width=100,
+  height=20
+})
 
 EOF
 
