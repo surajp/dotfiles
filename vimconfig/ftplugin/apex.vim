@@ -3,4 +3,5 @@ if exists("b:did_ftplugin")
 endif
 let b:did_ftplugin = 1
 set commentstring=//\ %s
-UltiSnipsAddFiletypes cls.java
+set iskeyword-=.
+" UltiSnipsAddFiletypes cls.java
