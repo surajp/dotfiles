@@ -259,6 +259,9 @@ let hlstate=0
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
 
+"copy to system clipboard
+nnoremap <silent> <leader>+ :call system("clip.exe", @")<CR>
+
 "undotree
 nnoremap <leader>u :UndotreeToggle<CR>
 if has("persistent_undo")
