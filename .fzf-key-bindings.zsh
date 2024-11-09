@@ -49,7 +49,7 @@ if [[ $- =~ i ]]; then
   bindkey "^y" fzf-soql
 
   fzf-sfdx-alias(){
-    local selected="$(cat ~/.sfdxaliases | $(__fzfcmd) | awk '{print $2}')"
+  local selected=$(cat ~/.sfdxaliases | jq -r '.. | objects | select(.username!=null) | .username+", "+.alias' | sort | uniq | $(__fzfcmd) -d ',' --preview "jq -r --arg sel {1} '[.. | objects | select(.username==\$sel) ][0] | del(.accessToken)' ~/.sfdxaliases" | awk -F "," 'function trim(s){sub(/^[ \t]+/,"",s);sub(/[ \t]+$/,"",s);return s} {print (trim($2)=="") ?$1:trim($2)}')
     LBUFFER="${LBUFFER:0:$CURSOR}$selected${LBUFFER:$CURSOR}"
     local ret=$?
     zle reset-prompt
@@ -67,7 +67,7 @@ if [[ $- =~ i ]]; then
   }
 
   zle -N fzf-sfdx-mdapiTypes{,}
-  bindkey "^_" fzf-sfdx-mdapiTypes
+  bindkey '^]' fzf-sfdx-mdapiTypes
 
   fzf-sfdx-flags(){
     local cmd="${2%% *}"
@@ -88,8 +88,8 @@ if [[ $- =~ i ]]; then
   fzf-autocomp(){
     local fullcmd="$LBUFFER"
     local cmd="${fullcmd%% *}"
-		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
-		local thefile="${commandsmap[$cmd]:-}"
+    cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+    local thefile="${commandsmap[$cmd]:-}"
     if [[ $thefile == "" ]]; then
      return 0
     fi

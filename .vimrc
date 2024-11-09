@@ -6,7 +6,7 @@ Plug 'tpope/vim-surround'
 " Plug 'tpope/vim-vinegar'
 Plug 'stevearc/oil.nvim'
 
-Plug 'tpope/vim-commentary'
+" Plug 'tpope/vim-commentary'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'pangloss/vim-javascript'
@@ -44,7 +44,7 @@ Plug 'gruvbox-community/gruvbox'
 
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 
-" Plug 'preservim/tagbar'
+Plug 'preservim/tagbar'
 
 Plug 'stevearc/aerial.nvim'
 
@@ -55,13 +55,38 @@ Plug 'mbbill/undotree'
 
 Plug 'TabbyML/vim-tabby'
 
+Plug 'carbon-steel/detour.nvim'
+
+Plug 'HiPhish/rainbow-delimiters.nvim'
+
+Plug 'huggingface/llm.nvim'
+
+Plug 'github/copilot.vim'
+
+"View markdown
+Plug 'OXY2DEV/markview.nvim'
+
+"Buffer nav
+Plug 'leath-dub/snipe.nvim'
+
+"Darkfold
+Plug 'aliqyan-21/darkvoid.nvim'
+
+"Time spent
+Plug 'QuentinGruber/timespent.nvim'
+
+"Iceberg color scheme
+Plug 'cocopon/iceberg.vim'
+
 call plug#end()
+
+let mapleader=" "
 
 lua require 'init'
 lua require 'keymaps'
+"lua require 'theme'
 lua require 'lsp'
 
-let mapleader=" "
 
 set number relativenumber
 syntax on
@@ -72,9 +97,10 @@ set lazyredraw
 set ignorecase smartcase
 
 let $RTP = $XDG_CONFIG_HOME."/nvim"
-set tabstop=2
+set tabstop=8
 set shiftwidth=2
-set expandtab
+set softtabstop=2
+set noexpandtab
 
 set colorcolumn=120
 
@@ -121,10 +147,11 @@ set spelllang=en_us
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
-" set background=dark
-" colorscheme gruvbox "using default colorscheme for now
-" colorscheme catppuccin-mocha
-colorscheme habamax
+"set background=dark
+colorscheme gruvbox 
+"colorscheme catppuccin-mocha
+"colorscheme darkvoid
+"colorscheme iceberg
 
 "autocmd VimEnter * ++nested colorscheme enfocado if filereadable(".last.sess") | :source .last.sess | endif
 
@@ -164,7 +191,7 @@ augroup FileTypeGroup
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
 	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
-	au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <leader>l :G pull<CR>
+	"au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <buffer> <leader>l :G pull<CR>
 augroup END
 
 
@@ -180,9 +207,16 @@ command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endf
 " Set current directory to the parent dir of the current file
 nnoremap <leader>d  :lcd %:p:h<CR>
 
+"remap increment decrement
+nnoremap <A-a> <C-a>
+
 "Remap jk for <Esc>
 inoremap jk <Esc>
 inoremap kj <Esc>
+
+"Remap to navigate visual lines
+nnoremap j gj
+nnoremap k gk
 
 "Remap Enter to :
 nnoremap <CR> :
@@ -211,28 +245,57 @@ let hlstate=0
 :nnoremap zm zMza
 :nnoremap zr zR
 :noremap <silent> <C-e> :tabnew ~/.config/nvim/init.vim<CR>
-:noremap <silent> <Leader>a :tabnew ~/.config/nvim/lua<CR>
-:noremap <silent> <leader>e :tabnew ~/.local/share/nvim/swap/<CR>
+:noremap <silent> <Leader>l :tabnew ~/.config/nvim/lua<CR>
+:noremap <silent> <leader>ow :tabnew ~/.local/share/nvim/swap/<CR>
 :nnoremap <silent> ++ :!git add "%"<CR>
-:nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
-:nnoremap ]T <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r" -o 
+
+"Apex test mappings
+"nnoremap ]t <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r"<CR>
+nnoremap <silent> ]t :RunAsync sfdx apex:run:test -r human -w 5 -n %:t:r<CR>
+nnoremap <silent> ]T :RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r<CR>
+":nnoremap ]T <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -r human -w 5 -n "%:t:r" -o 
+nnoremap ]to :RunAsync sfdx apex:run:test -r human -w 5 -n %:t:r -o 
+nnoremap ]To :RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r -o 
+":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
+"nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
+nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(h"tyiw<C-o><CR>:execute "RunAsync sfdx apex:run:test -r human -w 6 -t ". expand("%:t:r"). ".<C-r>t"<CR>:nohlsearch<CR>
+nnoremap <silent> ]tT ?\c@IsTest<CR>j0f(h"tyiw<C-o><CR>:execute "RunAsync sfdx apex:run:test -r human -c -w 6 -t ". expand("%:t:r"). ".<C-r>t"<CR>:nohlsearch<CR>
+"nnoremap  ]TT ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:nohlsearch<CR>:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>" -o 
+nnoremap ]TT ?\c@IsTest<CR>j0f(h"tyiw:nohlsearch<CR>:execute "RunAsync sfdx apex:run:test -y -c -r human -w 5 -t " . expand("%:t:r") . ".<C-r>t -o
 
 "detailed coverage
-:nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
+":nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
+nnoremap ]td :RunAsync sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n %:t:r<CR>
 :nnoremap <leader>c :tabnew /tmp/coverage<CR>
 
-":nnoremap ]t :set mp="sfdx apex:run:test -y -r human -c -w 5 -n \"%:t:r\" --verbose" \|exe 'make' \| copen<CR>
-:nnoremap <silent> ]tt ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>"<CR>:nohlsearch<CR>
-:nnoremap ]TT ?\c@IsTest<CR>j0f(hyiw<C-w>s<C-w>j10<C-w>-:nohlsearch<CR>:term sfdx apex:run:test -y -c -r human -w 5 -t "%:t:r".<C-r>" -o 
-:nnoremap <silent> ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
-:nnoremap <silent> ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
-:nnoremap <silent> ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
-:nnoremap <silent> ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
-:nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
-:nnoremap <silent> ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
-:nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
-:nnoremap <silent> ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
-:nnoremap <silent> ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
+"Explain code using llama3
+":nnoremap <silent> <leader>ai :tabnew \| term cat # \| ollama run sfgemma "Explain this code and suggest improvements"<CR>
+":nnoremap <silent> leader>ai :tabnew \| term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt \| fabric -sp sf_dev --model gemma2:latest<CR><CR>
+nnoremap <silent> <leader>ai :tabnew \| term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt \| fabric -sp sf_dev --model llama3.2:latest<CR><CR>
+
+":nnoremap <silent> ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
+:nnoremap <silent> ]a :RunAsync sfdx project:deploy:start<CR>
+":nnoremap <silent> ]af <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -c<CR>
+nnoremap <silent> ]af :RunAsync sfdx project:deploy:start -c<CR>
+"nnoremap <silent> ]u <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start<CR>
+nnoremap <silent> ]u :RunAsync sfdx project:retrieve:start<CR>
+":nnoremap <silent> ]uf <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -c<CR>
+nnoremap <silent> ]uf :RunAsync sfdx project:retrieve:start -c<CR>
+":nnoremap <leader>[ <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -d "%" -o 
+nnoremap <leader>[ :RunAsync sfdx project:retrieve:start -d % -o 
+":nnoremap <silent> <leader>[[ <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -d "%"<CR>
+nnoremap <silent> <leader>[[ :RunAsync sfdx project:retrieve:start -d %<CR>
+":nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
+nnoremap ]d :RunAsync sfdx project:deploy:start -d % -l RunSpecifiedTests -t NonExistentTest -w 5 -o 
+":nnoremap <silent> ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
+nnoremap <silent> ]dd :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>
+"nnoremap <silent> ]dd :RunAsync /Users/surajpillai/projects/anywhere-sfr-dashboard/scripts/zsh/deployUsingTooling.sh %<CR>
+":nnoremap ]e :tabnew \| read !sfdx apex:run -f "#" -o 
+nnoremap ]e :RunAsync sfdx apex:run -f % -o 
+":nnoremap <silent> ]ee :tabnew \| read !sfdx apex:run -f "#"<CR>
+nnoremap <silent> ]ee :RunAsync sfdx apex:run -f %<CR>
+":nnoremap <silent> ]ej :tabnew \| read !sfdx apex:run -f "#" --json<CR>
+nnoremap <silent> ]ej :RunAsync sfdx apex:run -f % --json<CR>
 
 "vim grep current word
 :nnoremap ]ss yiw:vim /\c<C-r>"/g
@@ -250,6 +313,13 @@ let hlstate=0
 
 "remap 'U' to revert to previous save
 nnoremap U :ea 1f<CR>
+
+"detour keymaps
+nnoremap <silent> <c-w>o :Detour<CR>
+nnoremap <silent> <c-w>c :DetourCurrentWindow<CR>
+
+"open current file in bat in tmux popup
+nnoremap <silent> <c-w>b :Detour<CR>:term bat --paging=always "%"<CR>a
 
 "undotree
 nnoremap <leader>u :UndotreeToggle<CR>
@@ -294,6 +364,8 @@ command! -bang -nargs=? -complete=file Commits
 :nnoremap <silent> <C-f>t :Filetypes!<CR>
 :nnoremap <silent> <C-f>o :Colors<CR>
 
+inoremap <expr> <C-f>i fzf#vim#complete('cat ~/lib/.sldsicons.txt') 
+
 
 "fzf options
 let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down,ctrl-a:select-all"
@@ -304,6 +376,29 @@ function! s:build_quickfix_list(lines)
   copen
   cc
 endfunction
+
+let s:is_transparent = 0
+function! s:MakeTransparent()
+  hi Normal guibg=NONE ctermbg=NONE
+  hi NonText guibg=NONE ctermbg=NONE
+  let s:is_transparent = 1
+endfunction
+
+function! s:RemoveTransparent()
+  execute "colorscheme " . g:colors_name
+  let s:is_transparent = 0
+endfunction
+
+function! s:ToggleTransparent()
+  if s:is_transparent == 0
+    call s:MakeTransparent()
+  else
+    call s:RemoveTransparent()
+  endif
+endfunction
+
+" Toggle transparency
+nnoremap <silent> <leader>tt :call <SID>ToggleTransparent()<CR>
 
 let g:fzf_action = {
   \ 'ctrl-q': function('s:build_quickfix_list'),
@@ -339,9 +434,11 @@ inoremap <expr> <C-x>m fzf#vim#complete({
 " Prevent gq accidents
 :nnoremap gQ gq
 
+nnoremap qq :q<CR>
+
 "Remap arrow keys
-:nnoremap <Up> ddkP
-:nnoremap <Down> ddp
+:nnoremap <up> <nop>
+:nnoremap <down> <nop>
 
 "sudo save
 cmap w!! w !sudo tee > /dev/null %
@@ -351,7 +448,8 @@ cmap w!! w !sudo tee > /dev/null %
 :command! BL %s/^\(\s\|\t\)*$//g
 
 "aerial maps
-:nnoremap mm :AerialToggle<CR>
+":nnoremap mm :AerialToggle<CR>
+:nnoremap mm :TagbarToggle<CR>
 
 "xml to json map
 :nnoremap <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
@@ -386,14 +484,14 @@ let g:ale_linters_explicit = 1
 "Dock floating preview window
 let g:float_preview#docked=1
 
-let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['apexlsp','pmd'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
+let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['pmd'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
 let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['shfmt'],'xml':['tidy']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
 let g:ale_sign_warning='--'
 let g:ale_floating_preview=1
-let g:ale_apex_apexlsp_jarfile='/home/suraj/libs/apex-jorje-lsp.jar'
+let g:ale_apex_apexlsp_jarfile='/Users/surajpillai/lib/apex-jorje-lsp.jar'
 
 let g:ale_javascript_eslint_executable = 'eslint'
 let g:ale_javascript_eslint_use_global = 1
@@ -427,7 +525,7 @@ endif
 
 
 if (has("termguicolors"))
-  " set termguicolors
+  set termguicolors
 endif
 
 "search recursively in subfolders using 'find'
@@ -467,7 +565,7 @@ let g:tagbar_type_apex = {
 lua <<EOF
 
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"java","json","javascript","bash","lua","vim","comment","markdown","apex","soql","sosl"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"java","apex","json","csv","javascript","bash","lua","vim","comment","markdown","soql","sosl","sflog"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   ignore_install = {}, -- List of parsers to ignore installing
   highlight = {
     enable = true,              -- false will disable the whole extension
@@ -480,12 +578,47 @@ require'nvim-treesitter.configs'.setup {
   }
 }
 
-
+require('parallelpopup').setup({
+  sleep=1,
+  left=100,
+  top=5,
+  height=20,
+  width=90,
+})
 require('aerial').setup({})
+
+-- require('llm').setup({
+--   api_token = nil,
+--   backend = 'ollama',
+--   model = 'gempilot',
+--   context_window = 2048,
+--   url = 'http://localhost:11434',
+--    request_body = {
+--     options = {
+--       temperature = 0.7,
+--       top_p = 0.95,
+--     }
+--   },
+--   fim = {
+--     enabled = true,
+--     prefix = "<fim_prefix>",
+--     middle = "<fim_middle>",
+--     suffix = "<fim_suffix>",
+--   },
+--   tokenizer = nil,
+--   enable_suggestions_on_startup = true,
+--   enable_suggestions_on_files = "*",
+--   debounce_ms = 150,
+--   disable_url_path_completion = false,
+--   accept_keymap = "<Tab>",
+--   dismiss_keymap = "<S-Tab>",
+-- })
+require 'vertex'
 
 EOF
 
 " Copilot mappings
 let g:copilot_assume_mapped = v:true
-imap <silent><expr> <C-Space> copilot#Accept('\<CR>')
-" :lua require('lsp') need to figure out how to get this to work
+imap <silent><expr> <C-l> copilot#Accept('\<CR>')
+
+call <SID>MakeTransparent()

@@ -17,3 +17,12 @@ vim.keymap.set('', 'T', function()
   hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
 end, {remap=true})
 
+
+-- buffer nav
+local snipe = require("snipe")
+vim.keymap.set("n", "gb", function()
+  snipe.open_buffer_menu()
+end, { remap = false,desc = "Open buffer menu" })
+
+-- timespent
+vim.keymap.set("n","<leader>ts","<CMD>ShowTimeSpent<CR>",{desc="Show Time Spent"})

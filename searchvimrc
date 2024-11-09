@@ -1,0 +1,40 @@
+
+call plug#begin('~/.vim/search/plugged')
+
+
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+
+call plug#end()
+
+set lazyredraw
+set ignorecase smartcase
+set noswapfile
+set readonly
+
+set hidden
+
+"set cursor to blink
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
+set cursorline
+
+"disable mouse
+set mouse=
+colorscheme desert
+
+nnoremap q :q!<CR>
+
+" Press Space to turn off highlighting and clear any message already displayed.
+let hlstate=0
+:nnoremap <silent> ; :if (hlstate%2 == 0) \| nohlsearch \| else \| set hlsearch \| endif \| let hlstate=hlstate+1<Bar>:echo<CR>
+
+:nnoremap <silent> <C-f>f <Esc><Esc>:BLines!<CR>
+
+"Remap for quickfix
+nnoremap <silent> <C-j> :cnext<CR>
+nnoremap <silent> <C-k> :cprev<CR>
+
+au VimEnter * BLines!
+
+"fzf options
+let $FZF_DEFAULT_OPTS="--preview-window 'right:50%' --margin=1,4 --bind=alt-k:preview-page-up,alt-j:preview-page-down,ctrl-a:select-all"

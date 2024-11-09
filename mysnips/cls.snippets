@@ -62,6 +62,10 @@ endsnippet
 snippet sqm "SOQL to Map variable" b
 Map<Id,${1:Account}> ${2:acctsMap} = new Map<Id,$1>([Select ${3:Id} from $1]);
 endsnippet
+
+snippet supp "PMD SuppressWarnings" b
+@SuppressWarnings('PMD.$1')
+endsnippet
 	
 snippet batch "New Batch Class" b
 class `!p snip.rv = fn.replace('.cls','')` implements Database.Batchable<SObject>{

@@ -1,0 +1,37 @@
+# Some functions for clipboard interaction
+
+#timed copy
+function tcopy() {
+
+  if [ -t 0 ]; then
+    input="$1"
+  else
+    input=$(cat)
+  fi
+  #
+  # Default duration is 30 seconds
+  duration="${2:-20}"
+
+  # Copy text to clipboard
+  echo -n "$input" | pbcopy
+
+  # Run the sleep and clear operations in the background
+  nohup bash -c "sleep $duration;source ~/.clipfunctions.rc;_clearclip $input" &>/dev/null &
+
+}
+
+# function _clearclip() {
+#   input=""
+#   # if there is an argument assign to variable input
+#   if [ $# -eq 1 ]; then
+#     input="$1"
+#   fi
+#   # if input is empty or matches pbpaste then clear the clipboard
+#   if [[ -z "$input" || "$(pbpaste)" = "$input" ]]; then
+#     echo -n '' | pbcopy
+#   fi
+# }
+
+function _clearclip() {
+  echo -n '' | pbcopy
+}

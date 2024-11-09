@@ -64,3 +64,11 @@ snippet spinner "lightning spinner"
 	<lightning-spinner alternative-text="loading..." size="small"></lightning-spinner>
 </div>
 endsnippet
+
+snippet flow "lightning flow"
+<lightning-flow
+	flow-api-name={${1:flowName}}
+	flow-input-variables={${2:inputVariables}}
+	onstatuschange={${3:onStatusChange}}
+></lightning-flow>
+endsnippet

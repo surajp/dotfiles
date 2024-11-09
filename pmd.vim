@@ -18,7 +18,7 @@ function! ale_linters#apex#pmd#Handle(buffer, lines) abort
 endfunction
 
 function! ale_linters#apex#pmd#GetCommand(buffer) abort
-    return '/home/suraj/softwares/pmd-bin-7.0.0-rc3/bin/pmd check --no-progress'
+    return $HOME.'/lib/pmd/pmd/bin/pmd check --no-progress'
     \ . ale#Var(a:buffer, 'apex_pmd_options')
     \ . ' -f csv'
     \ . ' -d %t'
@@ -30,7 +30,7 @@ endif
 
 call ale#linter#Define('apex', {
 \   'name': 'pmd',
-\   'executable': '/home/suraj/softwares/pmd-bin-7.0.0-rc3/bin/pmd',
+\   'executable': $HOME.'/lib/pmd/pmd/bin/pmd',
 \   'command': function('ale_linters#apex#pmd#GetCommand'),
 \   'callback': 'ale_linters#apex#pmd#Handle',
 \})

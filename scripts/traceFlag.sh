@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 set -euo pipefail
 
 usage="./traceFlag.sh <traced user name>(defaults to 'System')  <trace interval in minutes>(defaults to 30 minutes) <target org>"
@@ -25,5 +25,6 @@ if [[ $userId != "005"* ]]; then
 fi
 debugLevelId=$(sfdx data:query -q "select id from debuglevel where Developername='SFDC_DevConsole'" -o $targetOrg -t --json | jq -r '.result.records[0].Id')
 startDate=$(date +"%Y-%m-%dT%H:%M:%S%z")
-expirationDate=$(date -d "$startDate +$traceInterval minutes" +"%Y-%m-%dT%H:%M:%S%z")
+expirationDate=$(date -v "+$traceInterval""M" +"%Y-%m-%dT%H:%M:%S%z")
+echo $expirationDate
 sfdx data:create:record -o $targetOrg -s TraceFlag -v "DebugLevelId='$debugLevelId' LogType='USER_DEBUG' TracedEntityId='$userId' startDate=$startDate expirationDate=$expirationDate" -t

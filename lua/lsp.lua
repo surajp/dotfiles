@@ -1,8 +1,12 @@
 local lspconfig = require('lspconfig')
+
 lspconfig.apex_ls.setup{
   apex_jar_path=os.getenv("HOME")..'/lib/apex-jorje-lsp.jar',
   apex_enable_semantic_errors = false, -- Whether to allow Apex Language Server to surface semantic errors
-  apex_enable_completion_statistics = false, -- Whether to allow Apex Language Server to collect telemetry on code completion usage
+  apex_enable_completion_statistics = false, -- Whether to allow Apex Language Server to collect telemetry on code completion usage,
+  java_path= '/opt/homebrew/opt/openjdk@17/bin/java',
+  apex_jvm_max_heap="2048m",
+  apex_jvm_min_heap="512m",
   filetypes={"apex"}
 }
 
@@ -20,13 +24,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
     -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
     vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<leader>wl', function()
       print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
     end, opts)
+    vim.keymap.set('n', '<leader>d', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
     vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
     vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)

@@ -2,6 +2,7 @@
 export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%Y-%m-%d %T "
 export HISTSIZE=100000
+export BAT_THEME=Dracula
 
 alias .='nvim .'
 alias push='sfdx project:deploy:start'
@@ -14,10 +15,17 @@ alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
 # alias fd='fdfind'
 
+#docker compose
+alias dc="docker compose"
+alias dcu="docker compose up"
+alias dcd="docker compose down"
+
 # you need 'fd-find' installed for the commands below
 export FZF_DEFAULT_COMMAND="fd -t f --exclude={.git,node_modules}"
 export FZF_ALT_C_COMMAND="fd -t d --exclude={.git,node_modules}"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+export FZF_DEFAULT_OPTS='--height "80%" --preview "if [ -d {} ];then exa -lhi --icons -snew {};elif [ -f {} ];then bat --color=always {};else echo {};fi" --preview-window "right:60%:wrap"'
 
 #Setup forgit, if installed
 if [[ -d $PROJECTS_HOME/forgit ]]; then
@@ -30,6 +38,9 @@ if [[ -d $PROJECTS_HOME/forgit ]]; then
     "
 	source $PROJECTS_HOME/forgit/forgit.plugin.sh
 fi
+
+#Clipboard functions
+source ~/.clipfunctions.rc
 
 show_default_org() {
 	if [ -f './.sfdx/sfdx-config.json' ]; then
@@ -60,10 +71,17 @@ newclass() {
 
 openr() {
 	if [ $# -eq 1 ]; then
-		sfdx org:open -r -o "$1" -p "/lightning/page/home"
+		result=$(sfdx org:open -r -o "$1" -p "/lightning/page/home" --json)
 	else
-		sfdx org:open -r -p "/lightning/page/home"
+		result=$(sfdx org:open -r -p "/lightning/page/home" --json)
 	fi
+	local exitcode=$(jq -r '.status' <<< "$result")
+	if [ $? -eq 0 ] && [ "$exitcode" = "0" ]; then
+    jq -r '.result.url' <<< "$result" | tcopy
+	  echo "URL copied to clipboard"
+  else
+    echo "$result"
+  fi
 }
 
 openo() {
@@ -130,7 +148,7 @@ alias yeet="sfdx org:list --clean -p"
 
 alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
-alias refreshmdapi='wget "https://mdcoverage.secure.force.com/services/apexrest/report?version=59" && mv report?version=59 ~/.mdapiReport.json'
+alias refreshmdapi='wget "https://mdcoverage.secure.force.com/services/apexrest/report?version=61" && mv report?version=60 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -140,10 +158,14 @@ alias syncdate="sudo ntpdate pool.ntp.org"
 
 function failedResults() {
 	if [[ $# -eq 1 ]]; then
-		orgName=$(show_default_org)
-		sfrest $orgName "/v58.0/jobs/ingest/$1/failedResults"
+	  if [[ "$1" == "-h" ]]; then
+	    echo "Usage: failedResults <jobId> [orgName]"
+	  else
+		  orgName=$(show_default_org)
+		  sfrest $orgName "/data/v61.0/jobs/ingest/$1/failedResults"
+		fi
 	else
-		sfrest $1 "/v58.0/jobs/ingest/$2/failedResults"
+		sfrest $2 "/data/v61.0/jobs/ingest/$1/failedResults"
 	fi
 }
 
@@ -155,7 +177,7 @@ function updateOrgTimeZone() {
 	fi
 }
 
-alias xaa='exa -lhi --icons -snew'
+alias xaa='eza -lhi --icons -snew'
 
 #clear source tracking
 function ctrack() {
@@ -171,6 +193,7 @@ hostip() {
 	cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
 }
 
+
 #Convert keyring to apt format
 function gpgconv() {
 	gpg --no-default-keyring --keyring ./temp-keyring.gpg --import "$1"
@@ -182,3 +205,33 @@ function gpgconv() {
 alias localhost="node $HOME/libs/echo.js"
 
 alias tm="$PROJECTS_HOME/dotfiles/tmux-sessionizer.sh"
+alias flushdns="sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder"
+
+# local notification
+ntfy() {
+  local message
+  local topic
+  if [ $# -eq 0 ]; then
+    if [ ! -p /dev/stdin ]; then
+	echo "Usage: ntfy <message> [topic]"
+	return 1
+    fi
+    message=$(cat /dev/stdin)
+    topic="test"
+    elif [ $# -eq 1 ]; then
+      if [ ! -p /dev/stdin ]; then
+      	message=$1
+      	topic="test"
+      	else
+      	  message=$(cat /dev/stdin)
+      	  topic=$1
+      fi
+    else
+      message=$1
+      topic=$2
+  fi
+  curl -d "$message" "https://ntfy.mylab.icu/$topic"
+}
+
+alias ksh='kitten ssh'
+alias madness='docker run --rm -it -v $PWD:/docs -p 3000:3000 dannyben/madness'
