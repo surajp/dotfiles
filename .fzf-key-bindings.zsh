@@ -126,12 +126,4 @@ if [[ $- =~ i ]]; then
   zle -N fzf-autocomp{,}
   bindkey "^e" fzf-autocomp
 
-  fzf-search-packages(){
-    read -p "Enter Package Name: " packagename 
-    #echo $packagename
-    selectedPackage="$(apt-cache search $packagename | fzf -M | awk '{print $1}')"
-    echo "$(sudo apt-get install $selectedPackage)"
-  }
-  zle -N fzf-search-packages{,}
-
 fi
