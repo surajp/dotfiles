@@ -1,4 +1,3 @@
-
 call plug#begin('~/.vim/plugged')
 
 "Plug 'ctrlpvim/ctrlp.vim'
@@ -48,23 +47,17 @@ Plug 'preservim/tagbar'
 
 Plug 'stevearc/aerial.nvim'
 
-
 Plug 'smoka7/hop.nvim'
 
 Plug 'mbbill/undotree'
-
-Plug 'TabbyML/vim-tabby'
 
 Plug 'carbon-steel/detour.nvim'
 
 Plug 'HiPhish/rainbow-delimiters.nvim'
 
-Plug 'huggingface/llm.nvim'
-
 Plug 'github/copilot.vim'
-
-"View markdown
-Plug 'OXY2DEV/markview.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'CopilotC-Nvim/CopilotChat.nvim'
 
 "Buffer nav
 Plug 'leath-dub/snipe.nvim'
@@ -78,14 +71,22 @@ Plug 'QuentinGruber/timespent.nvim'
 "Iceberg color scheme
 Plug 'cocopon/iceberg.vim'
 
+"Debugging
+Plug 'mfussenegger/nvim-dap'
+Plug 'nvim-neotest/nvim-nio'
+Plug 'rcarriga/nvim-dap-ui'
+Plug 'mfussenegger/nvim-dap-python'
+
 call plug#end()
 
 let mapleader=" "
 
 lua require 'init'
 lua require 'keymaps'
+"lua require 'copilot_ls'
 "lua require 'theme'
 lua require 'lsp'
+lua require 'dapconfig'
 
 
 set number relativenumber
@@ -147,9 +148,9 @@ set spelllang=en_us
 
 " Use ALE for Omnifunc
 set omnifunc=ale#completion#OmniFunc
-"set background=dark
-colorscheme gruvbox 
-"colorscheme catppuccin-mocha
+set background=dark
+"colorscheme gruvbox 
+colorscheme catppuccin-mocha
 "colorscheme darkvoid
 "colorscheme iceberg
 
@@ -171,7 +172,7 @@ set dictionary+=/usr/share/dict/words
 set complete+=k
 
 " Thesaurus
-set tsr+=/home/suraj/.mthesaur.txt
+"set tsr+=/home/suraj/.mthesaur.txt
 
 " Set blinking cursor
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor,sm:block-blinkwait175-blinkoff150-blinkon175
@@ -182,20 +183,35 @@ filetype plugin indent on
 augroup FileTypeGroup
 	au!
 	au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=apex
-	"au BufRead,BufNewFile *.cls,*.trigger,*.apex set filetype=apex | set syntax=java | UltiSnipsAddFiletypes cls.java
 	au BufRead,BufNewFile *.soql set filetype=apex | set syntax=sql | UltiSnipsAddFiletypes sql
 	au BufRead,BufNewFile project-scratch-def.json set filetype=scratch | set syntax=json
 	au BufRead,BufNewFile *.vue,*.svelte,*.jsw,*.cmp,*.page,*.component set filetype=html
 	au BufRead,BufNewFile *.tsx,*.jsw set filetype=javascript
 	au BufRead,BufNewFile *.jsx set filetype=javascript.jsx
 	au BufRead,BufNewFile *-meta.xml UltiSnipsAddFiletypes meta.xml
-	au BufRead,BufNewFile **/lwc/*.js UltiSnipsAddFiletypes lwc.js
+	au BufRead,BufNewFile **/lwc/*.js  set filetype=lwc | set syntax=javascript | UltiSnipsAddFiletypes lwc.js
+	au BufRead,BufNewFile *.rc set filetype=sh
 	au FileType qf :nnoremap <buffer> <CR> <CR> | set wh=15
+	au FileType xml :nnoremap <buffer> <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
+	au FileType json :nnoremap <buffer> <Leader># :ea 1f<CR>:set ft=xml<CR>
+
 	"au FileType fugitive :nnoremap <buffer> <leader>p :G push<CR> | :nnoremap <buffer> <leader>pf :G pushf | :nnoremap <buffer> <leader>l :G pull<CR>
 augroup END
 
+" set b:workspace_folder by traversing up the directory tree to find the first sfdx-project.json file, for copilot
+let s:find_workspace_folder = {path -> fnamemodify(findfile('sfdx-project.json', path . ';/Users/surajpillai/projects'), ':h')} 
 
+augroup apexSpecific
+  autocmd!
+  autocmd FileType apex 
+    \ let b:workspace_folder = s:find_workspace_folder(expand('%:p:h'))
+augroup END
 
+augroup lwcSpecific
+  autocmd!
+  autocmd FileType lwc 
+    \ let b:workspace_folder = s:find_workspace_folder(expand('%:p:h'))
+augroup END
 
 " Set current directory to the parent dir of the current file
 " autocmd BufEnter * silent! lcd %:p:h
@@ -205,7 +221,7 @@ command! WipeReg for i in range(34,122) silent! call setreg(nr2char(i), []) endf
 "Keymaps
 
 " Set current directory to the parent dir of the current file
-nnoremap <leader>d  :lcd %:p:h<CR>
+nnoremap <leader>D  :lcd %:p:h<CR>
 
 "remap increment decrement
 nnoremap <A-a> <C-a>
@@ -266,12 +282,13 @@ nnoremap ]TT ?\c@IsTest<CR>j0f(h"tyiw:nohlsearch<CR>:execute "RunAsync sfdx apex
 "detailed coverage
 ":nnoremap ]td <C-w>s<C-w>j10<C-w>-:term sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n "%:t:r"<CR>
 nnoremap ]td :RunAsync sfdx apex:run:test -c -v -r human -w 5 -d /tmp/coverage -n %:t:r<CR>
-:nnoremap <leader>c :tabnew /tmp/coverage<CR>
+:nnoremap <leader>cc :tabnew /tmp/coverage<CR>
 
 "Explain code using llama3
 ":nnoremap <silent> <leader>ai :tabnew \| term cat # \| ollama run sfgemma "Explain this code and suggest improvements"<CR>
 ":nnoremap <silent> leader>ai :tabnew \| term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt \| fabric -sp sf_dev --model gemma2:latest<CR><CR>
 nnoremap <silent> <leader>ai :tabnew \| term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt \| fabric -sp sf_dev --model llama3.2:latest<CR><CR>
+nnoremap <silent> <leader>af :tabnew \| term cat # > /tmp/analyze.txt && echo "\n//Explain this salesforce flow. Be precise and concise. Use bullet points to illustrate the process clearly. Call out the type of flow and how the flow is triggered as well. In the end give a 2-3 sentence summary of the flow and the business use case it is potentially solving for" >> /tmp/analyze.txt && cat /tmp/analyze.txt \| fabric -sp sf_dev --model gpt-4o-mini<CR><CR>
 
 ":nnoremap <silent> ]a <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start<CR>
 :nnoremap <silent> ]a :RunAsync sfdx project:deploy:start<CR>
@@ -286,7 +303,7 @@ nnoremap <leader>[ :RunAsync sfdx project:retrieve:start -d % -o
 ":nnoremap <silent> <leader>[[ <C-w>s<C-w>j10<C-w>-:term sfdx project:retrieve:start -d "%"<CR>
 nnoremap <silent> <leader>[[ :RunAsync sfdx project:retrieve:start -d %<CR>
 ":nnoremap ]d <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5 -o 
-nnoremap ]d :RunAsync sfdx project:deploy:start -d % -l RunSpecifiedTests -t NonExistentTest -w 5 -o 
+nnoremap ]d :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -o 
 ":nnoremap <silent> ]dd <C-w>s<C-w>j10<C-w>-:term sfdx project:deploy:start -d "%" -l NoTestRun -w 5<CR>
 nnoremap <silent> ]dd :RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>
 "nnoremap <silent> ]dd :RunAsync /Users/surajpillai/projects/anywhere-sfr-dashboard/scripts/zsh/deployUsingTooling.sh %<CR>
@@ -421,6 +438,7 @@ inoremap <expr> <C-x>m fzf#vim#complete({
 
 "ale key bindings
 :nnoremap <silent> <C-w>i :ALEToggleBuffer<CR>
+nnoremap <silent> <C-w>d :ALEDetail<CR>
 
 " use 'za' to toggle folds
 " Prevent wq accidents
@@ -434,7 +452,7 @@ inoremap <expr> <C-x>m fzf#vim#complete({
 " Prevent gq accidents
 :nnoremap gQ gq
 
-nnoremap qq :q<CR>
+nnoremap <leader>q :q<CR>
 
 "Remap arrow keys
 :nnoremap <up> <nop>
@@ -450,10 +468,6 @@ cmap w!! w !sudo tee > /dev/null %
 "aerial maps
 ":nnoremap mm :AerialToggle<CR>
 :nnoremap mm :TagbarToggle<CR>
-
-"xml to json map
-:nnoremap <Leader>$ :%!fxparser <bar> jq<CR> :set ft=json<CR>ggj4dd
-:nnoremap <Leader># :ea 1f<CR>:set ft=xml<CR>
 
 "Run fixers on-demand
 nnoremap <silent> <leader>fo :ALEFix<CR>
@@ -485,7 +499,7 @@ let g:ale_linters_explicit = 1
 let g:float_preview#docked=1
 
 let g:ale_linters = {'javascript': ['eslint'],'css':['eslint'],'html':['eslint'],'apex':['pmd'],'java':['javalsp'],'jsw':['eslint'],'markdown':['markdownlint'],'rust':['analyzer'],'sh':['shellcheck'],'typescript':['tsserver']}
-let g:ale_fixers = {'javascript': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['shfmt'],'xml':['tidy']}
+let g:ale_fixers = {'javascript': ['prettier'],'lwc': ['prettier'],'css':['prettier'],'apex':['prettier'],'html':['prettier'],'jsw':['prettier'],'typescript':['prettier'],'json':['jq'],'python':['black'],'java':['google_java_format'],'markdown':['prettier'],'rust': ['rustfmt', 'trim_whitespace', 'remove_trailing_lines'],'sh':['shfmt'],'xml':['tidy']}
 let g:ale_fix_on_save= 1
 let g:ale_sign_error='>>'
 "let g:ale_sign_warning='⚠️'
@@ -500,7 +514,7 @@ let g:ale_java_google_java_format_executable = "~/.scripts/jformat.sh"
 " let g:ale_apex_apexlsp_executable = "/usr/bin/java"
 
 "Command to toggle fixers
-command! ALEDisableFixers execute "let b:ale_fix_on_save = 0"
+command! ALEDisableFixersBuffer execute "let b:ale_fix_on_save = 0"
 command! ALEToggleFixers execute "let b:ale_fix_on_save = get(b:,'ale_fix_on_save',0)?0:1"
 
 function! CheckDisableALE() abort
@@ -510,9 +524,19 @@ function! CheckDisableALE() abort
   endif
 endfunction
 
+function! CheckDisableAll() abort
+  if luaeval('vim.fn.strlen(vim.fn.join(vim.fn.getline(1,10002),""))') > 100000
+    execute "ALEDisableBuffer"
+    execute "ALEDisableFixersBuffer"
+    setlocal syntax=off
+    setlocal filetype=nofile
+  endif
+endfunction
+
 augroup ALEGroup
   au!
   au BufRead * call CheckDisableALE() "diable ALE and fixers for big files
+  au BufRead * call CheckDisableAll() "disable ALE and fixers for really big files
 augroup END
 
 if filereadable('config/pmd-rules.xml')
@@ -545,6 +569,10 @@ endfunction
 
 " status line changes
 set laststatus=2
+
+" https://github.com/vim-airline/vim-airline/issues/2704
+let g:airline#extensions#whitespace#symbol = '!' 
+
 "let g:airline_section_a=airline#section#create(['%{StatuslineSfdx()}',' ','branch'])
 "set statusline='%{StatuslineSfdx()}'
 
@@ -618,7 +646,11 @@ require 'vertex'
 EOF
 
 " Copilot mappings
-let g:copilot_assume_mapped = v:true
 imap <silent><expr> <C-l> copilot#Accept('\<CR>')
+let g:copilot_assume_mapped = v:true
+let g:copilot_no_tab_map = v:true
+let g:copilot_filetypes = {
+      \ 'xml': v:false
+\ }
 
 call <SID>MakeTransparent()
