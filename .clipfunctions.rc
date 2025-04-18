@@ -1,37 +1,35 @@
+#!/usr/bin/env bash
+
 # Some functions for clipboard interaction
+#
+
+set -m # to enable job control
 
 #timed copy
 function tcopy() {
-
+  
+  # if there is an existing nohup call to clear the clipboard, kill it so we dont end up clearing the clipboard before the new url can be used
+  if [ $_CLEARCLIPID ]; then
+    kill $_CLEARCLIPID >/dev/null 2>&1
+    unset _CLEARCLIPID
+  fi
   if [ -t 0 ]; then
     input="$1"
   else
     input=$(cat)
   fi
-  #
-  # Default duration is 30 seconds
   duration="${2:-20}"
-
-  # Copy text to clipboard
   echo -n "$input" | pbcopy
-
-  # Run the sleep and clear operations in the background
-  nohup bash -c "sleep $duration;source ~/.clipfunctions.rc;_clearclip $input" &>/dev/null &
-
+  nohup bash -c "sleep $duration; source ~/.clipfunctions.rc; _clearclip" >/dev/null 2>&1 &
+  _CLEARCLIPID=$!
+  # This doesn't work for some reason
+  _clearclipjobid=$(jobs -l | tail -1 | awk '{print $1}' | tr -d '[]')
+  disown "%$_clearclipjobid" # so it doesn't get killed when the terminal closes
+  # echo "disowned %$_clearclipjobid"
+  unset _clearclipjobid
 }
-
-# function _clearclip() {
-#   input=""
-#   # if there is an argument assign to variable input
-#   if [ $# -eq 1 ]; then
-#     input="$1"
-#   fi
-#   # if input is empty or matches pbpaste then clear the clipboard
-#   if [[ -z "$input" || "$(pbpaste)" = "$input" ]]; then
-#     echo -n '' | pbcopy
-#   fi
-# }
 
 function _clearclip() {
   echo -n '' | pbcopy
+  unset _CLEARCLIPID
 }
