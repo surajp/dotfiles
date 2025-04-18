@@ -3,11 +3,12 @@ export HISTCONTROL=ignoreboth
 export HISTTIMEFORMAT="%Y-%m-%d %T "
 export HISTSIZE=100000
 export BAT_THEME=Dracula
+export SF_SINGLE_USE_ORG_OPEN_URL=true
 
 alias .='nvim .'
 alias push='sfdx project:deploy:start'
 alias pull='sfdx project:retrieve:start'
-alias orgs='sfdx org:list --all --skip-connection-status'
+alias orgs="sfdx org:list --all --skip-connection-status --json | jq '{ result: ( .result | map_values(map({username,alias,instanceUrl})) ) }'"
 alias isvim='env | grep -i vim'
 alias graph='git log --all --graph --decorate --pretty=format:"%C(auto)%h %C(reset)%C(blue)%ad%C(reset) %C(auto)%d %s %C(cyan)<%an>%C(reset)" --date=format:"%Y-%m-%d %H:%M"'
 alias gco='git checkout'
@@ -25,7 +26,7 @@ export FZF_DEFAULT_COMMAND="fd -t f --exclude={.git,node_modules}"
 export FZF_ALT_C_COMMAND="fd -t d --exclude={.git,node_modules}"
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
-export FZF_DEFAULT_OPTS='--height "80%" --preview "if [ -d {} ];then exa -lhi --icons -snew {};elif [ -f {} ];then bat --color=always {};else echo {};fi" --preview-window "right:60%:wrap"'
+export FZF_DEFAULT_OPTS='--height "80%" --preview "if [ -d {} ];then eza -lhi --icons -snew {};elif [ -f {} ];then bat --color=always {};else echo {};fi" --preview-window "right:60%:wrap"'
 
 #Setup forgit, if installed
 if [[ -d $PROJECTS_HOME/forgit ]]; then
@@ -42,15 +43,15 @@ fi
 #Clipboard functions
 source ~/.clipfunctions.rc
 
-show_default_org() {
-	if [ -f './.sfdx/sfdx-config.json' ]; then
-		defaultusername="$(cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername')"
-		[[ "$defaultusername" = "null" ]] && defaultusername="" #if defaultusername is null set it to empty string
-		export DEFAULT_SF_ORG=$defaultusername
-	else
-		export DEFAULT_SF_ORG=
-	fi
-}
+# show_default_org() {
+# 	if [ -f './.sfdx/sfdx-config.json' ]; then
+# 		defaultusername="$(cat ./.sfdx/sfdx-config.json 2>/dev/null | jq -r '.defaultusername')"
+# 		[[ "$defaultusername" = "null" ]] && defaultusername="" #if defaultusername is null set it to empty string
+# 		export DEFAULT_SF_ORG=$defaultusername
+# 	else
+# 		export DEFAULT_SF_ORG=
+# 	fi
+# }
 
 # Check if show_default_org is not already in the precmd_functions array. This is to evaluate show_default_org before every prompt
 if [[ -z "${precmd_functions[(Ie)show_default_org]}" ]]; then
@@ -96,9 +97,9 @@ openo() {
 
 neworg() {
 	if [ $# -eq 1 ]; then
-		sfdx org:create -s -f config/project-scratch-def.json -d 20 -w 5 -a "$1"
+		sfdx org:create:scratch -d -f config/project-scratch-def.json -y 20 -w 5 -a "$1"
 	else
-		sfdx org:create -s -f config/project-scratch-def.json -d 20 -w 5
+		sfdx org:create:scratch -d -f config/project-scratch-def.json -y 20 -w 5
 	fi
 }
 
@@ -148,7 +149,7 @@ alias yeet="sfdx org:list --clean -p"
 
 alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
-alias refreshmdapi='wget "https://mdcoverage.secure.force.com/services/apexrest/report?version=61" && mv report?version=60 ~/.mdapiReport.json'
+alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=63" && mv report?version=63 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -188,23 +189,52 @@ function ctrack() {
 	fi
 }
 
+# delete apex logs fast
+function dellogs() {
+    if [ $# -eq 1 ]; then
+      sfdx data:query -q "select id from apexlog" -r csv -o "$1" | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"$1\" \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
+    else
+      sfdx data:query -q "select id from apexlog" -r csv | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
+    fi
+}
+
+# delete all obsolete flow versions except the latest version
+function delflows() {
+    if [ $# -eq 0 ]; then
+      echo "Usage: delflows <flowName> [orgName]"
+      return 1
+    fi
+    local flowName=$1
+    if [ $# -eq 2 ]; then
+      sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv -o "$2" | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"$2\" \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+    else
+      sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+    fi
+}
+
 #Get host ip address in WSL
 hostip() {
-	cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
+  cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
 }
 
 
 #Convert keyring to apt format
 function gpgconv() {
-	gpg --no-default-keyring --keyring ./temp-keyring.gpg --import "$1"
-	gpg --no-default-keyring --keyring ./temp-keyring.gpg --export --output "$1.converted.gpg"
-	rm ./temp-keyring.gpg
+  if [ $# -eq 0 ]; then
+    echo "Usage: gpgconv <keyfile>"
+    return 1
+  fi
+  gpg --no-default-keyring --keyring ./temp-keyring.gpg --import "$1"
+  gpg --no-default-keyring --keyring ./temp-keyring.gpg --export --output "$1.converted.gpg"
+  rm ./temp-keyring.gpg
 }
 
 #start echo server
-alias localhost="node $HOME/libs/echo.js"
+# alias localhost="node $HOME/libs/echo.js"
 
 alias tm="$PROJECTS_HOME/dotfiles/tmux-sessionizer.sh"
+
+#for macos
 alias flushdns="sudo dscacheutil -flushcache;sudo killall -HUP mDNSResponder"
 
 # local notification
@@ -234,4 +264,8 @@ ntfy() {
 }
 
 alias ksh='kitten ssh'
-alias madness='docker run --rm -it -v $PWD:/docs -p 3000:3000 dannyben/madness'
+alias madness='echo "starting server on port 5989 (http://md.localhost)" && sleep 3 && podman run --rm -it -v $PWD:/docs -p 5989:3000 dannyben/madness server'
+
+alias postmanode='node $HOME/projects/node-postman-server/server.mjs'
+
+alias makecert='sh $HOME/projects/dotfiles/scripts/makecert.sh'

@@ -1,7 +1,7 @@
 " Author: Suraj
 " Description: Functions for integrating with Apex tools
 
-" Find the nearest dir contining a gradle or pom file and asume it
+" Find the nearest dir contining an sfdx-project.json file and assume it is
 " the root of a sfdx app.
 function! ale#apex#FindProjectRoot(buffer) abort
 
