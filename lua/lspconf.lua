@@ -1,14 +1,13 @@
 local lspconfig = require('lspconfig')
 
-lspconfig.apex_ls.setup{
-  apex_jar_path=os.getenv("HOME")..'/lib/apex-jorje-lsp.jar',
-  apex_enable_semantic_errors = false, -- Whether to allow Apex Language Server to surface semantic errors
-  apex_enable_completion_statistics = false, -- Whether to allow Apex Language Server to collect telemetry on code completion usage,
-  java_path= '/opt/homebrew/opt/openjdk@17/bin/java',
-  apex_jvm_max_heap="2048m",
-  apex_jvm_min_heap="512m",
-  filetypes={"apex"}
-}
+lspconfig.svelte.setup{}
+lspconfig.ts_ls.setup{}
+-- lspconfig.copilot_ls.setup{}
+
+vim.diagnostic.config({
+  virtual_text = { current_line = true }
+})
+
 
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
@@ -39,5 +38,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<leader>f', function()
       vim.lsp.buf.format { async = true }
     end, opts)
+
+    -- enable auto completion in nvim > 0.11
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client:supports_method('textDocument/completion') then
+      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+    end
+
   end,
 })

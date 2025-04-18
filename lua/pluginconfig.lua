@@ -59,3 +59,4 @@ snipe.config = {
   -- Can be any of "default" (sort buffers by their number) or "last" (sort buffers by last accessed)
   sort = "default"
 }
+

@@ -78,7 +78,7 @@ local function create_popup()
     width = M.config.width,
     height = M.config.height,
     style = 'minimal',
-    border = 'single',
+    border = 'rounded',
     title = 'Async Command'
   }
 
@@ -125,7 +125,9 @@ local function run_async_command(cmd)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
         vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
       end
+      vim.api.nvim_set_option_value("modifiable",false,{buf=buf})
       vim.keymap.set('n', 'qq',function() del_popup(buf) end,{buffer=buf})
+      vim.keymap.set('n', '<leader>q',function() del_popup(buf) end,{buffer=buf})
       restore_popup(buf,opts)
     end)
   end
