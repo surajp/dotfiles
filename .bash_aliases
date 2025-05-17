@@ -344,3 +344,4 @@ alias postmanode='node $HOME/projects/node-postman-server/server.mjs'
 
 alias makecert='sh $HOME/projects/dotfiles/scripts/makecert.sh'
 alias pdm=podman
+alias jjj="jj log -r '@ | ancestors(remote_bookmarks().., 2) | trunk()'"
