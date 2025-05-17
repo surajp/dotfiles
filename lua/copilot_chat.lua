@@ -1,7 +1,7 @@
 local cchat = require("CopilotChat")
 
 cchat.setup({
-  model = "claude-3.7-sonnet",
+  model = "claude-sonnet-4",
   context = "file:.github/copilot-instructions.md",
   chat_autocomplete = false,
   mappings = {
