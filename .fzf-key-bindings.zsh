@@ -41,7 +41,7 @@ if [[ $- =~ i ]]; then
     if [[ -n "$targetOrg" ]]; then
       orgId=$targetOrg
     else
-      orgId=$(jq -r '.["target-org"] // empty' .sf/config.json)
+      orgId=$(jq -r '.["target-org"] // empty' .sf/config.json) 2> /dev/null
     fi
 
     local orgDir="$sobjtypesDir/$orgId"
