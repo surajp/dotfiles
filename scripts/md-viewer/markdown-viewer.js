@@ -2,13 +2,16 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
+const WebSocket = require("ws");
 
 const PORT = 7475;
+const WS_PORT = 7476;
 
 // Get file from command line arguments
 const filePath = process.argv[2];
 let initialContent = "";
 let initialFileName = "";
+let watchedFilePath = null;
 
 if (filePath) {
   try {
@@ -16,13 +19,58 @@ if (filePath) {
     if (fs.existsSync(absolutePath)) {
       initialContent = fs.readFileSync(absolutePath, "utf-8");
       initialFileName = path.basename(absolutePath);
-      console.log(`✅ Loaded file: ${absolutePath} (${initialContent.length} bytes)`);
+      watchedFilePath = absolutePath;
+      console.log(
+        `✅ Loaded file: ${absolutePath} (${initialContent.length} bytes)`,
+      );
     } else {
       console.error(`❌ File not found: ${absolutePath}`);
     }
   } catch (err) {
     console.error(`❌ Error reading file: ${err.message}`);
   }
+}
+
+// WebSocket server for hot-reloading
+const wss = new WebSocket.Server({ port: WS_PORT });
+const clients = new Set();
+
+wss.on("connection", (ws) => {
+  clients.add(ws);
+  console.log(`🔌 Client connected (${clients.size} total)`);
+
+  ws.on("close", () => {
+    clients.delete(ws);
+    console.log(`🔌 Client disconnected (${clients.size} remaining)`);
+  });
+});
+
+function broadcastUpdate(content, filename) {
+  const message = JSON.stringify({ type: "update", content, filename });
+  clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
+  console.log(`📡 Broadcasted update to ${clients.size} client(s)`);
+}
+
+// File watcher
+let watcher = null;
+if (watchedFilePath) {
+  watcher = fs.watch(watchedFilePath, (eventType) => {
+    if (eventType === "change" || eventType === "rename") {
+      try {
+        const newContent = fs.readFileSync(watchedFilePath, "utf-8");
+        initialContent = newContent;
+        console.log(`🔄 File changed, reloading (${newContent.length} bytes)`);
+        broadcastUpdate(newContent, initialFileName);
+      } catch (err) {
+        console.error(`❌ Error reading updated file: ${err.message}`);
+      }
+    }
+  });
+  console.log(`👀 Watching for changes: ${watchedFilePath}`);
 }
 
 const html = `
@@ -32,7 +80,7 @@ const html = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Live Viewer - High Contrast</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <style>
         :root {
             --bg-color: #ffffff;
@@ -98,7 +146,31 @@ const html = `
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .btn:hover { background: #004da3; transform: translateY(-1px); }
-        #file-info { position: fixed; top: 10px; right: 20px; font-size: 13px; font-weight: 600; color: #57606a; background: rgba(255,255,255,0.8); padding: 4px 8px; border-radius: 4px; }
+        #file-info { 
+            position: fixed; 
+            top: 10px; 
+            right: 20px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            color: #57606a; 
+            background: rgba(255,255,255,0.8); 
+            padding: 4px 8px; 
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #1a7f37;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         /* Mermaid styling */
         .mermaid {
@@ -151,6 +223,45 @@ const html = `
         const fileInfo = document.getElementById('file-info');
         const fileInput = document.getElementById('file-input');
 
+        // WebSocket connection for hot-reloading
+        let ws = null;
+        let reconnectTimeout = null;
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:${WS_PORT}');
+            
+            ws.onopen = () => {
+                console.log('🔌 WebSocket connected - hot-reloading enabled');
+                updateStatus(true);
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'update') {
+                    console.log('🔄 Received update from server');
+                    renderMarkdown(data.content, data.filename);
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('🔌 WebSocket disconnected');
+                updateStatus(false);
+                // Attempt to reconnect after 2 seconds
+                reconnectTimeout = setTimeout(connectWebSocket, 2000);
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function updateStatus(connected) {
+            const indicator = fileInfo.querySelector('.status-indicator');
+            if (indicator) {
+                indicator.style.background = connected ? '#1a7f37' : '#d1242f';
+            }
+        }
+
         // Configure marked to handle mermaid code blocks
         marked.use({
             renderer: {
@@ -185,7 +296,7 @@ const html = `
             processedText = processedText.replace(/\\*\\*Recommendation:\\*\\*/g, '**<span class="recommendation-text">Recommendation:</span>**');
             
             contentDiv.innerHTML = marked.parse(processedText);
-            fileInfo.textContent = '📄 ' + name;
+            fileInfo.innerHTML = '<span class="status-indicator"></span>📄 ' + name;
             hideDropZone();
             window.scrollTo(0, 0);
 
@@ -216,6 +327,9 @@ const html = `
                     console.error('Mermaid error:', err);
                 }
             }
+            
+            // Update status indicator if it exists
+            updateStatus(ws && ws.readyState === WebSocket.OPEN);
         }
 
         function handleFile(file) {
@@ -232,6 +346,8 @@ const html = `
             .then(data => {
                 if (data.content) {
                     renderMarkdown(data.content, data.filename);
+                    // Connect WebSocket after initial content is loaded
+                    connectWebSocket();
                 }
             })
             .catch(err => console.error('Error fetching content:', err));
@@ -242,6 +358,12 @@ const html = `
         fileInput.addEventListener('change', (e) => { handleFile(e.target.files[0]); });
 
         window.showDropZone = showDropZone;
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (ws) ws.close();
+            if (reconnectTimeout) clearTimeout(reconnectTimeout);
+        });
     </script>
 </body>
 </html>
@@ -250,7 +372,9 @@ const html = `
 const server = http.createServer((req, res) => {
   if (req.url === "/api/content") {
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ content: initialContent, filename: initialFileName }));
+    res.end(
+      JSON.stringify({ content: initialContent, filename: initialFileName }),
+    );
     return;
   }
   res.writeHead(200, { "Content-Type": "text/html" });
@@ -260,10 +384,20 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
   console.log(`\n🚀 Markdown Viewer Server running at ${url}`);
+  console.log(`🔌 WebSocket server running on port ${WS_PORT}`);
   if (filePath) {
     console.log(`📂 Attempting to open: ${filePath}`);
     exec(`open "${url}"`, (error) => {
       if (error) console.error(`❌ Failed to open browser: ${error.message}`);
     });
   }
+});
+
+// Graceful shutdown
+process.on("SIGINT", () => {
+  console.log("\n🛑 Shutting down...");
+  if (watcher) watcher.close();
+  wss.close();
+  server.close();
+  process.exit(0);
 });

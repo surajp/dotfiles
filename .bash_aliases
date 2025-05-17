@@ -329,9 +329,9 @@ function mdview(){
 	local file=${1:-README.md}
 	# if file doesn't exist or not argument provided, run without any arguments
 	if [ ! -f "$file" ]; then
-		node $PROJECTS_HOME/dotfiles/scripts/markdown-viewer.js
+		node $PROJECTS_HOME/dotfiles/scripts/md-viewer/markdown-viewer.js
 	  else
-	  	node $PROJECTS_HOME/dotfiles/scripts/markdown-viewer.js "$file"
+	  	node $PROJECTS_HOME/dotfiles/scripts/md-viewer/markdown-viewer.js "$file"
 	fi
 }
 
