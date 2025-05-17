@@ -1,6 +1,6 @@
 -- oil
-vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
-vim.keymap.set("n", "<leader>-", "<CMD>Detour<CR><CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set("n", "-", function() require("oil").open() end, { desc = "Open parent directory" })
+-- vim.keymap.set("n", "<leader>-", "<CMD>Detour<CR><CMD>Oil<CR>", { desc = "Open parent directory" })
 
 
 
@@ -10,12 +10,8 @@ vim.keymap.set("n", "gb", function()
   snipe.open_buffer_menu()
 end, { remap = false,desc = "Open buffer menu" })
 
--- timespent
-vim.keymap.set("n","<leader>ts","<CMD>ShowTimeSpent<CR>",{desc="Show Time Spent"})
-
 --copilot chat
-vim.keymap.set("n","<leader>c","<CMD>CopilotChatOpen<CR>",{desc="Open Copilot Chat"})
-vim.keymap.set("n", "<leader>ci", "<Cmd>tabnew .github/copilot-instructions.md<CR>",{desc="Open copilot instructions"}) -- Edit init.lua
+vim.keymap.set("n","<leader>cc","<CMD>CopilotChatOpen<CR>",{desc="Open Copilot Chat"})
 
 
 -- dap keymaps
@@ -32,3 +28,19 @@ vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
 
 -- add to quickfix list
 vim.api.nvim_set_keymap('n', '<leader>aq', [[:lua vim.fn.setqflist({{filename = vim.fn.expand('%'), lnum = vim.fn.line('.'), col = vim.fn.col('.'), text = 'Custom issue description'}}, 'a')<CR>]], { noremap = true, silent = true })
+
+
+-- vim.keymap.set("i", "<C-CR>", function()
+--   if not vim.lsp.inline_completion.get() then
+--     return "<C-CR>"
+--   end
+-- end, {
+--   expr = true,
+--   replace_keycodes = true,
+
+
+-- timesheet
+vim.keymap.set("n", "<leader>ts", function()
+  local today = os.date("%m-%y")
+  vim.cmd(string.format("tabnew ~/timesheets/%s.md", today))
+end, { desc = "Open Timesheet" })

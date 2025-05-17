@@ -1,9 +1,35 @@
-local lspconfig = require('lspconfig')
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport = {
+  properties = {
+    'documentation',
+    'detail',
+    'additionalTextEdits',
+  },
+}
+capabilities.workspace = {
+  workspaceFolders = {
+    supported = true,
+    changeNotifications = true,
+  }
+}
 
-lspconfig.svelte.setup{}
-lspconfig.ts_ls.setup{}
+capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
-lspconfig.lua_ls.setup{
+vim.lsp.config("svelte", {
+  capabilities = capabilities,
+})
+
+vim.lsp.config("ts_ls", {
+  capabilities = capabilities,
+})
+
+vim.lsp.config("pyright", {
+	capabilities = capabilities,
+})
+
+vim.lsp.config("lua_ls", {
+  capabilities = capabilities,
   settings = {
     Lua = {
       runtime = {
@@ -24,7 +50,12 @@ lspconfig.lua_ls.setup{
       },
     },
   },
-}
+})
+
+vim.lsp.enable("svelte")
+vim.lsp.enable("ts_ls")
+vim.lsp.enable("lua_ls")
+vim.lsp.enable("pyright")
 
 vim.diagnostic.config({
   virtual_text = { current_line = true }

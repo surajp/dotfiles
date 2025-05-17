@@ -15,6 +15,9 @@ return {
     },
     completion = {
       documentation = { auto_show = false }, -- Disable auto-show documentation
+      ghost_text = {
+      	enabled = false
+      }
     },
     appearance = {
       nerd_font_variant = "mono",

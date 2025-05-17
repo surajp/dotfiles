@@ -3,7 +3,6 @@ return {
   { 'nvim-lua/plenary.nvim', name = 'plenary' }, -- Dependency for many plugins
   -- Utility / Editing Enhancements
   { 'tpope/vim-surround' },
-  { 'SirVer/ultisnips', dependencies = { 'honza/vim-snippets' } },
   -- { 'unblevable/quick-scope' }, -- Highlight f/F/t/T targets
   { 'mbbill/undotree' },
   { 'leath-dub/snipe.nvim', config = true }, -- Buffer navigation enhancement
@@ -25,5 +24,7 @@ return {
   { 'carbon-steel/detour.nvim', config = true }, -- Run commands in external windows/popups
 
   { "L3MON4D3/LuaSnip", version = "2.*", dependencies = { "rafamadriz/friendly-snippets" } },
+
+  { "powerman/vim-plugin-AnsiEsc" }, -- ANSI escape sequences support
 
 }
