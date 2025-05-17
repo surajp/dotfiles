@@ -15,8 +15,9 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
   })
 vim.opt.rtp:prepend(lazypath)
 
--- Load plugins
-require("plugins")
+require('lazy').setup({
+  { import = 'plugins' }, -- Load all plugins from plugins.lua
+})
 
 -- =============================================================================
 -- Global Settings
