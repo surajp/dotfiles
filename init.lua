@@ -537,6 +537,7 @@ map("n", "<C-f>r", "<plug>(ale_find_references)", opts) -- ALE find references
 map("n", "<C-f>t", "<Cmd>Filetypes!<CR>", opts)
 map("n", "<C-f>o", "<Cmd>Colors<CR>", opts)
 map("n", "<C-f>x", "<Cmd>Commands<CR>", opts)
+map("n", "<leader>x", "<Cmd>Commands<CR>", opts)
 
 
 -- FZF Insert Mode Completions (using expr = true)
