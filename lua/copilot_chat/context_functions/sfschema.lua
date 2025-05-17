@@ -59,7 +59,7 @@ end
 --- CopilotChat context function:
 --- Use `#schema:Account,Contact` to add schema describe JSON for each object.
 return  {
-  description = 'Retrieves Salesforce SObject schema (describe) JSON via Salesforce CLI for one or more objects. Usage: #sfschema:Account,Contact',
+  description = 'Retrieves Salesforce SObject schema (describe) JSON, for default org, via Salesforce CLI for one or more objects. Usage: #sfschema:Account,Contact',
   uri = 'sfschema://{objects}',
   schema = {
     type = 'object',
