@@ -1,62 +1,68 @@
-return {
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "main",
-    lazy = true,
-    event = "VeryLazy",
-    dependencies = {
-      { "github/copilot.vim" },
-      { "nvim-lua/plenary.nvim" },
-    },
-    config = function()
-      local openrouter = require("copilot_chat.providers.openrouter")
-      local pplx = require("copilot_chat.providers.perplexity")
-      local sfschema = require("copilot_chat.context_functions.sfschema")
-      require("CopilotChat").setup({
-        context = "file:.github/copilot-instructions.md",
-        chat_autocomplete = true,
-        mappings = {
-          complete = {
-            insert = "<C-l>",
-          },
-          reset = {
-            normal = "<C-r>",
-            insert = "<C-r>",
-          },
-        },
-        sticky = {
-          "#buffer",
-        },
-        prompts = {
-          ApexVibe = {
-            system_prompt = [[
-	      You are a Salesforce Architect. 
-	      1. Use the provided TypeScript Schema as the strict source of truth for SObject fields and relationships.
-	      2. Use the Service Layer pattern (Separation of Concerns).
-	      3. Always use schema to determine the fields to be queried or manipulated.
-	    ]],
-            description = "Generate Apex using local schema.d.ts context",
-	    selection = function(source)
-  	      local select = require("CopilotChat.select")
-  	      local visual_selection = select.selection(source) or ""
+local function load_prompts()
+	local prompts = {}
+	local prompts_dir = vim.fn.stdpath("config") .. "/lua/copilot_chat/prompts"
 
-  	      return string.format(
-    		"### USER CODE:\n%s\n\n### SCHEMA CONTEXT (TypeScript Interfaces):\n%s",
-    		visual_selection
-  	      )
-	    end,
-          },
-        },
-  	providers = {
-	  openrouter=openrouter,
-	  perplexity=pplx,
-	  ollama=require("copilot_chat.providers.ollama")
+	-- Use vim.fs.find to recursively find all .lua files
+	local files = vim.fs.find(function(name)
+		return name:match("%.lua$")
+	end, { path = prompts_dir, type = "file", limit = math.huge })
+
+	for _, file in ipairs(files) do
+		-- Convert absolute path to module path
+		local mod = file:match("lua/(.+)%.lua$")
+		if mod then
+			mod = mod:gsub("/", ".")
+			local ok, module = pcall(require, mod)
+			if ok and type(module) == "table" then
+				prompts = vim.tbl_extend("force", prompts, module)
+			end
+		end
+	end
+	return prompts
+end
+
+return {
+	{
+		"CopilotC-Nvim/CopilotChat.nvim",
+		branch = "main",
+		lazy = true,
+		event = "VeryLazy",
+		dependencies = {
+			{ "github/copilot.vim" },
+			{ "nvim-lua/plenary.nvim" },
+		},
+		config = function()
+			local openrouter = require("copilot_chat.providers.openrouter")
+			local pplx = require("copilot_chat.providers.perplexity")
+			local sfschema = require("copilot_chat.context_functions.sfschema")
+			local prompts = load_prompts()
+			require("CopilotChat").setup({
+				context = "file:.github/copilot-instructions.md",
+				chat_autocomplete = true,
+				stop_on_function_call = false,
+				mappings = {
+					complete = {
+						insert = "<C-l>",
+					},
+					reset = {
+						normal = "<C-r>",
+						insert = "<C-r>",
+					},
+				},
+				sticky = {
+					"#buffer",
+				},
+				prompts = prompts,
+				providers = {
+					openrouter = openrouter,
+					perplexity = pplx,
+					ollama = require("copilot_chat.providers.ollama")
+				},
+				functions = {
+					sfschema = sfschema,
+					memory = require("copilot_chat.context_functions.memory"),
+				}
+			})
+		end,
 	},
-	functions = {
-	  sfschema = sfschema,
-	  memory = require("copilot_chat.context_functions.memory"),
-	}
-      })
-    end,
-  },
 }

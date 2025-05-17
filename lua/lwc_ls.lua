@@ -1,32 +1,26 @@
-
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
-  properties = {
-    'documentation',
-    'detail',
-    'additionalTextEdits',
-  },
+	properties = {
+		'documentation',
+		'detail',
+		'additionalTextEdits',
+	},
 }
 capabilities.workspace = {
-  workspaceFolders = {
-    supported = true,
-    changeNotifications = true,
-  }
+	workspaceFolders = true
 }
 
 capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 vim.lsp.config("lwc_ls", {
-  cmd = {
-    "lwc-language-server",
-    "--stdio"
-  },
-  name = "lwc_ls",
-  filetypes = { "html","lwc" },
-  capabilities = capabilities,
-  root_markers = { "sfdx-project.json"},
+	cmd = {
+		"lwc-language-server",
+		"--stdio"
+	},
+	filetypes = { "html", "lwc" },
+	capabilities = capabilities,
+	root_markers = { "sfdx-project.json" },
 })
 
 vim.lsp.enable("lwc_ls")
-

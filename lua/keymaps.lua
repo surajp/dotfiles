@@ -7,11 +7,11 @@ vim.keymap.set("n", "-", function() require("oil").open() end, { desc = "Open pa
 -- buffer nav
 local snipe = require("snipe")
 vim.keymap.set("n", "gb", function()
-  snipe.open_buffer_menu()
-end, { remap = false,desc = "Open buffer menu" })
+	snipe.open_buffer_menu()
+end, { remap = false, desc = "Open buffer menu" })
 
 --copilot chat
-vim.keymap.set("n","<leader>cc","<CMD>CopilotChatOpen<CR>",{desc="Open Copilot Chat"})
+vim.keymap.set("n", "<leader>cc", "<CMD>CopilotChatOpen<CR>", { desc = "Open Copilot Chat" })
 
 
 -- dap keymaps
@@ -22,12 +22,15 @@ vim.keymap.set("n", "<leader>dr", function() require("dap").repl.open() end, { d
 vim.keymap.set("n", "<leader>ds", function() require("dap").step_over() end, { desc = "Step Over" })
 vim.keymap.set("n", "<leader>di", function() require("dap").step_into() end, { desc = "Step Into" })
 vim.keymap.set("n", "<leader>do", function() require("dap").step_out() end, { desc = "Step Out" })
-vim.keymap.set('n', '<Leader>dlp', function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
+vim.keymap.set('n', '<Leader>dlp',
+	function() require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: ')) end)
 vim.keymap.set('n', '<Leader>dl', function() require('dap').run_last() end)
 
 
 -- add to quickfix list
-vim.api.nvim_set_keymap('n', '<leader>aq', [[:lua vim.fn.setqflist({{filename = vim.fn.expand('%'), lnum = vim.fn.line('.'), col = vim.fn.col('.'), text = 'Custom issue description'}}, 'a')<CR>]], { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>aq',
+	[[:lua vim.fn.setqflist({{filename = vim.fn.expand('%'), lnum = vim.fn.line('.'), col = vim.fn.col('.'), text = 'Custom issue description'}}, 'a')<CR>]],
+	{ noremap = true, silent = true })
 
 
 -- vim.keymap.set("i", "<C-CR>", function()
@@ -41,6 +44,11 @@ vim.api.nvim_set_keymap('n', '<leader>aq', [[:lua vim.fn.setqflist({{filename = 
 
 -- timesheet
 vim.keymap.set("n", "<leader>ts", function()
-  local today = os.date("%m-%y")
-  vim.cmd(string.format("tabnew ~/timesheets/%s.md", today))
+	local today = os.date("%m-%y")
+	vim.cmd(string.format("tabnew ~/timesheets/%s.md", today))
 end, { desc = "Open Timesheet" })
+
+
+-- snacks keymaps
+vim.keymap.set("n", "<leader>gg", function() require("snacks").lazygit() end, { desc = "Lazygit" })
+vim.keymap.set("n", "<leader>gl", function() require("snacks").lazygit.log() end, { desc = "Lazygit" })

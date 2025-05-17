@@ -1,4 +1,5 @@
-local capabilities = require("blink.cmp").get_lsp_capabilities()
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 vim.lsp.config("apex_ls", {
   cmd = {

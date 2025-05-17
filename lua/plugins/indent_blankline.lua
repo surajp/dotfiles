@@ -2,15 +2,6 @@ return {
   "lukas-reineke/indent-blankline.nvim",
   event = { "BufReadPost", "BufNewFile" },
   config = function()
-    local highlight = {
-      "RainbowDelimiterRed",
-      "RainbowDelimiterYellow",
-      "RainbowDelimiterBlue",
-      "RainbowDelimiterOrange",
-      "RainbowDelimiterGreen",
-      "RainbowDelimiterViolet",
-      "RainbowDelimiterCyan",
-    }
     require("ibl").setup({
       indent = {
     	char = { "▏", "│" },
@@ -29,7 +20,7 @@ return {
     	show_end = true,
     	show_exact_scope = false,
     	injected_languages = true,
-        highlight = highlight,
+    	highlight = { "IblScope", "LineNr" },
     	priority = 1024,
     	include = {
       	  node_type = {

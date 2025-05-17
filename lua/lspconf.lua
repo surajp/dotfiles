@@ -1,105 +1,127 @@
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
-  properties = {
-    'documentation',
-    'detail',
-    'additionalTextEdits',
-  },
+	properties = {
+		'documentation',
+		'detail',
+		'additionalTextEdits',
+	},
 }
 capabilities.workspace = {
-  workspaceFolders = {
-    supported = true,
-    changeNotifications = true,
-  }
+	workspaceFolders = true,
 }
 
 capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
+-- Define which clients should auto-format
+local auto_format_clients = { 'lua_ls' }
+
+local function setup_auto_format_on_save(bufnr, client_name)
+	vim.api.nvim_create_autocmd('BufWritePre', {
+		buffer = bufnr,
+		callback = function()
+			vim.lsp.buf.format({
+				async = false,
+				bufnr = bufnr,
+				filter = function(c) return c.name == client_name end,
+			})
+		end,
+	})
+end
+
 vim.lsp.config("svelte", {
-  capabilities = capabilities,
+	capabilities = capabilities,
 })
 
 vim.lsp.config("ts_ls", {
-  capabilities = capabilities,
+	capabilities = capabilities,
 })
 
 vim.lsp.config("pyright", {
 	capabilities = capabilities,
 })
 
+vim.lsp.config("yamlls", {
+	capabilities = capabilities,
+})
+
 vim.lsp.config("lua_ls", {
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      runtime = {
-        -- Tell the language server which version of Lua you're using
-        version = 'LuaJIT',
-      },
-      diagnostics = {
-        -- Get the language server to recognize the `vim` global
-        globals = {'vim'},
-      },
-      workspace = {
-        -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false,
-      },
-      telemetry = {
-        enable = false,
-      },
-    },
-  },
+	capabilities = capabilities,
+	settings = {
+		Lua = {
+			runtime = {
+				-- Tell the language server which version of Lua you're using
+				version = 'LuaJIT',
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = { 'vim' },
+			},
+			workspace = {
+				-- Make the server aware of Neovim runtime files
+				library = vim.api.nvim_get_runtime_file("", true),
+				checkThirdParty = false,
+			},
+			telemetry = {
+				enable = false,
+			},
+		},
+	},
 })
 
 vim.lsp.enable("svelte")
 vim.lsp.enable("ts_ls")
 vim.lsp.enable("lua_ls")
 vim.lsp.enable("pyright")
+vim.lsp.enable("yamlls")
 
 vim.diagnostic.config({
-  virtual_text = { current_line = true }
+	virtual_text = { current_line = true }
 })
 
 
 -- Use LspAttach autocommand to only map the following keys
 -- after the language server attaches to the current buffer
 vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-  callback = function(ev)
-    -- Enable completion triggered by <c-x><c-o>
-    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+	group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+	callback = function(ev)
+		-- Enable completion triggered by <c-x><c-o>
+		vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
 
-    -- Buffer local mappings.
-    -- See `:help vim.lsp.*` for documentation on any of the below functions
-    local opts = { buffer = ev.buf }
-    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-    -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-    vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-    vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-    vim.keymap.set('n', '<leader>wl', function()
-      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-    end, opts)
-    -- vim.keymap.set('n', '<leader>d', vim.lsp.buf.definition, opts)
-    vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-    vim.keymap.set('n', '<leader>?', function()
+		-- Buffer local mappings.
+		-- See `:help vim.lsp.*` for documentation on any of the below functions
+		local opts = { buffer = ev.buf }
+		vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+		vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+		vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+		-- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+		-- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+		vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+		vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+		vim.keymap.set('n', '<leader>wl', function()
+			print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+		end, opts)
+		-- vim.keymap.set('n', '<leader>d', vim.lsp.buf.definition, opts)
+		vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+		vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+		vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+		vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+		vim.keymap.set('n', '<leader>?', function()
 			vim.diagnostic.open_float(nil, { scope = 'line' })
 		end, opts)
-    vim.keymap.set('n', '<leader>f', function()
-      vim.lsp.buf.format { async = true }
-    end, opts)
+		vim.keymap.set('n', '<leader>f', function()
+			vim.lsp.buf.format { async = true }
+		end, opts)
 
-    -- enable auto completion in nvim > 0.11
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client:supports_method('textDocument/completion') then
-      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-    end
-
-  end,
+		-- enable auto completion in nvim > 0.11
+		local client = vim.lsp.get_client_by_id(ev.data.client_id)
+		if client:supports_method('textDocument/completion') then
+			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+		end
+		if client and client:supports_method('textDocument/formatting') then
+			if vim.tbl_contains(auto_format_clients, client.name) then
+				setup_auto_format_on_save(ev.buf, client.name)
+			end
+		end
+	end,
 })
