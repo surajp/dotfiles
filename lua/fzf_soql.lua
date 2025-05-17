@@ -169,7 +169,7 @@ function M.fzf_soql()
   vim.fn['fzf#run']({
     source = source_cmd,
     sink = 'FzfSoqlSelection',
-    options = '--prompt="SOQL> " --height=40% --layout=reverse --border'
+    options = '--prompt="SOQL> " --height=40% --layout=reverse --border --preview="~/.fzf-soql-preview.zsh {1} '..org_id..'" --preview-window=right:wrap --no-multi --bind="ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up"',
   })
 end
 

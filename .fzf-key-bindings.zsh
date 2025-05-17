@@ -82,7 +82,7 @@ if [[ $- =~ i ]]; then
       selected="$({
         jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile"
         jq -Rr 'split(",") | "\(.[0]).\(.[1])"' ~/.sobjtypes/sf_standard_schema.csv
-      } | sort -u | $(__fzfcmd) -i)"
+      } | sort -u | $(__fzfcmd) -i --preview="~/.fzf-soql-preview.zsh {1} $orgId" --preview-window='right:wrap' --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up')"
     fi
     selected="${selected#*.}"
     LBUFFER="${LBUFFER:0:$CURSOR}$selected${LBUFFER:$CURSOR}"

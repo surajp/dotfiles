@@ -228,13 +228,25 @@ local function check_disable_all()
     if total_len > 100000 then break end
   end
 
-  if total_len > 100000 then
-    vim.cmd("ALEDisableBuffer")
-    vim.cmd("ALEDisableFixersBuffer")
-    vim.bo.syntax = 'off'
-    -- Setting filetype might trigger other autocommands, syntax=off might be safer/enough
-    -- vim.bo.filetype = 'nofile'
-    print("ALE, Fixers, and Syntax disabled for very large file.")
+  if total_len > 100000 or vim.fn.line("$") > 10000 then
+     -- Disable heavy plugins
+     vim.cmd("ALEDisableBuffer")
+     vim.cmd("ALEDisableFixersBuffer")
+     vim.cmd("TSBufDisable highlight") -- Disable TreeSitter highlighting
+     vim.cmd("TSBufDisable indent") -- Disable TreeSitter indentation
+     vim.cmd("TSBufDisable incremental_selection")
+     vim.cmd("TSBufDisable textobjects")
+     
+     -- Keep basic syntax highlighting but disable heavy features
+     vim.wo.foldmethod = 'manual' -- Disable syntax-based folding
+     vim.wo.cursorline = false -- Disable cursor line highlighting
+     vim.wo.cursorcolumn = false -- Disable cursor column highlighting
+     
+     -- Disable LSP for this buffer only
+     local clients = vim.lsp.get_clients({bufnr = 0})
+     for _, client in pairs(clients) do
+       vim.lsp.buf_detach_client(0, client.id)
+     end
   end
 end
 
@@ -549,7 +561,7 @@ map("i", "<C-S>", "<Plug>(fzf-complete-wordnet)", { noremap = true }) -- fzf-wor
 map("i", "<C-x>c", "fzf#vim#complete('cat ~/.sldsclasses.txt')", { expr = true, noremap = true })
 map("i", "<C-x>m", [[fzf#vim#complete({'source': 'cat schema.txt', 'reducer': { lines -> split(lines[0],' ')[0]}})]], { expr = true, noremap = true })
 map("n", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
-map("i", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
+map("i", "<C-x><C-y>", function() require('fzf_soql').fzf_soql() end, opts)
 
 -- ALE Keybindings
 map("n", "<C-w>i", "<Cmd>ALEToggleBuffer<CR>", opts)
