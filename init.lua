@@ -15,6 +15,9 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
   })
 vim.opt.rtp:prepend(lazypath)
 
+-- Load plugins
+require("plugins")
+
 -- =============================================================================
 -- Global Settings
 -- =============================================================================
@@ -111,7 +114,7 @@ end
 
 -- Transparency Toggle Function
 local is_transparent = false
-local original_colorscheme = "catppuccin-mocha" -- Store your default colorscheme
+local original_colorscheme = "iceberg" -- Store your default colorscheme
 
 local function make_transparent()
   vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
@@ -320,17 +323,17 @@ map("i", "kj", "<Esc>", { noremap = true })
 map("n", "j", "gj", { noremap = true }) -- Navigate visual lines
 map("n", "k", "gk", { noremap = true })
 map("n", "<CR>", ":", { noremap = true }) -- Enter to command mode
-map("t", "kj", "<C-\\><C-n>", opts) -- Escape from terminal mode (like Ctrl-\ Ctrl-n)
-map("t", "jk", "<C-\\><C-n>", opts) -- Escape from terminal mode (like Ctrl-\ Ctrl-n)
+map("t", "kkk", "<C-\\><C-n>", opts) -- Escape from terminal mode (like Ctrl-\ Ctrl-n)
 map("n", "<C-j>", "<Cmd>cnext<CR>", opts) -- Navigate quickfix list
 map("n", "<C-k>", "<Cmd>cprev<CR>", opts)
 map("n", "<Leader>m", "<Cmd>G<CR>", opts) -- Fugitive Git status
+map("n", "<Leader>r", "<Cmd>e<CR>", opts) -- Reload file
 
 -- Toggle Highlight Search
 local hlstate = 0
 map("n", "<leader>;", function()
   hlstate = hlstate + 1
-  if hlstate % 2 == 0 then
+  if hlstate % 2 == 1 then
     vim.cmd('nohlsearch')
   else
     vim.opt.hlsearch = true
@@ -339,7 +342,7 @@ map("n", "<leader>;", function()
   vim.cmd('echo')   -- Clear message area
 end, opts)
 
-map("n", "<C-j>t", "<Cmd>bo 15sp +te<CR>A", opts) -- Open terminal below
+map("n", "<leader>tm", "<Cmd>bo 15sp +te<CR>A", opts) -- Open terminal below
 map("n", "<C-w>m", "<C-w>_<C-w>|", opts) -- Maximize window
 map("n", "<C-w><Left>", "<Cmd>vertical resize -5<CR>", opts) -- Resize window
 map("n", "<C-w><Right>", "<Cmd>vertical resize +5<CR>", opts)
@@ -492,7 +495,7 @@ map("n", "]ee", "<Cmd>RunAsync sfdx apex:run -f %<CR>", opts)
 map("n", "]ej", "<Cmd>RunAsync sfdx apex:run -f % --json<CR>", opts)
 
 -- Vim Grep Current Word
-map("n", "]ss", 'yiw:vim /\\c<C-r>"/g', { noremap = true, silent = false }) -- Needs interactive input
+map("n", "]ss", 'yiw:Rg! <C-r>=tolower(@")<CR><CR>', { noremap = true, silent = false }) -- Needs interactive input
 
 -- Buffer Navigation
 map("n", "gn", "<Cmd>bnext<CR>", opts)
@@ -502,106 +505,106 @@ map("n", "<leader>-", "<Cmd>bdelete!<CR>", opts)
 -- Apex Logs (Keep using :term via vim.cmd)
 map("n", "]l", ":<C-u>tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color -o | tee /tmp/apexlogs.log<C-left><C-left><C-left>", opts)
 map("n", "]ll", "<Cmd>tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:tail:log --color | tee /tmp/apexlogs.log<CR>", opts)
-map("n", "]li", "<Cmd>tabnew | read !sfdx apex:log:list<CR>", opts)
-map("n", "]gl", function() -- Get log by ID under cursor
-  -- Move to the beginning of the line and search for "07L" on the current line
-  local current_line = vim.fn.line('.')
-  vim.cmd("normal! 0")
-  vim.cmd("normal! /\\%" .. current_line .. "l07L<CR>")
-  vim.cmd("nohlsearch")
+  map("n", "]li", "<Cmd>tabnew | read !sfdx apex:log:list<CR>", opts)
+  map("n", "]gl", function() -- Get log by ID under cursor
+    -- Move to the beginning of the line and search for "07L" on the current line
+    local current_line = vim.fn.line('.')
+    vim.cmd("normal! 0")
+    vim.cmd("normal! /\\%" .. current_line .. "l07L<CR>")
+    vim.cmd("nohlsearch")
 
-  -- Yank the word under the cursor into register 'a'
-  vim.cmd([[ normal! "ayiw ]])
-  local log_id = vim.fn.getreg('a')
+    -- Yank the word under the cursor into register 'a'
+    vim.cmd([[ normal! "ayiw ]])
+    local log_id = vim.fn.getreg('a')
 
-  -- Validate the log ID and open a new tab with the log
-  if log_id and log_id ~= "" and #log_id == 18 then -- Basic check for SF ID
-    vim.cmd("tabnew | read !sfdx force:apex:log:get -i " .. log_id)
-  else
-    print("Could not find valid Log ID under cursor.".. log_id)
-  end
-end, opts)
+    -- Validate the log ID and open a new tab with the log
+    if log_id and log_id ~= "" and #log_id == 18 then -- Basic check for SF ID
+      vim.cmd("tabnew | read !sfdx force:apex:log:get -i " .. log_id)
+    else
+      print("Could not find valid Log ID under cursor.".. log_id)
+    end
+  end, opts)
 
--- Other Mappings
-map("n", "U", "<Cmd>ea 1f<CR>", { noremap = true }) -- Revert buffer (like :earlier 1f)
-map("n", "<leader>u", "<Cmd>UndotreeToggle<CR>", opts) -- Undotree
-map("n", "<leader>q", "<Cmd>q<CR>", opts) -- Quit
-map("n", "gQ", "gq", { noremap = true }) -- Prevent gq typo
+  -- Other Mappings
+  map("n", "U", "<Cmd>ea 1f<CR>", { noremap = true }) -- Revert buffer (like :earlier 1f)
+  map("n", "<leader>u", "<Cmd>UndotreeToggle<CR>", opts) -- Undotree
+  map("n", "<leader>q", "<Cmd>q<CR>", opts) -- Quit
+  map("n", "gQ", "gq", { noremap = true }) -- Prevent gq typo
 
--- Detour mappings
-map("n", "<c-w>o", "<Cmd>Detour<CR>", opts)
-map("n", "<c-w>c", "<Cmd>DetourCurrentWindow<CR>", opts)
-map("n", "<c-w>b", "<Cmd>Detour<CR>:term bat --paging=always %<CR>a", opts) -- Open current file in bat popup
+  -- Detour mappings
+  map("n", "<c-w>o", "<Cmd>Detour<CR>", opts)
+  map("n", "<c-w>c", "<Cmd>DetourCurrentWindow<CR>", opts)
+  map("n", "<c-w>b", "<Cmd>Detour<CR>:term bat --paging=always %<CR>a", opts) -- Open current file in bat popup
 
--- FZF Keybindings
-map("n", "<C-p>", "<Cmd>Files!<CR>", opts)
-map("n", "<C-f>b", "<Cmd>Buffers<CR>", opts)
-map("n", "<C-f>s", "<Cmd>Snippets<CR>", opts)
-map("n", "<C-f>c", "<Cmd>BCommits!<CR>", opts)
-map("n", "<C-f>f", "<Cmd>BLines!<CR>", opts) -- Used Esc Esc: prefix before, Cmd is cleaner
-map("n", "<C-f>l", "<Cmd>Helptags!<CR>", opts)
-map("n", "<C-f>g", function() -- Grep for word under cursor
-  vim.cmd([[ normal! "syiw ]]) -- Yank word into register s
-  local word = vim.fn.getreg('s')
-  if word and word ~= "" then
-    vim.cmd('GGrepI ' .. word)
-  end
-end, opts)
-map("n", "<C-f>m", "<plug>(fzf-maps-n)", opts) -- fzf-maps plugin
-map("n", "<C-f>r", "<plug>(ale_find_references)", opts) -- ALE find references
-map("n", "<C-f>t", "<Cmd>Filetypes!<CR>", opts)
-map("n", "<C-f>o", "<Cmd>Colors<CR>", opts)
-map("n", "<leader>x", "<Cmd>Commands<CR>", opts)
+  -- FZF Keybindings
+  map("n", "<C-p>", "<Cmd>Files!<CR>", opts)
+  map("n", "<C-f>b", "<Cmd>Buffers<CR>", opts)
+  map("n", "<C-f>s", "<Cmd>Snippets<CR>", opts)
+  map("n", "<C-f>c", "<Cmd>BCommits!<CR>", opts)
+  map("n", "<C-f>f", "<Cmd>BLines!<CR>", opts) -- Used Esc Esc: prefix before, Cmd is cleaner
+  map("n", "<C-f>l", "<Cmd>Helptags!<CR>", opts)
+  map("n", "<C-f>g", function() -- Grep for word under cursor
+    vim.cmd([[ normal! "syiw ]]) -- Yank word into register s
+    local word = vim.fn.getreg('s')
+    if word and word ~= "" then
+      vim.cmd('GGrepI ' .. word)
+    end
+  end, opts)
+  map("n", "<C-f>m", "<plug>(fzf-maps-n)", opts) -- fzf-maps plugin
+  map("n", "<C-f>r", "<plug>(ale_find_references)", opts) -- ALE find references
+  map("n", "<C-f>t", "<Cmd>Filetypes!<CR>", opts)
+  map("n", "<C-f>o", "<Cmd>Colors<CR>", opts)
+  map("n", "<leader>x", "<Cmd>Commands<CR>", opts)
 
 
--- FZF Insert Mode Completions (using expr = true)
-map("i", "<C-f>i", "fzf#vim#complete('cat ~/lib/.sldsicons.txt')", { expr = true, noremap = true })
-map("i", "<c-x><c-k>", "fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})", { expr = true, noremap = true })
-map("i", "<C-S>", "<Plug>(fzf-complete-wordnet)", { noremap = true }) -- fzf-wordnet plugin
-map("i", "<C-x>c", "fzf#vim#complete('cat ~/.sldsclasses.txt')", { expr = true, noremap = true })
-map("i", "<C-x>m", [[fzf#vim#complete({'source': 'cat schema.txt', 'reducer': { lines -> split(lines[0],' ')[0]}})]], { expr = true, noremap = true })
-map("n", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
-map("i", "<C-x><C-y>", function() require('fzf_soql').fzf_soql() end, opts)
+  -- FZF Insert Mode Completions (using expr = true)
+  map("i", "<C-f>i", "fzf#vim#complete('cat ~/lib/.sldsicons.txt')", { expr = true, noremap = true })
+  map("i", "<c-x><c-k>", "fzf#vim#complete#word({'window': { 'width': 0.2, 'height': 0.9, 'xoffset': 1 }})", { expr = true, noremap = true })
+  map("i", "<C-S>", "<Plug>(fzf-complete-wordnet)", { noremap = true }) -- fzf-wordnet plugin
+  map("i", "<C-x>c", "fzf#vim#complete('cat ~/.sldsclasses.txt')", { expr = true, noremap = true })
+  map("i", "<C-x>m", [[fzf#vim#complete({'source': 'cat schema.txt', 'reducer': { lines -> split(lines[0],' ')[0]}})]], { expr = true, noremap = true })
+  map("n", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
+  map("i", "<C-x><C-y>", function() require('fzf_soql').fzf_soql() end, opts)
 
--- ALE Keybindings
-map("n", "<C-w>i", "<Cmd>ALEToggleBuffer<CR>", opts)
-map("n", "<C-w>d", "<Cmd>ALEDetail<CR>", opts)
-map("n", "<leader>fo", "<Cmd>ALEFix<CR>", opts) -- Run fixers on demand
+  -- ALE Keybindings
+  map("n", "<C-w>i", "<Cmd>ALEToggleBuffer<CR>", opts)
+  map("n", "<C-w>d", "<Cmd>ALEDetail<CR>", opts)
+  map("n", "<leader>fo", "<Cmd>ALEFix<CR>", opts) -- Run fixers on demand
 
--- Tagbar/Aerial Toggle
-map("n", "mm", "<Cmd>TagbarToggle<CR>", opts) -- Using Tagbar as per original 'mm' mapping
+  -- Tagbar/Aerial Toggle
+  map("n", "mm", "<Cmd>TagbarToggle<CR>", opts) -- Using Tagbar as per original 'mm' mapping
 
--- Git Log Graph
-map("n", "<leader>g", '<Cmd>G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>', opts)
+  -- Git Log Graph
+  map("n", "<leader>g", '<Cmd>G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>', opts)
 
--- Disable arrow keys and scroll wheel in normal/insert mode
-map({ "n"}, "<Up>", "<nop>", opts)
-map({ "n"}, "<Down>", "<nop>", opts)
-map({ "n", "i" }, "<ScrollWheelUp>", "<nop>", opts)
-map({ "n", "i" }, "<S-ScrollWheelUp>", "<nop>", opts)
-map({ "n", "i" }, "<C-ScrollWheelUp>", "<nop>", opts)
-map({ "n", "i" }, "<ScrollWheelDown>", "<nop>", opts)
-map({ "n", "i" }, "<S-ScrollWheelDown>", "<nop>", opts)
-map({ "n", "i" }, "<C-ScrollWheelDown>", "<nop>", opts)
-map({ "n", "i" }, "<ScrollWheelLeft>", "<nop>", opts)
-map({ "n", "i" }, "<S-ScrollWheelLeft>", "<nop>", opts)
-map({ "n", "i" }, "<C-ScrollWheelLeft>", "<nop>", opts)
-map({ "n", "i" }, "<ScrollWheelRight>", "<nop>", opts)
-map({ "n", "i" }, "<S-ScrollWheelRight>", "<nop>", opts)
-map({ "n", "i" }, "<C-ScrollWheelRight>", "<nop>", opts)
+  -- Disable arrow keys and scroll wheel in normal/insert mode
+  map({ "n"}, "<Up>", "<nop>", opts)
+  map({ "n"}, "<Down>", "<nop>", opts)
+  map({ "n", "i" }, "<ScrollWheelUp>", "<nop>", opts)
+  map({ "n", "i" }, "<S-ScrollWheelUp>", "<nop>", opts)
+  map({ "n", "i" }, "<C-ScrollWheelUp>", "<nop>", opts)
+  map({ "n", "i" }, "<ScrollWheelDown>", "<nop>", opts)
+  map({ "n", "i" }, "<S-ScrollWheelDown>", "<nop>", opts)
+  map({ "n", "i" }, "<C-ScrollWheelDown>", "<nop>", opts)
+  map({ "n", "i" }, "<ScrollWheelLeft>", "<nop>", opts)
+  map({ "n", "i" }, "<S-ScrollWheelLeft>", "<nop>", opts)
+  map({ "n", "i" }, "<C-ScrollWheelLeft>", "<nop>", opts)
+  map({ "n", "i" }, "<ScrollWheelRight>", "<nop>", opts)
+  map({ "n", "i" }, "<S-ScrollWheelRight>", "<nop>", opts)
+  map({ "n", "i" }, "<C-ScrollWheelRight>", "<nop>", opts)
 
--- Sudo save
-map("c", "w!!", "w !sudo tee > /dev/null %", { noremap = true })
+  -- Sudo save
+  map("c", "w!!", "w !sudo tee > /dev/null %", { noremap = true })
 
--- Transparency Toggle
-map("n", "<leader>tt", toggle_transparent, opts)
+  -- Transparency Toggle
+  map("n", "<leader>tt", toggle_transparent, opts)
 
--- =============================================================================
--- Plugin Configuration Variables (vim.g)
--- =============================================================================
+  -- =============================================================================
+  -- Plugin Configuration Variables (vim.g)
+  -- =============================================================================
 
--- UltiSnips
-vim.g.UltiSnipsExpandTrigger = "<tab>"
+  -- UltiSnips
+  vim.g.UltiSnipsExpandTrigger = "<tab>"
 vim.g.UltiSnipsJumpForwardTrigger = "<tab>"
 vim.g.UltiSnipsJumpBackwardTrigger = "<s-tab>"
 -- vim.g.UltiSnipsListSnippets = "<s-tab>" -- Conflicts with JumpBackward
@@ -718,145 +721,13 @@ vim.cmd([[
 
 -- Copilot
 vim.g.copilot_assume_mapped = true -- Let copilot know other mappings might exist
-vim.g.copilot_no_tab_map = true    -- Disable default Tab mapping
+vim.g.copilot_no_tab_map = false    -- Disable default Tab mapping
 vim.g.copilot_filetypes = {        -- Disable copilot for specific filetypes
   xml = false,
   -- Add other filetypes if needed
 }
-vim.api.nvim_set_keymap('i', '<C-l>', "copilot#Accept('\\<CR>')", { silent = true, expr = true })
+vim.api.nvim_set_keymap('i', '<C-i>', "copilot#Accept('\\<CR>')", { silent = true, expr = true })
 
--- =============================================================================
--- lazy.nvim Plugin Setup
--- =============================================================================
-require("lazy").setup({
-  -- Core / UI
-  { 'nvim-lua/plenary.nvim', name = 'plenary' }, -- Dependency for many plugins
-  { 'vim-airline/vim-airline' },
-  { 'vim-airline/vim-airline-themes' },
-  { 'gruvbox-community/gruvbox', lazy = true }, -- Load only when called
-  { 'catppuccin/nvim', name = 'catppuccin', priority = 1000 }, -- High priority for colorscheme
-  { 'cocopon/iceberg.vim', lazy = true },
-  { 'aliqyan-21/darkvoid.nvim', lazy = true },
-  { 'HiPhish/rainbow-delimiters.nvim', config = function() require("rainbow-delimiters.setup").setup() end },
-
-  -- Utility / Editing Enhancements
-  { 'tpope/vim-surround' },
-  { 'stevearc/oil.nvim', dependencies = { "nvim-tree/nvim-web-devicons" }, config = true }, -- File manager, config=true runs default setup
-  { 'SirVer/ultisnips', dependencies = { 'honza/vim-snippets' } },
-  { 'wellle/targets.vim' }, -- Additional text objects
-  { 'unblevable/quick-scope' }, -- Highlight f/F/t/T targets
-  { 'mbbill/undotree' },
-  { 'leath-dub/snipe.nvim', config = true }, -- Buffer navigation enhancement
-  { 'QuentinGruber/timespent.nvim', config = true },
-
-  -- LSP / Completion / Linting / Formatting
-  { 'neovim/nvim-lspconfig' },
-  { 'dense-analysis/ale' }, -- Linter/Fixer runner
-  { 'ncm2/float-preview.nvim' }, -- Preview window
-  { 'nvimtools/none-ls.nvim'},
-
-  -- Treesitter
-  {
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    config = function()
-      require'nvim-treesitter.configs'.setup {
-        ensure_installed = {"java","apex","json","csv","javascript","bash","lua","vim","comment","markdown","soql","sosl","sflog", "rust", "python", "html", "css", "typescript"}, -- Added more common languages
-        sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
-        auto_install = true, -- Automatically install missing parsers when entering buffer
-        ignore_install = {}, -- List of parsers to ignore installing
-        highlight = {
-          enable = true,              -- false will disable the whole extension
-          disable = {},  -- list of language that will be disabled
-          additional_vim_regex_highlighting = false -- Keep this false unless needed
-        },
-        indent = { enable = true }, -- Enable TreeSitter based indentation
-        -- Other modules can be enabled here, e.g., textobjects
-      }
-    end
-  },
-  -- { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Needs setup after nvim-treesitter
-
-  -- Git
-  { 'tpope/vim-fugitive' },
-
-  -- FZF
-  { 'junegunn/fzf', build = function() vim.fn['fzf#install']() end },
-  { 'junegunn/fzf.vim' },
-  { 'Avi-D-coder/fzf-wordnet.vim' },
-
-  -- Debugging (DAP)
-  { 'mfussenegger/nvim-dap' },
-  { 'rcarriga/nvim-dap-ui', dependencies = {"mfussenegger/nvim-dap", "nvim-neotest/nvim-nio"} },
-  { 'mfussenegger/nvim-dap-python' }, -- Installs python debugger automatically
-
-  -- Language Specific
-  { 'dart-lang/dart-vim-plugin' },
-  { 'pangloss/vim-javascript' }, -- Basic JS syntax (might be superseded by treesitter)
-  { 'rust-lang/rust.vim' },
-
-  -- Navigation / Code Structure
-  { 'preservim/tagbar' }, -- Ctags based symbol outline
-  { 'stevearc/aerial.nvim', dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, config = true }, -- LSP/TreeSitter symbol outline
-  -- { 'smoka7/hop.nvim', version = "*", config = function() require('hop').setup() end }, -- EasyMotion replacement
-  { 'carbon-steel/detour.nvim', config = true }, -- Run commands in external windows/popups
-
-  -- Copilot
-  { 'github/copilot.vim' },
-  -- CopilotChat (Example structure, needs plenary)
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "main",
-    dependencies = {
-      { "github/copilot.vim" }, -- Must be loaded first or same lazy load event
-      { "nvim-lua/plenary.nvim" }, -- Required for tests
-    },
-    config = function()
-      require("CopilotChat").setup { }
-    end,
-  },
-
-  {
-    "folke/flash.nvim",
-    event = "VeryLazy",
-    ---@type Flash.Config
-    opts = {},
-    -- stylua: ignore
-    keys = {
-      { "<leader>s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
-    },
-  },
-
-  {
-    "saghen/blink.cmp",
-    version = "1.*",
-    dependencies = {"rafamadriz/friendly-snippets"},
-    opts = {
-      keymap = { 
-      	preset = "default", 
-      	["<Tab>"] = { "snippet_forward","fallback"},
-      	["<S-Tab>"] = { "snippet_backward","fallback" },
-      },
-      completion = {
-      	documentation = { auto_show = false }, -- Disable auto-show documentation
-      },
-      appearance = {
-	nerd_font_variant = "mono",
-      },
-      sources = {
-      	default = { "lsp", "path", "buffer","snippets" }, 
-      },
-      fuzzy = { implementation = "prefer_rust_with_warning" },
-    },
-    opts_extend = { "sources.default" }
-  },
-
-  { "L3MON4D3/LuaSnip", version = "2.*", dependencies = { "rafamadriz/friendly-snippets" } },
-}, {})
 
 -- =============================================================================
 -- Load Lua Modules (After plugins are set up)
