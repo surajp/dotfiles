@@ -145,8 +145,15 @@ if [[ $- =~ i ]]; then
         sfdx force:mdapi:listmetadata -m "$mdType" --json > .mdtypes/$mdType.json &> /dev/null
       fi
     fi
-    selected="$(jq -r '.result[].fullName' .mdtypes/$mdType.json | $(__fzfcmd) -i)"
-    LBUFFER="${LBUFFER:0:$CURSOR}\"$selected\"${LBUFFER:$CURSOR}"
+    selected=$(jq -r '.result[].fullName' .mdtypes/$mdType.json | $(__fzfcmd) -m -i)
+
+    if [[ -n "$selected" ]]; then
+      local formatted=""
+      while IFS= read -r item; do
+        formatted+="$mdType:\"$item\" "
+      done <<< "$selected"
+      LBUFFER="${LBUFFER%$mdType:}$formatted${LBUFFER:$CURSOR}"
+    fi
 
     local ret=$?
     zle reset-prompt
