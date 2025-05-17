@@ -82,9 +82,12 @@ if [[ $- =~ i ]]; then
       selected="$({
         jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile"
         jq -Rr 'split(",") | "\(.[0]).\(.[1])"' ~/.sobjtypes/sf_standard_schema.csv
-      } | sort -u | $(__fzfcmd) -i --preview="~/.fzf-soql-preview.zsh {1} $orgId" --preview-window='right:wrap' --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up')"
+      } | sort -u | $(__fzfcmd) -i -m --preview="~/.fzf-soql-preview.zsh {1} $orgId" --preview-window='right:wrap' --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up')"
     fi
-    selected="${selected#*.}"
+    # Remove object prefix from each selected field
+    selected=$(echo "$selected" | sed 's/[^.]*\.//g')
+    # Convert newlines to commas for multi-select
+    selected="${selected//$'\n'/,}"
     LBUFFER="${LBUFFER:0:$CURSOR}$selected${LBUFFER:$CURSOR}"
 
     zle reset-prompt
