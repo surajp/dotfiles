@@ -4,13 +4,15 @@ return {
   dependencies = {
     {
       'L3MON4D3/LuaSnip',
+      dependencies = { 'rafamadriz/friendly-snippets' },
       version = 'v2.*',
       build = "make install_jsregexp",
-      dependencies = { "rafamadriz/friendly-snippets" },
       config = function()
+        local ls = require("luasnip")
         require("luasnip.loaders.from_vscode").lazy_load()
-        require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/my-snippets" })
-      	require("luasnip").filetype_extend("apex", { "java" })
+        require("luasnip.loaders.from_snipmate").lazy_load({ paths = {vim.fn.expand("$HOME") .. "/.vim/snipmatesnippets"} })
+      	ls.filetype_extend("apex", { "java" })
+      	ls.filetype_extend("lwc", { "js" })
       end,
     },
   },
@@ -24,6 +26,8 @@ return {
       ['<Down>'] = { 'select_next', 'fallback' },
       ['<C-p>'] = { 'select_prev', 'fallback' },
       ['<C-n>'] = { 'select_next', 'fallback' },
+      ['<C-l>'] = { 'snippet_forward','fallback' },
+      ['<C-j>'] = { 'snippet_backward','fallback' },
     },
     completion = {
       documentation = { auto_show = false }, -- Disable auto-show documentation

@@ -37,6 +37,7 @@ return {
     local output = require('CopilotChat.config.providers').copilot.prepare_output(response, options)
     output.content = response.choices[1].delta.content or ""
     if response.object == "chat.completion.done" then
+      output.content = output.content .. '\n\n\n### Web Results:'
       for _, search in ipairs(response.search_results or {}) do
       	output.content = output.content .. string.format('\n[%s] [%s](%s)', search.date, search.title, search.url)
       end

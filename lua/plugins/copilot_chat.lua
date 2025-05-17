@@ -2,7 +2,8 @@ return {
   {
     "CopilotC-Nvim/CopilotChat.nvim",
     branch = "main",
-    lazy = false,
+    lazy = true,
+    event = "VeryLazy",
     dependencies = {
       { "github/copilot.vim" },
       { "nvim-lua/plenary.nvim" },
@@ -49,9 +50,11 @@ return {
   	providers = {
 	  openrouter=openrouter,
 	  perplexity=pplx,
+	  ollama=require("copilot_chat.providers.ollama")
 	},
 	functions = {
 	  sfschema = sfschema,
+	  memory = require("copilot_chat.context_functions.memory"),
 	}
       })
     end,
