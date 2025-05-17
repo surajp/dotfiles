@@ -1,7 +1,7 @@
 local cchat = require("CopilotChat")
 
 cchat.setup({
-  model = "claude-sonnet-4",
+  model = "gpt-5",
   context = "file:.github/copilot-instructions.md",
   chat_autocomplete = true,
   mappings = {
@@ -14,7 +14,7 @@ cchat.setup({
     },
   },
   sticky = {
-    '@models using claude-sonnet-4',
+    '@models using gpt-5',
     '#buffer',
   }
 })

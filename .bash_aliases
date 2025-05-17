@@ -159,7 +159,7 @@ alias yeet="sfdx org:list --clean -p"
 
 alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
-alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=65" && mv report?version=64 ~/.mdapiReport.json'
+alias refreshmdapi='curl -SL "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=65" -o ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -209,6 +209,7 @@ function dellogs() {
       sfdx data:query -q "select id from apexlog" -r csv -o "$1" | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"$1\" \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
     else
       sfdx data:query -q "select id from apexlog" -r csv | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
+      sfdx data:query -q "select id from apexlog" -r csv | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
     fi
 }
 
@@ -219,10 +220,30 @@ function delflows() {
       return 1
     fi
     local flowName=$1
+
+    local orgName=""
     if [ $# -eq 2 ]; then
-      sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv -o "$2" | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"$2\" \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      orgName="$2"
+    fi
+
+    if [ "$flowName" = "--all" ]; then
+      echo -n "Are you sure you want to delete all obsolete flow versions? (y/n): "
+      read confirm
+      if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+	echo "Aborting deletion of obsolete flows."
+	return 1
+      fi
+      if [ -n "$orgName" ]; then
+        sfdx data:query -q "select id from flow where status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition)" -t -r csv --target-org "$orgName" | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 bash -c "sfdx api:request:rest --method DELETE --target-org \"$orgName\" \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      else
+        sfdx data:query -q "select id from flow where status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition)" -t -r csv | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 bash -c "sfdx api:request:rest --method DELETE \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      fi
     else
-      sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      if [ -n "$orgName" ]; then
+        sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv --target-org "$orgName" | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 bash -c "sfdx api:request:rest --method DELETE --target-org \"$orgName\" \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      else
+        sfdx data:query -q "select id from flow where definition.developername='"$flowName"' and status='Obsolete' and Id not in (Select LatestVersionId from FlowDefinition where DeveloperName='"$flowName"')" -t -r csv | awk 'NR>1' | xargs -n1 | sed 's/ /,/g' | xargs -I {} -P 5 bash -c "sfdx api:request:rest --method DELETE \"services/data/v62.0/tooling/sobjects/Flow/{}\" --body '{\"mode\":\"raw\"}'"
+      fi
     fi
 }
 

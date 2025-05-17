@@ -52,6 +52,7 @@ vim.opt.scrolloff = 8             -- Keep 8 lines visible above/below cursor
 vim.opt.cursorline = true         -- Highlight the current line
 vim.opt.mouse = ""                -- Disable mouse support
 vim.opt.spell = true              -- Enable spell checking
+vim.opt.spell = false              -- Enable spell checking
 vim.opt.spelllang = "en_us"       -- Set spell check language
 vim.opt.background = "dark"       -- Assume dark background
 vim.opt.foldmethod = "expr"       -- Use expression for folding (TreeSitter)
@@ -64,6 +65,7 @@ vim.opt.laststatus = 2            -- Always show status line
 vim.opt.path:append("**")         -- Search recursively in subfolders using 'find'
 vim.opt.wildignore:append("**/node_modules/**") -- Ignore node_modules for wildmenu/find
 vim.opt.omnifunc = "ale#completion#OmniFunc" -- Set omnifunc for ALE
+vim.opt.winborder = "rounded"
 
 if vim.fn.has("termguicolors") == 1 then
   vim.opt.termguicolors = true      -- Enable true color support if available
@@ -171,7 +173,15 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.jsx", grou
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*-meta.xml", group = ft_group, command = "UltiSnipsAddFiletypes meta.xml" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "**/lwc/*.js", group = ft_group, command = "set filetype=lwc syntax=javascript | UltiSnipsAddFiletypes lwc.js" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.rc", group = ft_group, command = "set filetype=sh" })
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.md", group = ft_group, command = "UltiSnipsAddFiletypes plot.md" })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  group = ft_group,
+  callback = function()
+    vim.opt_local.spell = true
+    pcall(vim.cmd, "UltiSnipsAddFiletypes plot.md")
+  end,
+})
 
 -- Quickfix window settings
 vim.api.nvim_create_autocmd("FileType", { pattern = "qf", group = ft_group, callback = function()
@@ -331,7 +341,7 @@ map("i", "kj", "<Esc>", { noremap = true })
 map("n", "j", "gj", { noremap = true }) -- Navigate visual lines
 map("n", "k", "gk", { noremap = true })
 map("n", "<CR>", ":", { noremap = true }) -- Enter to command mode
-map("t", "kkk", "<C-\\><C-n>", opts) -- Escape from terminal mode (like Ctrl-\ Ctrl-n)
+map("t", "~~", "<C-\\><C-n>", opts) -- Escape from terminal mode (like Ctrl-\ Ctrl-n)
 map("n", "<C-j>", "<Cmd>cnext<CR>", opts) -- Navigate quickfix list
 map("n", "<C-k>", "<Cmd>cprev<CR>", opts)
 map("n", "<Leader>m", "<Cmd>G<CR>", opts) -- Fugitive Git status
@@ -404,7 +414,15 @@ map("n", "]tt", function()
     print("No test method found.")
     return
   end
-  vim.cmd([[ normal! j0f(h"tyiw<C-o> ]]) -- Move to the next line, find '(', and yank the word
+  
+  -- Save current cursor position
+  local saved_pos = vim.fn.getpos('.')
+  
+  vim.cmd([[ normal! j0f(h"tyiw ]]) -- Move to the next line, find '(', and yank the word
+  
+  -- Restore cursor position
+  vim.fn.setpos('.', saved_pos)
+  
   print("Test method name: " .. vim.fn.getreg('t'))
   local test_name = vim.fn.getreg('t')
   local file_name = vim.fn.expand('%:t:r')
@@ -463,7 +481,7 @@ map("n", "]uf", "<Cmd>RunAsync sfdx project:retrieve:start -c<CR>", opts)
 
 map("n", "<leader>[", function()
   interactive.RunInteractive(
-    "sfdx project:retrieve:start -d % -o {org}",
+    "sfdx project:retrieve:start -d % -o {org} -c",
     {
       { placeholder = "org", prompt = "Org name", default = "" },
     },
@@ -485,6 +503,7 @@ map("n", "]d", function()
 end, opts)
 
 map("n", "]dd", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>", opts)
+map("n", "]df", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -c<CR>", opts)
 
 -- Execute Anonymous Apex
 -- map("n", "]e", ":<C-u>RunAsync sfdx apex:run -f % -o ", opts)
@@ -580,7 +599,7 @@ map("n", "]ll", "<Cmd>tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:ta
   map("n", "<leader>fo", "<Cmd>ALEFix<CR>", opts) -- Run fixers on demand
 
   -- Tagbar/Aerial Toggle
-  map("n", "mm", "<Cmd>TagbarToggle<CR>", opts) -- Using Tagbar as per original 'mm' mapping
+  map("n", "mm", "<Cmd>AerialToggle<CR>", opts) -- Using Tagbar as per original 'mm' mapping
 
   -- Git Log Graph
   map("n", "<leader>g", '<Cmd>G log --all --decorate --graph --pretty=format:"%h%x09%an%x09%ad%x09%s"<CR>', opts)
@@ -729,7 +748,7 @@ vim.cmd([[
 
 -- Copilot
 vim.g.copilot_assume_mapped = true -- Let copilot know other mappings might exist
-vim.g.copilot_no_tab_map = false    -- Disable default Tab mapping
+vim.g.copilot_no_tab_map = true    -- Disable default Tab mapping
 vim.g.copilot_filetypes = {        -- Disable copilot for specific filetypes
   xml = false,
   -- Add other filetypes if needed
@@ -761,6 +780,10 @@ require('sfcommands').setup() -- Load Salesforce specific commands
 require 'lwc_ls'
 
 require 'apex_ls'
+
+require 'duck'
+
+require 'gitindicator'
 
 
 

@@ -6,8 +6,8 @@ return {
     keymap = { 
       preset = "none", -- Don't use any preset
       ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
-      ['<C-e>'] = { 'hide' },
-      ['<C-y>'] = { 'select_and_accept' },
+      ['<C-h>'] = { 'hide' },
+      ['<C-;>'] = { 'select_and_accept' },
       ['<Up>'] = { 'select_prev', 'fallback' },
       ['<Down>'] = { 'select_next', 'fallback' },
       ['<C-p>'] = { 'select_prev', 'fallback' },
