@@ -1,0 +1,149 @@
+extends javascript
+
+snippet group "Plot with group" b
+Plot.plot({
+  marginBottom: 100,
+  x: {label: null, tickRotate: 90},
+  y: {grid: true},
+  color: {legend: true},
+  marks: [
+    Plot.barY(olympians, Plot.groupX({y: "count"}, {x: "sport", fill: "gender"})),
+    Plot.ruleY([0])
+  ]
+})
+endsnippet
+
+snippet bin "Plot with bin" b
+Plot.plot({
+  y: {grid: true},
+  marks: [
+    Plot.rectY(olympians, Plot.binX({y: "count"}, {x: "weight"})),
+    Plot.ruleY([0])
+  ]
+})
+endsnippet
+
+snippet bar,facet "Plot with bar" b
+Plot.plot({
+  marginLeft: 60,
+  marginRight: 60,
+  label: null,
+  x: {label: "Frequency"},
+  y: {padding: 0},
+  marks: [
+    Plot.barX(penguins, {fy: "island", y: "gender", x: 1, inset: 0.5}),
+    Plot.ruleX([0])
+  ]
+})
+endsnippet
+
+snippet rect "Plot with rect" b
+Plot.plot({
+  color: {legend: true},
+  marks: [
+    Plot.rectY(olympians, Plot.binX({y: "count"}, {x: "weight", fill: "gender"})),
+    Plot.ruleY([0])
+  ]
+})
+endsnippet
+
+snippet tree "Plot with tree" b
+Plot.plot({
+  axis: null,
+  margin: 10,
+  marginLeft: 30,
+  marginRight: 160,
+  width: 688,
+  height: 1800,
+  marks: [
+    Plot.tree(flare, {path: "name", delimiter: ".", textStroke: "black"})
+  ]
+})
+endsnippet
+
+snippet line "Plot with line" b
+Plot.plot({
+  y: {
+    type: "log",
+    grid: true,
+    label: "Change in price (%)",
+    tickFormat: ((f) => (x) => f((x - 1) * 100))(d3.format("+d"))
+  },
+  marks: [
+    Plot.ruleY([1]),
+    Plot.line(stocks, Plot.normalizeY({
+      x: "Date",
+      y: "Close",
+      stroke: "Symbol"
+    })),
+    Plot.text(stocks, Plot.selectLast(Plot.normalizeY({
+      x: "Date",
+      y: "Close",
+      z: "Symbol",
+      text: "Symbol",
+      textAnchor: "start",
+      dx: 3
+    })))
+  ]
+})
+endsnippet
+
+snippet window "Plot with window" b
+Plot.plot({
+  y: {
+    grid: true,
+    label: "Temperature (°F)"
+  },
+marks: [
+    Plot.lineY(sftemp, {x: "date", y: "low", strokeOpacity: 0.3}),
+    Plot.lineY(sftemp, Plot.windowY({k: 28, reduce: "min"}, {x: "date", y: "low", stroke: "blue"})),
+    Plot.lineY(sftemp, Plot.windowY({k: 28, reduce: "max"}, {x: "date", y: "low", stroke: "red"})),
+    Plot.lineY(sftemp, Plot.windowY({k: 28, reduce: "median"}, {x: "date", y: "low"}))
+  ]
+})
+endsnippet
+
+snippet map "Plot with map" b
+Plot.plot({
+  marks: [
+    Plot.ruleY([0]),
+    Plot.lineY({length: 600}, Plot.mapY("cumsum", {y: d3.randomNormal()}))
+  ]
+})
+endsnippet
+
+snippet filter "Plot with filter" b
+Plot.plot({
+  marks: [
+    Plot.barY(alphabet, {
+      x: "letter",
+      y: "frequency"
+    }),
+    Plot.barY(alphabet, {
+      filter: (d) => /[aeiouy]/i.test(d.letter),
+      x: "letter",
+      y: "frequency",
+      stroke: "red",
+      strokeWidth: 3,
+      inset: -3 
+    })
+  ]
+})
+endsnippet
+
+
+snippet interval "Plot with interval" b
+Plot.plot({
+  marginBottom: 80,
+  x: {type: "band"}, 
+  y: {
+    grid: true,
+    transform: (d) => d / 1e6,
+    label: "Daily trade volume (millions)"
+  },
+  marks: [
+    Plot.barY(aapl.slice(-40), {x: "Date", y: "Volume", interval: 5e6}),
+    Plot.ruleY([0])
+  ]
+})
+endsnippet

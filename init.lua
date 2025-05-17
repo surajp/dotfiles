@@ -171,6 +171,7 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.jsx", grou
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*-meta.xml", group = ft_group, command = "UltiSnipsAddFiletypes meta.xml" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "**/lwc/*.js", group = ft_group, command = "set filetype=lwc syntax=javascript | UltiSnipsAddFiletypes lwc.js" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.rc", group = ft_group, command = "set filetype=sh" })
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.md", group = ft_group, command = "UltiSnipsAddFiletypes plot.md" })
 
 -- Quickfix window settings
 vim.api.nvim_create_autocmd("FileType", { pattern = "qf", group = ft_group, callback = function()
