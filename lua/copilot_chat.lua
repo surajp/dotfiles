@@ -3,14 +3,14 @@ local cchat = require("CopilotChat")
 cchat.setup({
   model = "claude-sonnet-4",
   context = "file:.github/copilot-instructions.md",
-  chat_autocomplete = false,
+  chat_autocomplete = true,
   mappings = {
     complete = {
-      insert = "<Tab>"
+      insert = "<C-l>"
     },
     reset = {
-      normal = '<C-l>',
-      insert = '<C-l>',
+      normal = '<C-r>',
+      insert = '<C-r>',
     },
   }
 })
