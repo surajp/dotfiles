@@ -152,6 +152,7 @@ alias yeet="sfdx org:list --clean -p"
 alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
 alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=64" && mv report?version=64 ~/.mdapiReport.json'
+alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=65" && mv report?version=64 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
