@@ -319,6 +319,21 @@ hostip() {
   cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
 }
 
+function mdview(){
+  # if first arg is -h or --help, print usage
+  # usage: mdview <markdown file path>
+	if [ $# -eq 1 ] && [[ "$1" == "-h" || "$1" == "--help" ]]; then
+		echo "Usage: mdview <markdown file path>"
+		return 1
+	fi
+	local file=${1:-README.md}
+	# if file doesn't exist or not argument provided, run without any arguments
+	if [ ! -f "$file" ]; then
+		node $PROJECTS_HOME/dotfiles/scripts/markdown-viewer.js
+	  else
+	  	node $PROJECTS_HOME/dotfiles/scripts/markdown-viewer.js "$file"
+	fi
+}
 
 #Convert keyring to apt format
 function gpgconv() {
