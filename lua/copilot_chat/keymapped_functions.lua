@@ -1,18 +1,24 @@
+-- Window configuration for floating CopilotChat windows
 local windowConfig = {
-      	layout = 'float',
-	relative = 'cursor',
-        title = '🤖 AI Quick Chat',
-      	width = 1,
-      	height = 0.6,
-      	row = 1
-      };
-
+  layout = 'float',      -- Floating window layout
+  relative = 'cursor',   -- Position relative to cursor
+  title = '🤖 AI Quick Chat', -- Window title
+  width = 1,             -- Width as ratio of screen (1 = full width)
+  height = 0.6,          -- Height as ratio of screen (0.6 = 60%)
+  row = 1                -- Row offset from cursor
+}
+-- If CopilotChat is not installed, notify user and exit
 local ok = pcall(require, "CopilotChat")
 if not ok then
   vim.notify("CopilotChat plugin not available", vim.log.levels.WARN)
   return
 end
 
+-- Usage: <leader>ccq in normal or visual mode
+-- Features:
+-- - Uses gpt-5.1-codex-mini model
+-- - Sticky context for quick chat mode
+-- - Floating window positioned relative to cursor
 vim.keymap.set({'n','v'}, '<leader>ccq', function()
   local input = vim.fn.input("Quick Chat: ")
   if input ~= "" then
@@ -20,9 +26,9 @@ vim.keymap.set({'n','v'}, '<leader>ccq', function()
     cchat.setup({
       model = 'gpt-5.1-codex-mini',
       sticky = {
-      	'Quick chat mode',
-	'@models using gpt-5.1-codex-mini',
-	'#buffer'
+        'Quick chat mode',
+        '@models using gpt-5.1-codex-mini',
+        '#buffer'
       },
     })
     cchat.reset()
@@ -38,18 +44,25 @@ vim.keymap.set({'n','v'}, '<leader>ccq', function()
   end
 end, { desc = "CopilotChat - Quick chat" })
 
+-- MCP Chat: Specialized chat with Salesforce MCP server enabled
+-- Usage: <leader>ccm in normal or visual mode
+-- Features:
+-- - Uses grok-code-fast-1 model optimized for Salesforce
+-- - Pre-configured sticky context for Salesforce MCP mode
+-- - Opens in default CopilotChat window
 vim.keymap.set({'n','v'}, '<leader>ccm', function()
     local cchat = require("CopilotChat")
+    local model = 'grok-code-fast-1'
     local success, err = pcall(function()
       cchat.setup({
-      	model = 'grok-code-fast-1',
-      	selection = {'#selection'},
-	sticky={
-	  'Assistant with Salesforce MCP mode',
-	  '@Salesforce',
-	  'using grok-code-fast-1',
-	  '#buffer'
-      	},
+        model = model,
+        selection = {'#selection'},
+        sticky={
+          'Assistant with Salesforce MCP mode',
+          '@Salesforce',
+          'using '..model,
+          '#buffer'
+        },
       })
       cchat.reset()
       cchat.open()
@@ -59,15 +72,25 @@ vim.keymap.set({'n','v'}, '<leader>ccm', function()
     end
 end, { desc = "CopilotChat - MCP chat" })
 
+-- Usage: <leader>ccc in normal or visual mode
+-- Available modes:
+-- - Coding Assistant: General coding help
+-- - Code Review: Code quality and best practices
+-- - Planning & Design: Software architecture and design
+-- - Documentation: Writing documentation
+-- - Debugging: Bug identification and fixing
+-- - Refactoring: Code structure improvements
+-- - Testing: Test case development
 vim.keymap.set({'n','v'}, '<leader>ccc', function()
     local modes = {
       { name = 'Coding Assistant', sticky = {'coding assistant mode', 'Assist with coding tasks, code generation, and debugging', '#buffer'} },
-      { name = 'Code Review', sticky = {'code review mode', 'Focus on code quality, best practices, and potential improvements', '#buffer'} },
-      { name = 'Planning & Design', sticky = {'planning and design mode', 'Focus on software architecture, design patterns, and system planning', '#buffer'} },
-      { name = 'Documentation', sticky = {'documentation mode', 'Help with writing clear and comprehensive documentation', '#buffer'} },
-      { name = 'Debugging', sticky = {'debugging mode', 'Help identify and fix bugs in the code', '#buffer'} },
-      { name = 'Refactoring', sticky = {'refactoring mode', 'Suggest improvements to code structure and design', '#buffer'} },
-      { name = 'Testing', sticky = {'testing mode', 'Help write and improve test cases', '#buffer'} },
+      { name = 'Code Review', sticky = {'code review mode', 'Focus on code quality, best practices, and potential improvements. Do not write whole code, only snippets or pesuedo code for suggestions, if needed', '#buffer'} },
+      { name = 'Planning & Design', sticky = {'planning and design mode', 'Focus on software architecture, design patterns, and system planning.Do not write whole code, only snippets or pesuedo code for suggestions, if needed', '#buffer'} },
+      { name = 'Documentation', sticky = {'documentation mode', 'Help with writing clear and comprehensive documentation. Do not write whole code, only snippets or pesuedo code for documentation, if needed', '#buffer'} },
+      { name = 'Debugging', sticky = {'debugging mode', 'Help identify and fix bugs in the code. Do not write whole code, only snippets or pesuedo code for explanation as needed', '#buffer'} },
+      { name = 'Refactoring', sticky = {'refactoring mode', 'Suggest improvements to code structure and design. Do not write whole code, only snippets or pesuedo code, if needed', '#buffer'} },
+      { name = 'Testing', sticky = {'testing mode', 'Help write and improve test cases. Only write testing code, no application or business logic implementations', '#buffer'} },
+      { name = 'General Chat', sticky = {'general chat mode', 'General help without additional context'} },
     }
     local choices = {}
     for _, mode in ipairs(modes) do
@@ -85,6 +108,7 @@ vim.keymap.set({'n','v'}, '<leader>ccc', function()
         cchat.setup({
           selection = {'#selection'},
           sticky = selected_mode.sticky,
+          show_citation = true,
         })
         cchat.reset()
         cchat.open()
@@ -95,16 +119,21 @@ vim.keymap.set({'n','v'}, '<leader>ccc', function()
     end)
 end, { desc = "CopilotChat - Standard chat" })
 
+-- Usage: <leader>ccs in normal or visual mode
+-- Features:
+-- - Uses sonar model for web search capabilities
+-- - Sticky context for quick web search mode
+-- - Opens in floating window
 vim.keymap.set({'n','v'}, '<leader>ccs', function()
     local cchat = require("CopilotChat")
     local model = 'sonar'
     local success, err = pcall(function()
       cchat.setup({
-      	selection = {'#selection'},
-	model = model,
-	sticky={
-	  'quick web search mode'
-      	},
+        selection = {'#selection'},
+        model = model,
+        sticky={
+          'quick web search mode'
+        },
       })
       cchat.reset()
       cchat.open({ window = windowConfig })
@@ -114,6 +143,12 @@ vim.keymap.set({'n','v'}, '<leader>ccs', function()
     end
 end, { desc = "Perplexity - Quick Search" })
 
+-- Usage: <leader>cce in normal or visual mode
+-- Features:
+-- - Uses gpt-5.1-codex-mini model
+-- - Retrieves diagnostic message at cursor position
+-- - Provides concise explanation and fix suggestion
+-- - Opens in floating window
 vim.keymap.set({'n','v'}, '<leader>cce', function()
   local cursor = vim.api.nvim_win_get_cursor(0)
   local lnum = cursor[1] - 1

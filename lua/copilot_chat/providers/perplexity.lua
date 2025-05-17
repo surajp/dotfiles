@@ -30,14 +30,16 @@ return {
       table.insert(fix_messages, msg)
     end
     input.messages = fix_messages
-    input.stream = false
+    input.stream = true
     return input
   end,
   prepare_output = function(response, options)
     local output = require('CopilotChat.config.providers').copilot.prepare_output(response, options)
-    output.content = output.content .. '\n\nSearch Results:'
-    for _, search in ipairs(response.search_results or {}) do
-      output.content = output.content .. string.format('\n[%s] [%s](%s)', search.date, search.title, search.url)
+    output.content = response.choices[1].delta.content or ""
+    if response.object == "chat.completion.done" then
+      for _, search in ipairs(response.search_results or {}) do
+      	output.content = output.content .. string.format('\n[%s] [%s](%s)', search.date, search.title, search.url)
+      end
     end
     return output
   end,
