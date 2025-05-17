@@ -70,8 +70,8 @@ vim.keymap.set({'n','v'}, '<leader>ccc', function()
       { name = 'Testing', sticky = {'testing mode', 'Help write and improve test cases', '#buffer'} },
     }
     local choices = {}
-    for i, mode in ipairs(modes) do
-      table.insert(choices, i .. '. ' .. mode.name)
+    for _, mode in ipairs(modes) do
+      table.insert(choices, mode.name)
     end
     vim.ui.select(choices, {
       prompt = 'Select chat mode:',
