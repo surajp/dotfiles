@@ -1,0 +1,49 @@
+snippet iui "UiRecordApi imports"
+  import { ${1:getRecord}, ${2:getFieldValue}, ${3:updateRecord}, ${4:createRecord},${5:deleteRecord},${6:getRecordNotifyChange} } from "lightning/uiRecordApi";
+
+snippet itoast "Import Platform Toast"
+  import { ShowToastEvent } from "lightning/platformShowToastEvent";
+
+snippet inav "Import Navigation Mixin"
+  import { NavigationMixin } from "lightning/navigation";
+
+snippet iapex "Import Apex Method"
+  import ${1:method} from "@salesforce/apex/${2:classname}.$1";
+
+snippet iflow "Import Flow Support"
+  import {FlowNavigationFinishEvent,FlowAttributeChangeEvent,FlowNavigationBackEvent,FlowNavigationNextEvent,FlowNavigationPauseEvent} from "lightning/flowSupport";
+
+snippet ifield "Import Object Field"
+  import ${1:MY_FIELD} from "@salesforce/schema/${2:Account}.${3:fieldApiName}";
+
+snippet iurl "Import static resource url"
+  import ${1:resourceName}Url from "@salesforce/resourceUrl/$1";
+
+snippet ilib "Import JS/CSS library"
+  import ${1:resourceName}Url from "@salesforce/resourceUrl/$1";
+  import {loadStyle,loadScript} from "lightning/platformResourceLoader";
+
+snippet ilabel "Import Custom Label"
+  import ${1:labelName} from '@salesforce/label/${2:labelReference}';
+
+snippet iencode "Import Encode Field Values"
+  import { encodeDefaultFieldValues } from 'lightning/pageReferenceUtils';
+
+snippet igql "Import GraphQL"
+  import { gql, graphql } from 'lightning/uiGraphQLApi';
+
+snippet iemp "Import emp api"
+  import { subscribe, unsubscribe, onError, setDebugFlag, isEmpEnabled } from 'lightning/empApi';
+
+snippet cc "Connected Callback"
+	connectedCallback(){
+		$1
+	}
+
+snippet rc "Rendered Callback"
+	renderedCallback(){
+		if(this.${1:flag})
+			return;
+		this.$1=true;
+		$2
+	}

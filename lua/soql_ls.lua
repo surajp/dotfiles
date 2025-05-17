@@ -1,4 +1,15 @@
-local lspconfig = require("lspconfig")
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+-- capabilities.textDocument.completion.completionItem.resolveSupport = {
+--   properties = {
+--     'documentation',
+--     'detail',
+--     'additionalTextEdits',
+--   },
+-- }
+
+capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
 local soql_cmd = {
   "node",
@@ -6,10 +17,12 @@ local soql_cmd = {
   "--stdio"
 }
 
-lspconfig.soql_ls = {
-  default_config = {
+vim.lsp.config("soql_ls", {
     cmd = soql_cmd,
-    filetypes = { "soql", "apex"},
-    root_dir = lspconfig.util.root_pattern("sfdx-project.json"),
-  },
-}
+  name = "soql_ls",
+  filetypes = { "soql" },
+  capabilities = capabilities,
+  root_markers = { "sfdx-project.json" },
+})
+
+vim.lsp.enable("soql_ls")

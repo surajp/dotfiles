@@ -166,13 +166,15 @@ local ft_group = "FileTypeGroupLua"
 
 -- General Filetype Settings
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = {"*.cls", "*.trigger", "*.apex"}, group = ft_group, command = "set filetype=apex syntax=apex" })
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.soql", group = ft_group, command = "set filetype=apex syntax=sql | UltiSnipsAddFiletypes sql" })
+-- vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.soql", group = ft_group, command = "set filetype=apex syntax=sql | UltiSnipsAddFiletypes sql" })
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.soql", group = ft_group, command = "set filetype=apex syntax=sql" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "project-scratch-def.json", group = ft_group, command = "set filetype=scratch syntax=json" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = {"*.vue", "*.svelte", "*.jsw", "*.cmp", "*.page", "*.component"}, group = ft_group, command = "set filetype=html" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = {"*.jsw"}, group = ft_group, command = "set filetype=javascript" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.jsx", group = ft_group, command = "set filetype=javascript.jsx" })
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*-meta.xml", group = ft_group, command = "UltiSnipsAddFiletypes meta.xml" })
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "**/lwc/*.js", group = ft_group, command = "set filetype=lwc syntax=javascript | UltiSnipsAddFiletypes lwc.js" })
+-- vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*-meta.xml", group = ft_group, command = "UltiSnipsAddFiletypes meta.xml" })
+-- vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "**/lwc/*.js", group = ft_group, command = "set filetype=lwc syntax=javascript | UltiSnipsAddFiletypes lwc.js" })
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "**/lwc/*.js", group = ft_group, command = "set filetype=lwc syntax=javascript" })
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, { pattern = "*.rc", group = ft_group, command = "set filetype=sh" })
 
 vim.api.nvim_create_autocmd("FileType", {
@@ -180,7 +182,7 @@ vim.api.nvim_create_autocmd("FileType", {
   group = ft_group,
   callback = function()
     vim.opt_local.spell = true
-    pcall(vim.cmd, "UltiSnipsAddFiletypes plot.md")
+    -- pcall(vim.cmd, "UltiSnipsAddFiletypes plot.md")
   end,
 })
 
@@ -474,7 +476,6 @@ map("n", "]TT", function()
 end, opts)
 
 -- AI/Fabric Mappings (Keep using :term via vim.cmd)
-map("n", "<leader>ai", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model llama3.2:latest<CR><CR>]], opts)
 map("n", "<leader>ai", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model gpt-oss:20b<CR><CR>]], opts)
 map("n", "<leader>af", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "\n//Explain this salesforce flow. Be precise and concise. Use bullet points to illustrate the process clearly. Call out the type of flow and how the flow is triggered as well. In the end give a 2-3 sentence summary of the flow and the business use case it is potentially solving for" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model gpt-4o-mini<CR><CR>]], opts)
 
@@ -484,7 +485,7 @@ map("n", "]af", "<Cmd>RunAsync sfdx project:deploy:start -c<CR>", opts)
 map("n", "]u", "<Cmd>RunAsync sfdx project:retrieve:start<CR>", opts)
 map("n", "]uf", "<Cmd>RunAsync sfdx project:retrieve:start -c<CR>", opts)
 -- map("n", "<leader>[", ":<C-u>RunAsync sfdx project:retrieve:start -d % -o ", opts)
-
+--
 map("n", "<leader>[", function()
   interactive.RunInteractive(
     "sfdx project:retrieve:start -d % -o {org} -c",
@@ -636,14 +637,6 @@ map("n", "]ll", "<Cmd>tabnew /tmp/apexlogs.log<CR><C-w>s<C-w>j:term sfdx apex:ta
   -- Plugin Configuration Variables (vim.g)
   -- =============================================================================
 
-  -- UltiSnips
-  vim.g.UltiSnipsExpandTrigger = "<tab>"
-vim.g.UltiSnipsJumpForwardTrigger = "<tab>"
-vim.g.UltiSnipsJumpBackwardTrigger = "<s-tab>"
--- vim.g.UltiSnipsListSnippets = "<s-tab>" -- Conflicts with JumpBackward
-vim.g.UltiSnipsUsePythonVersion = 3
-vim.g.UltiSnipsSnippetDirectories = {"UltiSnips", vim.fn.expand("$HOME") .. "/.vim/mysnips"} -- Keep custom snips dir
-
 -- CtrlP (If you decide to use it instead of fzf/telescope)
 -- vim.g.ctrlp_map = '<c-p>'
 -- vim.g.ctrlp_cmd = 'CtrlP'
@@ -703,6 +696,7 @@ vim.g.ale_fixers = {
   zsh = {'shfmt'},
   xml = {'tidy', 'prettier'}, -- Added prettier for xml
   nix = {'nixpkgs-fmt'},
+  lua = {'stylua'},
 }
 -- PMD rules (conditional load)
 if vim.fn.filereadable('config/pmd-rules.xml') == 1 then
@@ -768,9 +762,9 @@ vim.keymap.set('i', '<C-i>', 'copilot#Accept("\\<S-Tab>")', { expr = true, repla
 -- =============================================================================
 -- Make sure these files exist in ~/.config/nvim/lua/
 require 'basic' -- Careful, this might conflict with init.lua itself! Rename if needed. e.g., require('core_init')
-require 'keymaps' -- Load your custom keymaps defined in lua/keymaps.lua
 -- require 'copilot_ls' -- Uncomment if you have this file
 -- require 'theme' -- Uncomment if you have this file (theme usually set via colorscheme cmd)
+require 'keymaps'
 require 'lspconf' -- Load LSP configurations from lua/lsp.lua
 require 'dapconfig' -- Load DAP configurations from lua/dapconfig.lua
 require 'parallelpopup'
@@ -792,7 +786,8 @@ require 'duck'
 
 require 'gitindicator'
 
-require 'copilot_chat_extras'
+require 'copilot_chat.keymapped_functions'
+-- require 'copilot_chat_pick_schema'
 
 require 'bookmarks' -- Custom bookmarks setup
 

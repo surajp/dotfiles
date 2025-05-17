@@ -1,0 +1,128 @@
+extends java
+
+snippet deb "salesforce debug" b
+  System.debug(${1:message});
+
+
+snippet list "Collections List" b
+  List<${1:String}> ${2:list} = new List<$1>();
+
+snippet map "Collections Map" b
+  Map<${1:String}, ${2:String}> ${3:map} = new Map<$1, $2>();
+
+snippet set "Collections Set" b
+  Set<${1:String}> ${2:set} = new Set<$1>();
+
+snippet prop "Property"
+  public ${1:Object} ${2:obj} {get;set;}
+	
+
+snippet fors "SOQL For Loop" b
+  for(${1:SObject} ${2:rec}:[Select ${3:Id} from $1]){
+	  ${4}
+  }
+
+snippet fore "for each loop" b
+  for(${1:String} ${2:theString}: ${3:strArray}){
+	  $4
+  }
+
+snippet mapl "Check Map and Add to List" b
+  if(${1:MapName}.containsKey(${2:key}){
+	  $1.get($2).add(${3:newValue});
+  }else{
+	  $1.put($2,new List<${4:Object}>{$3});
+  }
+
+snippet ase "assert equals" b
+  System.assertEquals(${1:expected},${2:actual});
+
+snippet asne "assert not equals" b
+  System.assertNotEquals(${1:expected},${2:actual});
+
+snippet soql "SOQL"
+  [Select ${1:Id} from ${2:Account}];
+
+snippet sqv "SOQL to variable" b
+  List<${1:Account}> ${2:accts} = [Select ${3:Id} from $1];
+
+
+snippet sqm "SOQL to Map variable" b
+  Map<Id,${1:Account}> ${2:acctsMap} = new Map<Id,$1>([Select ${3:Id} from $1]);
+
+snippet supp "PMD SuppressWarnings" b
+  @SuppressWarnings('PMD.$1')
+	
+snippet batch "New Batch Class" b
+  class `!p snip.rv = fn.replace('.cls','')` implements Database.Batchable<SObject>{
+	  
+	  public Database.Querylocator start(Database.BatchableContext bc){
+		  $1
+	  }
+
+	  public void execute(Database.BatchableContext bc,List<SObject> scope){
+	  }
+
+	  public void finish(Database.BatchableContext bc){
+	  }
+  }
+
+snippet cls "New Class" b
+  public with sharing class `!p snip.rv=fn.replace('.cls','')`{
+	  $1
+  }
+
+snippet rtype "Record Type lookup"
+  Id ${1:recordtypeId} = Schema.SObjectType.${2:Account}.getRecordTypeInfosByDeveloperName().get('${3:record_type}').getRecordTypeId();
+
+snippet cusr "Create User in Test Class"
+  Profile ${1:p} = [SELECT Id FROM Profile WHERE Name='${2:Standard User}']; 
+  User ${3:u} = new User(Alias = '${4:standt}', Email='${5:testuser@example.com}', 
+	  EmailEncodingKey='UTF-8', LastName='${6:lastName}', LanguageLocaleKey='en_US', 
+	  LocaleSidKey='en_US', ProfileId = $1.Id, 
+	  TimeZoneSidKey='America/Los_Angeles', UserName='$5');
+
+snippet copyright "Copyright Statement in a class"
+  * Copyright ${1:2020} ${2:Suraj Pillai} @ ${3:https://pillai.dev}
+
+snippet apache "Apache License Statement"
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+  * 
+  * 		http://www.apache.org/licenses/LICENSE-2.0
+  * 
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+
+snippet /** "Class Javadoc"
+  /************************************************************
+
+  *** @author Suraj Pillai, Vertex Computer Systems Inc.
+  *** @group ${0}
+  *** @date ${3:`date +%m/%Y`}
+  *** @description ${1}
+  *** 
+  **/
+
+snippet mad "ApexDoc for methods"
+  /****
+  ** @description ${1:what does the method do}
+  ** @param ${2:paramname} ${3:describe what this param is}
+  ** @return ${4:what does this method return}
+  **/
+
+snippet switch "Switch Case"
+  switch on ${1:var}{
+	  when ${2:val1} {
+		  $4
+	  }
+	  when ${3:val2} {
+	  }
+	  when else{
+		  $5
+	  }
+  }

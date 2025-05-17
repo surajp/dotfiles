@@ -1,0 +1,66 @@
+extends html
+
+snippet button "button" 
+  <lightning-button label="$1" onclick={$2}></lightning-button>
+
+
+snippet card "card"
+  <lightning-card title="$1" icon-name="$2">
+  </lightning-card>
+
+snippet for "for"
+  <template for:each={$1} for:item="$2" for:index="index">
+	  <div key={$2.$3}>
+	  </div>
+  </template>
+
+snippet table "table" 
+	<lightning-datatable
+		key-field="$1"
+		columns={$2}
+		data={$3}
+		column-widths-mode="${4|auto,fixed|}"
+		show-row-number-column
+		hide-checkbox-column
+		default-sort-direction="${5|asc,desc|}"
+		enable-infinite-loading
+		show-row-number-column
+		suppress-bottom-bar
+		wrap-table-header
+		wrap-text-max-lines="3"
+		onrowaction={handleRowAction}
+	>
+	</lightning-datatable>
+
+snippet ll "lightning layout"
+	<lightning-layout
+		horizontal-align="${1|center,space,spread,end|}"
+		multiple-rows
+		pull-to-boundary="${2|small,medium,large|}"
+		vertical-align="${3|start|center|end|stretch|}"
+	>
+	</lightning-layout>
+
+snippet lli "lightning layout item"
+	<lightning-layout-item
+		alignment-bump="${1|top,right,bottom,left|}"
+		flexibility="${2|auto,shrink,no-shrink,grow,no-grow,no-flex|}"
+		large-device-size="12"
+		medium-device-size="12"
+		small-device-size="12"
+		size="12"
+		padding="${3|horizontal-small,horizontal-medium,horizontal-large,around-small,around-medium,around-large|}"
+	>
+	</lightning-layout-item>
+
+snippet spinner "lightning spinner"
+  <div class="slds-is-relative">
+	  <lightning-spinner alternative-text="loading..." size="small"></lightning-spinner>
+  </div>
+
+snippet flow "lightning flow"
+  <lightning-flow
+	  flow-api-name={${1:flowName}}
+	  flow-input-variables={${2:inputVariables}}
+	  onstatuschange={${3:onStatusChange}}
+  ></lightning-flow>

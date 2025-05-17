@@ -158,9 +158,9 @@ if [[ $- =~ i ]]; then
     fi
     if [[ ! -f $mdTypeFile || "$shouldRefresh" == true ]]; then
       if [[ "$targetOrg" != "" ]]; then
-        sfdx force:mdapi:listmetadata -m "$mdType" -o "$targetOrg" --json > $mdTypeFile &> /dev/null
+        sfdx org:list:metadata -m "$mdType" -o "$targetOrg" --json > $mdTypeFile &> /dev/null
       else
-        sfdx force:mdapi:listmetadata -m "$mdType" --json > $mdTypeFile &> /dev/null
+        sfdx org:list:metadata -m "$mdType" --json > $mdTypeFile &> /dev/null
       fi
     fi
     selected=$(jq -r '.result[].fullName' $mdTypeFile | $(__fzfcmd) -m -i)

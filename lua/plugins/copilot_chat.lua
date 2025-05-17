@@ -1,5 +1,3 @@
-local model_name = "claude-sonnet-4.5"
-
 return {
   {
     "CopilotC-Nvim/CopilotChat.nvim",
@@ -10,8 +8,10 @@ return {
       { "nvim-lua/plenary.nvim" },
     },
     config = function()
+      local openrouter = require("copilot_chat.providers.openrouter")
+      local pplx = require("copilot_chat.providers.perplexity")
+      local sfschema = require("copilot_chat.context_functions.sfschema")
       require("CopilotChat").setup({
-        model = model_name,
         context = "file:.github/copilot-instructions.md",
         chat_autocomplete = true,
         mappings = {
@@ -24,7 +24,6 @@ return {
           },
         },
         sticky = {
-          "@models using " .. model_name,
           "#buffer",
         },
         prompts = {
@@ -47,6 +46,13 @@ return {
 	    end,
           },
         },
+  	providers = {
+	  openrouter=openrouter,
+	  perplexity=pplx,
+	},
+	functions = {
+	  sfschema = sfschema,
+	}
       })
     end,
   },
