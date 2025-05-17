@@ -258,4 +258,8 @@ if [[ $- =~ i ]]; then
     source ~/.fzf-extras.zsh
   fi
 
+  if [[ -f ~/.fzf-test-classes.zsh ]]; then
+    source ~/.fzf-test-classes.zsh
+  fi
+
 fi
