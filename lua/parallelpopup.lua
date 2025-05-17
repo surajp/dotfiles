@@ -87,33 +87,40 @@ local function create_popup()
   return buf, win
 end
 
+local function strip_ansi(str)
+  return str:gsub("%\27%[[0-9;]*[%aJmKHF]", "")
+end
+
 local function run_async_command(cmd)
   local buf, win = create_popup()
   local complete = false
   local minimized = false
-  vim.api.nvim_buf_set_lines(buf, -1, -1, false, {join(cmd)})
+  local stderr_lines = {}  -- Track stderr line ranges
+  -- If cmd is a string, wrap it in a shell
+  local system_cmd = type(cmd) == "string" and { "sh", "-c", cmd } or cmd
+  local display_cmd = type(cmd) == "string" and cmd or join(cmd)
+  vim.api.nvim_buf_set_lines(buf, -1, -1, false, {display_cmd})
 
-  vim.system(cmd, {
+  vim.system(system_cmd, {
     text = true,
     timeout = M.config.timeout,
     stdout = function(_, data)
       vim.schedule(function()
         if data then
-          vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data, "\n"))
+	  vim.api.nvim_buf_set_lines(buf, -1, -1, false,
+  	    vim.tbl_map(function(line) return strip_ansi(line) end, vim.split(data, "\n")))
         end
       end)
     end,
     stderr = function(_, data)
       vim.schedule(function()
         if data then
-          print(data)
           local line_count_start = vim.api.nvim_buf_line_count(buf)
-          vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data, "\n"))
+	  vim.api.nvim_buf_set_lines(buf, -1, -1, false,
+  	    vim.tbl_map(function(line) return strip_ansi(line) end, vim.split(data, "\n")))
           local line_count_end = vim.api.nvim_buf_line_count(buf)
-          for i = line_count_start, line_count_end - 1 do
-          -- Use a built-in highlight group, e.g., 'Error' for red text
-            vim.api.nvim_buf_add_highlight(buf, -1, "Error", i, 0, -1)
-          end
+          -- Store stderr line ranges for later highlighting if command fails
+          table.insert(stderr_lines, {line_count_start, line_count_end - 1})
         end
       end)
     end
@@ -121,15 +128,27 @@ local function run_async_command(cmd)
   function(data)
     complete = true
     vim.schedule(function()
+      local ns = vim.api.nvim_create_namespace("parallelpopup")
+      
+      -- Only highlight stderr if command failed
+      if data.code ~= 0 then
+        for _, range in ipairs(stderr_lines) do
+          for i = range[1], range[2] do
+            vim.highlight.range(buf, ns, {i, 0}, {i, -1}, {hl_group = "Error"})
+          end
+        end
+      end
+      
       if data.code == 124 then
         local line_count = vim.api.nvim_buf_line_count(buf)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
-        vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
+	vim.highlight.range(buf, ns, {line_count, 0}, {line_count, -1}, {hl_group = "Error"})
       end
+      
       vim.api.nvim_set_option_value("modifiable",false,{buf=buf})
       vim.keymap.set('n', 'qq',function() del_popup(buf) end,{buffer=buf})
       vim.keymap.set('n', '<leader>q',function() del_popup(buf) end,{buffer=buf})
-      
+
       -- Only restore if the popup was minimized
       if minimized == true then
         restore_popup()
@@ -148,11 +167,18 @@ local function run_async_command(cmd)
   end)
 end
 
+  -- Minimize the popup window after starting the job
+  vim.schedule(function()
+    sleep(M.config.sleep)
+    if complete == false then
+      minimize_popup()
+      minimized = true
+    end
+  end)
+
 vim.api.nvim_create_user_command('RunAsync', function(opts)
-  local cmd = opts.fargs
-  cmd = vim.iter(cmd):map(function(val)
-    return vim.fn.expand(val)
-  end):totable()
+  -- Pass the entire args string to allow shell interpretation
+  local cmd = opts.args
 
   if vim.tbl_isempty(M.popups) then
     -- Set up global keymaps only if there are no active popups
