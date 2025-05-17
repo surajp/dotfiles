@@ -4,6 +4,7 @@ export HISTTIMEFORMAT="%Y-%m-%d %T "
 export HISTSIZE=100000
 export BAT_THEME=Dracula
 export SF_SINGLE_USE_ORG_OPEN_URL=true
+export PODMAN_COMPOSE_WARNING_LOGS=false
 
 alias .='nvim .'
 alias push='sfdx project:deploy:start'
