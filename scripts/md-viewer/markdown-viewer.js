@@ -58,8 +58,8 @@ function broadcastUpdate(content, filename) {
 // File watcher
 let watcher = null;
 if (watchedFilePath) {
-  watcher = fs.watch(watchedFilePath, (eventType) => {
-    if (eventType === "change" || eventType === "rename") {
+  fs.watchFile(watchedFilePath, { interval: 300 }, (curr, prev) => {
+    if (curr.mtime !== prev.mtime) {
       try {
         const newContent = fs.readFileSync(watchedFilePath, "utf-8");
         initialContent = newContent;
@@ -82,21 +82,46 @@ const html = `
     <title>Markdown Live Viewer - High Contrast</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --container-bg: #ffffff;
-            --accent-color: #005cc5;
-            --border-color: #d0d7de;
-            --text-color: #1f2328;
-            --issue-color: #d1242f;
-            --recommendation-color: #1a7f37;
-        }
+		:root {
+    		--bg-color: #0d1117;           /* Dark background */
+    		--container-bg: #161b22;       /* Slightly lighter container */
+    		--accent-color: #58a6ff;       /* Bright blue for links/buttons */
+    		--border-color: #30363d;       /* Visible borders */
+    		--text-color: #e6edf3;         /* High contrast white text */
+    		--issue-color: #ff7b72;        /* Bright red for issues */
+    		--recommendation-color: #56d364; /* Bright green for recommendations */
+    		--code-bg: #1f2937;            /* Dark code background */
+    		--code-text: #79c0ff;          /* Bright code text */
+		}
+
+		.markdown-body strong { 
+    		color: #ff7b72;  /* Bright red for bold */
+    		font-weight: 700; 
+		}
+
+		.markdown-body code { 
+    		background-color: var(--code-bg); 
+    		color: var(--code-text); 
+    		font-weight: 600; 
+		}
+
+		/* Regular paragraph text - ensure high contrast */
+		.markdown-body p {
+    		color: #e6edf3;  /* Bright white, not muted gray */
+		}
+
+		/* Links with better visibility */
+		.markdown-body a {
+    		color: var(--accent-color);
+    		text-decoration: underline;
+		}
+
 
         body {
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: #f6f8fa;
-            color: var(--text-color);
+    		background-color: #0d1117;     /* Match dark theme */
+    		color: var(--text-color);
         }
 
         #drop-zone {
@@ -104,9 +129,9 @@ const html = `
             top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border: 4px dashed var(--accent-color);
-            background-color: rgba(0, 92, 197, 0.05);
             z-index: 1000;
             transition: all 0.3s ease;
+      	  	background-color: rgba(88, 166, 255, 0.1);
         }
 
         #drop-zone.hidden { display: none; }
@@ -118,15 +143,20 @@ const html = `
             max-width: 1012px;
             margin: 0 auto;
             padding: 45px;
-            background-color: var(--container-bg);
             min-height: 100vh;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             border-left: 1px solid var(--border-color);
             border-right: 1px solid var(--border-color);
+    		background-color: var(--container-bg);
+    		color: var(--text-color);
         }
 
         /* High Contrast Enhancements */
-        .markdown-body h1, .markdown-body h2 { border-bottom: 2px solid var(--border-color); padding-bottom: 0.3em; color: #000; }
+        .markdown-body h1, .markdown-body h2 {
+  	  	  	padding-bottom: 0.3em; color: #000;
+    		border-bottom: 2px solid var(--border-color); 
+    		color: #f0f6fc;  /* Brightest white for headings */
+  	  	}
         .markdown-body strong { color: #cf222e; } /* Make bold text pop */
         .markdown-body code { background-color: #f0f2f5; color: #005cc5; font-weight: 600; border-radius: 4px; padding: 2px 4px; }
         
@@ -396,7 +426,7 @@ server.listen(PORT, () => {
 // Graceful shutdown
 process.on("SIGINT", () => {
   console.log("\n🛑 Shutting down...");
-  if (watcher) watcher.close();
+  if (watcher) fs.unwatchFile(watchedFilePath);
   wss.close();
   server.close();
   process.exit(0);
