@@ -10,6 +10,6 @@ lspconfig.soql_ls = {
   default_config = {
     cmd = soql_cmd,
     filetypes = { "soql", "apex"},
-    root_dir = lspconfig.util.root_pattern(".git", "."),
+    root_dir = lspconfig.util.root_pattern("sfdx-project.json"),
   },
 }

@@ -20,6 +20,9 @@ vim.opt.rtp:prepend(lazypath)
 -- =============================================================================
 vim.g.mapleader = " " -- Set leader key
 
+vim.g.loaded_perl_provider = 0 -- Disable perl provider
+vim.g.loaded_ruby_provider = 0 -- Disable Ruby provider
+
 -- Options (set)
 vim.opt.number = true             -- Show line numbers
 vim.opt.relativenumber = true     -- Show relative line numbers
@@ -313,7 +316,7 @@ map("n", "<Leader>m", "<Cmd>G<CR>", opts) -- Fugitive Git status
 
 -- Toggle Highlight Search
 local hlstate = 0
-map("n", ";", function()
+map("n", "<leader>;", function()
   hlstate = hlstate + 1
   if hlstate % 2 == 0 then
     vim.cmd('nohlsearch')
@@ -624,7 +627,7 @@ vim.g.ale_linters = {
   javascript = {'eslint'},
   css = {'eslint'},
   html = {'eslint'},
-  apex = {'apexlsp','codeanalyzer'}, -- Added apexlsp based on jarfile setting
+  apex = {'codeanalyzer'}, 
   java = {'javalsp'}, -- Assuming nvim-lspconfig handles javac/checkstyle if needed
   jsw = {'eslint'},
   markdown = {'markdownlint'},
@@ -760,7 +763,7 @@ require("lazy").setup({
       }
     end
   },
-  { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Needs setup after nvim-treesitter
+  -- { 'nvim-treesitter/nvim-treesitter-textobjects' }, -- Needs setup after nvim-treesitter
 
   -- Git
   { 'tpope/vim-fugitive' },
@@ -783,7 +786,7 @@ require("lazy").setup({
   -- Navigation / Code Structure
   { 'preservim/tagbar' }, -- Ctags based symbol outline
   { 'stevearc/aerial.nvim', dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, config = true }, -- LSP/TreeSitter symbol outline
-  { 'smoka7/hop.nvim', version = "*", config = function() require('hop').setup() end }, -- EasyMotion replacement
+  -- { 'smoka7/hop.nvim', version = "*", config = function() require('hop').setup() end }, -- EasyMotion replacement
   { 'carbon-steel/detour.nvim', config = true }, -- Run commands in external windows/popups
 
   -- Copilot
@@ -801,10 +804,46 @@ require("lazy").setup({
     end,
   },
 
-  -- Your custom vertex plugin/module? Assuming it's in lua/vertex.lua
-  -- { 'your_github_username/vertex.nvim' }, -- If it's a plugin
-  -- If it's just a local module, require it after lazy setup
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    ---@type Flash.Config
+    opts = {},
+    -- stylua: ignore
+    keys = {
+      { "<leader>s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
+  },
 
+  {
+    "saghen/blink.cmp",
+    version = "1.*",
+    dependencies = {"rafamadriz/friendly-snippets"},
+    opts = {
+      keymap = { 
+      	preset = "default", 
+      	["<Tab>"] = { "snippet_forward","fallback"},
+      	["<S-Tab>"] = { "snippet_backward","fallback" },
+      },
+      completion = {
+      	documentation = { auto_show = false }, -- Disable auto-show documentation
+      },
+      appearance = {
+	nerd_font_variant = "mono",
+      },
+      sources = {
+      	default = { "lsp", "path", "buffer","snippets" }, 
+      },
+      fuzzy = { implementation = "prefer_rust_with_warning" },
+    },
+    opts_extend = { "sources.default" }
+  },
+
+  { "L3MON4D3/LuaSnip", version = "2.*", dependencies = { "rafamadriz/friendly-snippets" } },
 }, {})
 
 -- =============================================================================
@@ -829,6 +868,8 @@ require 'nonelsconfig'
 require('sfcommands').setup() -- Load Salesforce specific commands
 
 require 'lwc_ls'
+
+require 'apex_ls'
 
 
 

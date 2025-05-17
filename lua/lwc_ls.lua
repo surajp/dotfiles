@@ -1,23 +1,3 @@
-local lspconfig = require('lspconfig')
-local configs = require('lspconfig.configs')
-
--- Register custom server if not already defined
-if not configs.lwc_ls then
-  configs.lwc_ls = {
-    default_config = {
-      cmd = {
-        "lwc-language-server",
-        "--stdio"
-      },
-      name = "lwc_ls",
-      single_file_support = true,
-      autostart = true,
-      filetypes = { "html","lwc", "javascript", "typescript" },
-      root_dir = lspconfig.util.root_pattern("sfdx-project.json", ".git"),
-      settings = {},
-    }
-  }
-end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -35,11 +15,17 @@ capabilities.workspace = {
   }
 }
 
+capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
--- Launch the LSP
-lspconfig.lwc_ls.setup {
-  on_attach = function(client, bufnr)
-  end,
-  capabilities = capabilities,
-}
+vim.lsp.config("lwc_ls", {
+  cmd = {
+    "lwc-language-server",
+    "--stdio"
+  },
+  name = "lwc_ls",
+  filetypes = { "html","lwc", "javascript", "typescript" },
+  root_markers = { "sfdx-project.json"},
+})
+
+vim.lsp.enable("lwc_ls")
 
