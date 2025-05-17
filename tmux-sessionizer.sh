@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+
+# Check if we want to switch to previous session
+if [[ $1 == "-" ]]; then
+  if [[ -n $TMUX ]]; then
+    tmux switch-client -l
+  else
+    echo "Not in a tmux session"
+  fi
+  exit 0
+fi
+
 if [[ $# -eq 1 ]]; then
   selected=$1
 else
