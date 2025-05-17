@@ -218,6 +218,73 @@ function delflows() {
     fi
 }
 
+function _getDefaultOrgName() {
+  local orgName=$(sfdx config:get target-org --json | jq -r '.result[0].value')
+  echo "$orgName"
+}
+
+function downloadEventLogFiles(){
+  local usage=' Download all event log files from a Salesforce org. The output will be stored in an "eventLogFiles" folder in the current directory.\n The orgName is optional. If not provided, the default org will be used.\n Usage: downloadEventLogs <orgName>' 
+  if [ $# -eq 1 ] && [ "$1" = "-h" ]; then
+    echo "$usage"
+    return 1
+  fi
+  local orgName=$(_getDefaultOrgName)
+  if [ $# -eq 1 ]; then
+    orgName="$1"
+  fi
+  if [ ! -d eventLogFiles ]; then
+    mkdir eventLogFiles
+  fi
+  sfdx data:query -q "SELECT Id, EventType, LogFile FROM EventLogFile" -r json -o "$orgName" > /tmp/eventlogfiles.json
+  jq -r '.result.records[] | .EventType+"_"+.LogFile' /tmp/eventlogfiles.json | xargs -n 1 -I {} -P 5 sh -c 'var={};type=${var%_*};url=${var##*_};sfdx api:request:rest -o '"$orgName"' $url > eventLogFiles/eventlogdetails_$type.csv'
+  rm /tmp/eventlogfiles.json
+}
+
+# reddit analysis
+function pullFromReddit() {
+    local usage='Pulls the latest reddit posts from a given subreddit and returns the results. \n Usage: pullFromReddit <subreddit>'
+    if [ $# -eq 1 ] && [ "$1" = "-h" ]; then
+      echo "$usage"
+      return 1
+    fi
+    local subreddit=${1:-all}
+    local retval=$(curl -sSL "https://www.reddit.com/r/$subreddit/.json?limit=40" -A my-reddit-bot-qq | jq '.data.children[].data | {title: .title, selftext: .selftext, subreddit: .subreddit,created: .created_utc, author: .author}') 
+    echo "$retval"
+}
+
+function searchReddit() {
+    local usage='Searches reddit posts for a given search term and returns the results. \n Usage: searchReddit <subreddit>'
+    if [ $# -eq 1 ] && [ "$1" = "-h" ]; then
+      echo "$usage"
+      return 1
+    fi
+    local searchterm=${1:-news}
+    # url encode the search term
+    searchterm=$(echo "$searchterm" | jq -sRr @uri)
+    local retval=$(curl -sSL "https://www.reddit.com/search/.json?q=$searchterm&limit=40" -A my-reddit-bot-qq | jq '.data.children[].data | {title: .title, selftext: .selftext,  subreddit: .subreddit,created: .created_utc, author: .author}') 
+    echo "$retval"
+}
+
+# install vertex common connected app into an org
+function installConnectedApp() {
+  local usage='Generates a url to install the Vertex Common connected app into a Salesforce org, and copies it to the clipboard. All params are optional. If orgname is not provided, the default org will be used as the installation target. if app id and app org id are provided those ids will be used instead of vertexs default ids. \n Usage: installConnectedApp <orgName> <app_id> <app_org_id>'
+  if [ $# -eq 1 ] && [ "$1" = "-h" ]; then
+    echo "$usage"
+    return 1
+  fi
+   local orgName=${1:_getDefaultOrgName}
+   local app_id=${2:-0Ci6S000000kAxU}
+   local app_org_id=${3:-00Di0000000frx9}
+   local openPath="/identity/app/AppInstallApprovalPage.apexp?app_id=$app_id&app_org_id=$app_org_id"
+   export PATH=$PATH
+   if [ $# -gt 0 ]; then
+     openr "$1" "$openPath"
+   else
+     openr "default" "$openPath"
+   fi
+}
+
 #Get host ip address in WSL
 hostip() {
   cat /etc/resolv.conf | grep nameserver | cut -d' ' -f 2
@@ -271,6 +338,7 @@ ntfy() {
 
 alias ksh='kitten ssh'
 alias madness='echo "starting server on port 5989 (http://md.localhost)" && sleep 3 && podman run --rm -it -v $PWD:/docs -p 5989:3000 dannyben/madness server'
+alias fixsfdeps='rm -rf node_modules 2>/dev/null && rm -f package-lock.json 2>/dev/null && npm install eslint@^9.0.0 @lwc/eslint-plugin-lwc@^3.0.0 @salesforce/eslint-config-lwc@^4.0.0 @salesforce/eslint-plugin-lightning@^2.0.0 eslint-plugin-jest@^28.11.1 @salesforce/eslint-plugin-aura@^3.0.0 -D && curl -sSL https://gist.githubusercontent.com/surajp/17f8a581a90f1c238ec9a92bf771f52c/raw/8e48d98cf7419c005746c1754aac0187959d5012/eslint-config.js -o eslint.config.js'
 
 alias postmanode='node $HOME/projects/node-postman-server/server.mjs'
 
