@@ -23,7 +23,8 @@ vim.lsp.config("lwc_ls", {
     "--stdio"
   },
   name = "lwc_ls",
-  filetypes = { "html","lwc", "javascript", "typescript" },
+  filetypes = { "html","lwc" },
+  capabilities = capabilities,
   root_markers = { "sfdx-project.json"},
 })
 

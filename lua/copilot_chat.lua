@@ -12,5 +12,9 @@ cchat.setup({
       normal = '<C-r>',
       insert = '<C-r>',
     },
+  },
+  sticky = {
+    '@models using claude-sonnet-4',
+    '#buffer',
   }
 })
