@@ -51,13 +51,12 @@ vim.opt.hidden = true             -- Allow buffer switching without saving
 vim.opt.scrolloff = 8             -- Keep 8 lines visible above/below cursor
 vim.opt.cursorline = true         -- Highlight the current line
 vim.opt.mouse = ""                -- Disable mouse support
-vim.opt.spell = true              -- Enable spell checking
 vim.opt.spell = false              -- Enable spell checking
 vim.opt.spelllang = "en_us"       -- Set spell check language
 vim.opt.background = "dark"       -- Assume dark background
 vim.opt.foldmethod = "expr"       -- Use expression for folding (TreeSitter)
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter fold expression
-vim.opt.foldlevel = 1             -- Start with folds closed (level 1)
+vim.opt.foldlevel = 99             -- Start with folds open to reasonable level (level 3)
 vim.opt.foldnestmax = 30          -- Max fold nesting
 vim.opt.complete:append("k")      -- Add dictionary completion source
 vim.opt.dictionary:append("/usr/share/dict/words") -- Add system dictionary
@@ -66,6 +65,8 @@ vim.opt.path:append("**")         -- Search recursively in subfolders using 'fin
 vim.opt.wildignore:append("**/node_modules/**") -- Ignore node_modules for wildmenu/find
 vim.opt.omnifunc = "ale#completion#OmniFunc" -- Set omnifunc for ALE
 vim.opt.winborder = "rounded"
+vim.opt.autoread = true          -- Auto-reload files changed outside of Vim
+vim.opt.wrapscan = true          -- Wrap around searches
 
 if vim.fn.has("termguicolors") == 1 then
   vim.opt.termguicolors = true      -- Enable true color support if available
@@ -123,7 +124,7 @@ end
 
 -- Transparency Toggle Function
 local is_transparent = false
-local original_colorscheme = "iceberg" -- Store your default colorscheme
+local original_colorscheme = "catppuccin-mocha" -- Store your default colorscheme
 
 local function make_transparent()
   vim.api.nvim_set_hl(0, "Normal", { bg = "NONE" })
@@ -331,7 +332,10 @@ local interactive = require('interactive')
 -- Key Mappings
 -- =============================================================================
 local map = vim.keymap.set
-local opts = { noremap = true, silent = true }
+local opts = { noremap = true, silent = true, desc = "" }
+local function extendOps(new_opts)
+  return vim.tbl_extend("force", opts, new_opts or {})
+end
 
 -- General Mappings
 map("n", "<leader>H", "<Cmd>lcd %:p:h<CR>", opts) -- Change directory to current file's dir
@@ -347,6 +351,7 @@ map("n", "<C-k>", "<Cmd>cprev<CR>", opts)
 map("n", "<Leader>m", "<Cmd>G<CR>", opts) -- Fugitive Git status
 map("n", "<Leader>r", "<Cmd>e<CR>", opts) -- Reload file
 
+map({"n","v","x"},"<leader>y", '"+y', opts) -- Yank to system clipboard
 -- Toggle Highlight Search
 local hlstate = 0
 map("n", "<leader>;", function()
@@ -371,9 +376,9 @@ map("n", "<C-s>", "<Cmd>ls<CR>:b<Space>", opts) -- List buffers and switch
 map("n", "zm", "zMza", { noremap = true }) -- Close folds more aggressively
 map("n", "zr", "zR", { noremap = true }) -- Open all folds
 
-map("n", "<C-e>", "<Cmd>tabnew ~/.config/nvim/init.lua<CR>", opts) -- Edit init.lua
-map("n", "<Leader>l", "<Cmd>tabnew ~/.config/nvim/lua<CR>", opts)  -- Open lua config dir
-map("n", "<leader>ow", "<Cmd>tabnew ~/.local/share/nvim/swap/<CR>", opts) -- Open swap dir
+map("n", "<leader>ne", "<Cmd>tabnew ~/.config/nvim/init.lua<CR>", opts) -- Edit init.lua
+map("n", "<Leader>nl", "<Cmd>tabnew ~/.config/nvim/lua<CR>", opts)  -- Open lua config dir
+map("n", "<leader>nw", "<Cmd>tabnew ~/.local/share/nvim/swap/<CR>", opts) -- Open swap dir
 map("n", "++", "<Cmd>!git add %<CR>", opts) -- Git add current file
 
 -- Apex Test & Deploy Mappings (Using RunAsync - ensure this command is available)
@@ -470,6 +475,7 @@ end, opts)
 
 -- AI/Fabric Mappings (Keep using :term via vim.cmd)
 map("n", "<leader>ai", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model llama3.2:latest<CR><CR>]], opts)
+map("n", "<leader>ai", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "//Explain this code and suggest improvements" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model gpt-oss:20b<CR><CR>]], opts)
 map("n", "<leader>af", [[<Cmd>tabnew | term cat # > /tmp/analyze.txt && echo "\n//Explain this salesforce flow. Be precise and concise. Use bullet points to illustrate the process clearly. Call out the type of flow and how the flow is triggered as well. In the end give a 2-3 sentence summary of the flow and the business use case it is potentially solving for" >> /tmp/analyze.txt && cat /tmp/analyze.txt | fabric -sp sf_dev --model gpt-4o-mini<CR><CR>]], opts)
 
 -- SFDX Deploy/Retrieve
@@ -487,9 +493,9 @@ map("n", "<leader>[", function()
     },
     "Retrieving source"
   )()
-end, opts)
+end,extendOps({ desc = "Refresh current file from selected org (ignore conflicts)" }))
 
-map("n", "<leader>[[", "<Cmd>RunAsync sfdx project:retrieve:start -d %<CR>", opts)
+map("n", "<leader>[[", "<Cmd>RunAsync sfdx project:retrieve:start -d %<CR>", extendOps({ desc = "Refresh current file from default org" }))
 -- map("n", "]d", ":<C-u>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -o ", opts)
 
 map("n", "]d", function()
@@ -500,10 +506,10 @@ map("n", "]d", function()
     },
     "Deploying source"
   )()
-end, opts)
+end, extendOps({ desc = "Deploy current file to selected org" }))
 
-map("n", "]dd", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>", opts)
-map("n", "]df", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -c<CR>", opts)
+map("n", "]dd", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5<CR>", extendOps({ desc = "Deploy current file to default org" }))
+map("n", "]df", "<Cmd>RunAsync sfdx project:deploy:start -d % -l NoTestRun -w 5 -c<CR>", extendOps({ desc = "Deploy current file to default org (ignore conflicts)" }))
 
 -- Execute Anonymous Apex
 -- map("n", "]e", ":<C-u>RunAsync sfdx apex:run -f % -o ", opts)
@@ -753,7 +759,8 @@ vim.g.copilot_filetypes = {        -- Disable copilot for specific filetypes
   xml = false,
   -- Add other filetypes if needed
 }
-vim.api.nvim_set_keymap('i', '<C-i>', "copilot#Accept('\\<CR>')", { silent = true, expr = true })
+-- vim.api.nvim_set_keymap('i', '<C-i>', "copilot#Accept('\\<CR>')", { silent = true, expr = true })
+vim.keymap.set('i', '<C-i>', 'copilot#Accept("\\<S-Tab>")', { expr = true, replace_keycodes = false })
 
 
 -- =============================================================================
@@ -769,7 +776,7 @@ require 'dapconfig' -- Load DAP configurations from lua/dapconfig.lua
 require 'parallelpopup'
 require 'soql_ls'
 require 'macros'
-require 'copilot_chat'
+-- require 'copilot_chat'
 
 require 'nixdlspconf' -- Load Nix LSP configurations
 
@@ -785,6 +792,10 @@ require 'duck'
 
 require 'gitindicator'
 
+require 'copilot_chat_extras'
+
+require 'bookmarks' -- Custom bookmarks setup
+
 
 
 -- Load your custom vertex module if it's local and not a plugin
@@ -797,5 +808,8 @@ pcall(require, 'vertex') -- Use pcall to avoid errors if file doesn't exist
 vim.cmd('colorscheme ' .. original_colorscheme) -- Set the default colorscheme
 vim.g.colors_name = original_colorscheme -- Store it for transparency toggle
 
--- Apply transparency on startup (matches original behavior)
-make_transparent()
+-- Apply transparency on startup (matches original behavior). Leaving transparency off by default for user choice
+-- make_transparent()
+
+-- ensure period is not treated as keyword
+vim.opt.iskeyword:remove(".")
