@@ -29,7 +29,7 @@ local function get_default_org()
 end
 
 local function ensure_sobjtypes_dir()
-  local sobjtypes_dir = vim.fn.expand("~/.sobjtypes")
+  local sobjtypes_dir = vim.fn.expand("~/.sfmeta/sobjtypes")
   if vim.fn.isdirectory(sobjtypes_dir) == 0 then
     vim.fn.mkdir(sobjtypes_dir, "p")
   end
@@ -46,7 +46,8 @@ local function get_custom_fields_file(org_id)
 end
 
 local function ensure_standard_schema()
-  local schema_file = vim.fn.expand("~/.sobjtypes/sf_standard_schema.csv")
+  local sobjtypes_dir = ensure_sobjtypes_dir()
+  local schema_file = sobjtypes_dir .. "/sf_standard_schema.csv"
   if vim.fn.filereadable(schema_file) == 0 then
     local curl_cmd = string.format(
       'curl -sSL "https://gist.githubusercontent.com/surajp/2282582350226fc9e2a268633b5e06aa/raw/9efc2c60799965ab1554d30ad1987472cbf8c654/sfschema.txt" -o "%s"',

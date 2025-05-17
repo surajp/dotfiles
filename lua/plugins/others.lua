@@ -22,9 +22,6 @@ return {
   { 'stevearc/aerial.nvim', dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, config = true }, -- LSP/TreeSitter symbol outline
   -- { 'smoka7/hop.nvim', version = "*", config = function() require('hop').setup() end }, -- EasyMotion replacement
   { 'carbon-steel/detour.nvim', config = true }, -- Run commands in external windows/popups
-
-  { "L3MON4D3/LuaSnip", version = "2.*", dependencies = { "rafamadriz/friendly-snippets" } },
-
   { "powerman/vim-plugin-AnsiEsc" }, -- ANSI escape sequences support
 
 }

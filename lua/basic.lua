@@ -20,3 +20,5 @@ vim.cmd("set completeopt+=noselect")
 
 -- lsp
 --vim.lsp.enable({'apex_ls'});
+
+-- vim.lsp.inline_completion.enable(true)

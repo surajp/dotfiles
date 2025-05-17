@@ -796,6 +796,7 @@ require 'copilot_chat_extras'
 
 require 'bookmarks' -- Custom bookmarks setup
 
+require 'sh_output' -- Custom bookmarks setup
 
 
 -- Load your custom vertex module if it's local and not a plugin
