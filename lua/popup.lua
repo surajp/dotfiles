@@ -106,7 +106,7 @@ local function run_async_command(cmd)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
         vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
       end
-      vim.keymap.set('n', 'qq',function() vim.api.nvim_buf_delete(buf,{force=true}) end,{buffer=buf})
+      vim.keymap.set('n', '<leader>q',function() vim.api.nvim_buf_delete(buf,{force=true}) end,{buffer=buf})
       restore_popup(buf, opts)  -- Restore the window
       vim.keymap.del('n', '<leader>pq')
       vim.keymap.del('n', '<leader>pm')

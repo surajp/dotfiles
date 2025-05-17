@@ -1,5 +1,6 @@
 -- oil
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set("n", "<leader>-", "<CMD>Detour<CR><CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- hop
 local hop = require('hop')
@@ -16,6 +17,9 @@ end, {remap=true})
 vim.keymap.set('', 'T', function()
   hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true, hint_offset = 1 })
 end, {remap=true})
+vim.keymap.set("n", "<leader>hw", function()
+	hop.hint_words()
+end, {remap=true})
 
 
 -- buffer nav
@@ -29,6 +33,7 @@ vim.keymap.set("n","<leader>ts","<CMD>ShowTimeSpent<CR>",{desc="Show Time Spent"
 
 --copilot chat
 vim.keymap.set("n","<leader>c","<CMD>CopilotChatOpen<CR>",{desc="Open Copilot Chat"})
+vim.keymap.set("n", "<leader>ci", "<Cmd>tabnew .github/copilot-instructions.md<CR>",{desc="Open copilot instructions"}) -- Edit init.lua
 
 
 -- dap keymaps
