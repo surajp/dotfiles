@@ -163,4 +163,16 @@ vim.api.nvim_create_user_command('RunAsync', function(opts)
   run_async_command(cmd)
 end, {nargs = "*"})
 
+vim.api.nvim_create_user_command('RunAsyncShell', function(opts)
+  local shellCommandText = opts.args
+
+  if vim.tbl_isempty(M.popups) then
+    -- Set up global keymaps only if there are no active popups
+    vim.keymap.set('n', '<leader>pq', minimize_popup, {})
+    vim.keymap.set('n', '<leader>pm', restore_popup, {})
+  end
+
+  local shellCommand = {vim.o.shell, '-c', shellCommandText}
+  run_async_command(shellCommand)
+end, {nargs = "*"})
 return M

@@ -4,7 +4,7 @@ local function run_current_line_shell()
     return
   end
 
-  vim.cmd("RunAsync " .. line)
+  vim.cmd("RunAsyncShell " .. line)
 end
 
 vim.keymap.set("n", "<leader>sh", run_current_line_shell, { desc = "Run current line as shell command in temp buffer" })
