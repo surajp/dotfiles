@@ -162,6 +162,63 @@ if [[ $- =~ i ]]; then
     READLINE_POINT=$((READLINE_POINT + ${#selected}))
   }
 
+  fzf-sfdx-selectMetadata() {
+    local mdTypesDir="$HOME/.sfmeta/mdTypes"
+    [[ ! -d "$mdTypesDir" ]] && mkdir -p "$mdTypesDir"
+
+    local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
+    local mdType="${linethusfar##* }"
+    [[ $mdType != *: ]] && return 0
+    mdType="${mdType%:}"
+
+    local targetOrg=""
+    if [[ $READLINE_LINE == *" -o "* ]]; then
+      targetOrg="${READLINE_LINE##* -o }"
+      targetOrg="${targetOrg%% *}"
+    elif [[ $READLINE_LINE == *" --target-org "* ]]; then
+      targetOrg="${READLINE_LINE##* --target-org }"
+      targetOrg="${targetOrg%% *}"
+    fi
+
+    local orgId="default"
+    if [[ -n "$targetOrg" ]]; then
+      orgId="$targetOrg"
+    else
+      orgId=$(jq -r '.["target-org"] // empty' .sf/config.json 2> /dev/null)
+    fi
+
+    local orgDir="$mdTypesDir/$orgId"
+    [[ ! -d "$orgDir" ]] && mkdir -p "$orgDir"
+
+    local mdTypeFile="$orgDir/$mdType.json"
+
+    local selected=""
+    local shouldRefresh=false
+    if [[ -n "$FZF_REFRESH" ]]; then
+      shouldRefresh=true
+    fi
+    if [[ "$READLINE_LINE" == *"REF=1"* ]]; then
+      shouldRefresh=true
+    fi
+    if [[ ! -f "$mdTypeFile" || "$shouldRefresh" == true ]]; then
+      if [[ -n "$targetOrg" ]]; then
+        sfdx force:mdapi:listmetadata -m "$mdType" -o "$targetOrg" --json > "$mdTypeFile" &> /dev/null
+      else
+        sfdx force:mdapi:listmetadata -m "$mdType" --json > "$mdTypeFile" &> /dev/null
+      fi
+    fi
+    selected=$(jq -r '.result[].fullName' "$mdTypeFile" | $(__fzfcmd) -m -i)
+
+    if [[ -n "$selected" ]]; then
+      local formatted=""
+      while IFS= read -r item; do
+        formatted+="$mdType:\"$item\" "
+      done <<< "$selected"
+      READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT-${#mdType}-1}$formatted${READLINE_LINE:$READLINE_POINT}"
+      READLINE_POINT=$((READLINE_POINT - ${#mdType} - 1 + ${#formatted}))
+    fi
+  }
+
   fzf_sfdx_flags() {
     local cmd="${2%% *}"
     cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
@@ -253,6 +310,11 @@ if [[ $- =~ i ]]; then
   bind -m emacs-standard -x '"\C-]": fzf-sfdx-mdapiTypes'
   bind -m vi-command -x '"\C-]": fzf-sfdx-mdapiTypes'
   bind -m vi-insert -x '"\C-]": fzf-sfdx-mdapiTypes'
+
+  # CTRL-[ (ESC) - Search for and paste selected metadata for the specified type
+  bind -m emacs-standard -x '"\C-[": fzf-sfdx-selectMetadata'
+  bind -m vi-command -x '"\C-[": fzf-sfdx-selectMetadata'
+  bind -m vi-insert -x '"\C-[": fzf-sfdx-selectMetadata'
 
 fi
 
