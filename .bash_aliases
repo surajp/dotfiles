@@ -12,7 +12,6 @@ alias orgs="sfdx org:list --all --skip-connection-status --json | jq '{ result: 
 alias isvim='env | grep -i vim'
 alias graph='git log --all --graph --decorate --pretty=format:"%C(auto)%h %C(reset)%C(blue)%ad%C(reset) %C(auto)%d %s %C(cyan)<%an>%C(reset)" --date=format:"%Y-%m-%d %H:%M"'
 alias gco='git checkout'
-alias pmd="$PMD_HOME/bin/run.sh pmd"
 alias jformat="java -jar $HOME/libs/google-java-format-1.9-all-deps.jar --replace"
 # alias fd='fdfind'
 
@@ -71,17 +70,20 @@ newclass() {
 }
 
 openr() {
-	if [ $# -eq 1 ]; then
-		result=$(sfdx org:open -r -o "$1" -p "/lightning/page/home" --json)
-	else
-		result=$(sfdx org:open -r -p "/lightning/page/home" --json)
-	fi
-	local exitcode=$(jq -r '.status' <<< "$result")
-	if [ $? -eq 0 ] && [ "$exitcode" = "0" ]; then
+  local command="sfdx org:open -r --json"
+  if [[ $# -ge 1 && "$1" != "default" ]]; then
+    command=$command" --target-org $1"
+  fi
+  if [ $# -eq 2 ]; then
+    command=$command" --path \"$2\""
+  fi
+  local result=$(eval "$command")
+  local exitcode=$(jq -r '.status' <<< "$result")
+  if [ $? -eq 0 ] && [ "$exitcode" = "0" ]; then
     jq -r '.result.url' <<< "$result" | tcopy
-	  echo "URL copied to clipboard"
-  else
-    echo "$result"
+      echo "URL copied to clipboard"
+    else
+      echo "$result"
   fi
 }
 
@@ -149,7 +151,7 @@ alias yeet="sfdx org:list --clean -p"
 
 alias gentags='/opt/homebrew/bin/ctags --extras=+q --langmap=java:.cls.trigger -f ./tags -R **/main/default/classes/**'
 
-alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=63" && mv report?version=63 ~/.mdapiReport.json'
+alias refreshmdapi='wget "https://dx-extended-coverage.my.salesforce-sites.com/services/apexrest/report?version=64" && mv report?version=64 ~/.mdapiReport.json'
 
 alias sfrest="$PROJECTS_HOME/dotfiles/scripts/sfRestApi.sh"
 alias sftrace="$PROJECTS_HOME/dotfiles/scripts/traceFlag.sh"
@@ -192,6 +194,10 @@ function ctrack() {
 # delete apex logs fast
 function dellogs() {
     if [ $# -eq 1 ]; then
+      if [ "$1" = "-h" ]; then
+	echo "Usage: dellogs <orgName>"
+	return 1
+      fi
       sfdx data:query -q "select id from apexlog" -r csv -o "$1" | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"$1\" \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
     else
       sfdx data:query -q "select id from apexlog" -r csv | awk 'NR>1' | xargs -n5 | sed 's/ /,/g' | xargs -I {} -P 5 sh -c "sfdx api:request:rest --method DELETE --target-org \"services/data/v62.0/composite/sobjects?ids={}&allOrNone=false\" --body '{\"mode\":\"raw\"}'"
@@ -269,3 +275,4 @@ alias madness='echo "starting server on port 5989 (http://md.localhost)" && slee
 alias postmanode='node $HOME/projects/node-postman-server/server.mjs'
 
 alias makecert='sh $HOME/projects/dotfiles/scripts/makecert.sh'
+alias pdm=podman
