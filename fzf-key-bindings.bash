@@ -105,6 +105,14 @@ if [[ $- =~ i ]]; then
 		READLINE_POINT=$((READLINE_POINT + ${#selected}))
 	}
 
+	fzf-sfdx-selectMetdata(){
+	  local mdType=${READLINE_LINE##* }
+	  mdType=${mdType%:}
+	  local selected = "$(sfdx org:list:metadata -m mdType --json | jq -r '.result[].fullName' | $(__fzfcmd) -i)"
+	  READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+	  READLINE_POINT=$((READLINE_POINT + ${#selected}))
+      	}	
+
 	fzf_sfdx_flags() {
 		local cmd="${2%% *}"
 		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
