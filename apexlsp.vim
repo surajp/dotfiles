@@ -28,7 +28,6 @@ function! ale_linters#apex#apexlsp#Command(buffer) abort
     \ '-Dlwc.typegeneration.disabled=true',
     \ '-Ddebug.semantic.errors=false',
     \ '-XX:+UseZGC',
-    \ '-XX:+ZGenerational',
     \ '-Ddebug.internal.errors=true',
     \ 'apex.jorje.lsp.ApexLanguageServerLauncher'
     \]

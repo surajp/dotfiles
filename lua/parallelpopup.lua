@@ -90,6 +90,7 @@ end
 local function run_async_command(cmd)
   local buf, win = create_popup()
   local complete = false
+  local minimized = false
   vim.api.nvim_buf_set_lines(buf, -1, -1, false, {join(cmd)})
 
   vim.system(cmd, {
@@ -128,7 +129,11 @@ local function run_async_command(cmd)
       vim.api.nvim_set_option_value("modifiable",false,{buf=buf})
       vim.keymap.set('n', 'qq',function() del_popup(buf) end,{buffer=buf})
       vim.keymap.set('n', '<leader>q',function() del_popup(buf) end,{buffer=buf})
-      restore_popup(buf,opts)
+      
+      -- Only restore if the popup was minimized
+      if minimized == true then
+        restore_popup()
+      end
     end)
   end
   )
@@ -138,6 +143,7 @@ local function run_async_command(cmd)
     sleep(M.config.sleep)
     if complete == false then
       minimize_popup()
+      minimized = true
     end
   end)
 end

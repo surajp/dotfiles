@@ -4,7 +4,7 @@
 -- Bootstrap lazy.nvim
 -- =============================================================================
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+
   vim.fn.system({
     "git",
     "clone",
@@ -13,7 +13,6 @@ if not vim.loop.fs_stat(lazypath) then
     "--branch=stable", -- latest stable release
     lazypath,
   })
-end
 vim.opt.rtp:prepend(lazypath)
 
 -- =============================================================================
@@ -348,8 +347,9 @@ map("n", "]T", "<Cmd>RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r<CR>",
 -- map("n", "]to", ":RunAsync sfdx apex:run:test -r human -w 5 -n %:t:r -o ", opts)
 
 map("n", "]to", function()
+  local filename = vim.fn.expand("%:t:r")
   interactive.RunInteractive(
-    "sfdx apex:run:test -r human -w 5 -n %:t:r -o {org}",
+    "sfdx apex:run:test -r human -w 5 -n " .. filename .. " -o {org}",
     {
       { placeholder = "org", prompt = "Org name", default = "" },
     },
@@ -359,8 +359,9 @@ end, opts)
 
 -- map("n", "]To", ":RunAsync sfdx apex:run:test -c -r human -w 5 -n %:t:r -o ", opts)
 map("n", "]To", function()
+  local filename = vim.fn.expand("%:t:r")
   interactive.RunInteractive(
-    "sfdx apex:run:test -c -r human -w 5 -n %:t:r -o {org}",
+    "sfdx apex:run:test -c -r human -w 5 -n " .. filename .. " -o {org}",
     {
       { placeholder = "org", prompt = "Org name", default = "" },
     },
@@ -535,6 +536,8 @@ map("n", "<C-f>m", "<plug>(fzf-maps-n)", opts) -- fzf-maps plugin
 map("n", "<C-f>r", "<plug>(ale_find_references)", opts) -- ALE find references
 map("n", "<C-f>t", "<Cmd>Filetypes!<CR>", opts)
 map("n", "<C-f>o", "<Cmd>Colors<CR>", opts)
+map("n", "<C-f>x", "<Cmd>Commands<CR>", opts)
+
 
 -- FZF Insert Mode Completions (using expr = true)
 map("i", "<C-f>i", "fzf#vim#complete('cat ~/lib/.sldsicons.txt')", { expr = true, noremap = true })
@@ -542,6 +545,8 @@ map("i", "<c-x><c-k>", "fzf#vim#complete#word({'window': { 'width': 0.2, 'height
 map("i", "<C-S>", "<Plug>(fzf-complete-wordnet)", { noremap = true }) -- fzf-wordnet plugin
 map("i", "<C-x>c", "fzf#vim#complete('cat ~/.sldsclasses.txt')", { expr = true, noremap = true })
 map("i", "<C-x>m", [[fzf#vim#complete({'source': 'cat schema.txt', 'reducer': { lines -> split(lines[0],' ')[0]}})]], { expr = true, noremap = true })
+map("n", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
+map("i", "<C-y>", function() require('fzf_soql').fzf_soql() end, opts)
 
 -- ALE Keybindings
 map("n", "<C-w>i", "<Cmd>ALEToggleBuffer<CR>", opts)
@@ -601,6 +606,7 @@ vim.g.netrw_bufsettings = 'noma nomod nu nowrap ro nobl'
 -- vim.g.netrw_browse_split = 3
 
 -- ALE
+vim.g.ale_info_default_mode = 'preview'
 vim.g.ale_linters_explicit = 1
 vim.g.ale_fix_on_save = 1
 vim.g.ale_sign_error = '>>'
@@ -614,10 +620,11 @@ vim.g.ale_javascript_eslint_use_global = 1
 vim.g.ale_java_google_java_format_executable = vim.fn.expand("~/.scripts/jformat.sh")
 -- Linters per filetype
 vim.g.ale_linters = {
+  lwc = {'codeanalyzer'},
   javascript = {'eslint'},
   css = {'eslint'},
   html = {'eslint'},
-  apex = {'pmd', 'apexlsp'}, -- Added apexlsp based on jarfile setting
+  apex = {'apexlsp','codeanalyzer'}, -- Added apexlsp based on jarfile setting
   java = {'javalsp'}, -- Assuming nvim-lspconfig handles javac/checkstyle if needed
   jsw = {'eslint'},
   markdown = {'markdownlint'},
@@ -731,6 +738,7 @@ require("lazy").setup({
   { 'neovim/nvim-lspconfig' },
   { 'dense-analysis/ale' }, -- Linter/Fixer runner
   { 'ncm2/float-preview.nvim' }, -- Preview window
+  { 'nvimtools/none-ls.nvim'},
 
   -- Treesitter
   {
@@ -815,6 +823,12 @@ require 'macros'
 require 'copilot_chat'
 
 require 'nixdlspconf' -- Load Nix LSP configurations
+
+require 'nonelsconfig'
+
+require('sfcommands').setup() -- Load Salesforce specific commands
+
+
 
 -- Load your custom vertex module if it's local and not a plugin
 pcall(require, 'vertex') -- Use pcall to avoid errors if file doesn't exist
