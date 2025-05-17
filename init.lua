@@ -15,14 +15,20 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
   })
 vim.opt.rtp:prepend(lazypath)
 
+vim.g.mapleader = " " -- Set leader key
+
 require('lazy').setup({
-  { import = 'plugins' }, -- Load all plugins from plugins.lua
+  spec = {
+    { import = 'plugins' }, -- Load all plugins from plugins folder
+  },
+  defaults = {
+    lazy = false, 
+  },
 })
 
 -- =============================================================================
 -- Global Settings
 -- =============================================================================
-vim.g.mapleader = " " -- Set leader key
 
 vim.g.loaded_perl_provider = 0 -- Disable perl provider
 vim.g.loaded_ruby_provider = 0 -- Disable Ruby provider
