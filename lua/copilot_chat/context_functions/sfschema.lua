@@ -43,14 +43,14 @@ local function fetchObjectSchema(objectApiName)
 
   if not output then
     return {
-      uri = 'schema://' .. objectApiName,
+      uri = 'sfschema://' .. objectApiName,
       mimetype = 'text/plain',
       data = 'Error fetching schema for ' .. objectApiName .. ': ' .. (errorMessage or 'Unknown error'),
     }
   end
 
   return {
-    uri = 'schema://' .. objectApiName,
+    uri = 'sfschema://' .. objectApiName,
     mimetype = 'application/json',
     data = output,
   }
@@ -59,8 +59,8 @@ end
 --- CopilotChat context function:
 --- Use `#schema:Account,Contact` to add schema describe JSON for each object.
 return  {
-  description = 'Retrieves Salesforce SObject schema (describe) JSON via Salesforce CLI for one or more objects. Usage: #schema:Account,Contact',
-  uri = 'schema://{objects}',
+  description = 'Retrieves Salesforce SObject schema (describe) JSON via Salesforce CLI for one or more objects. Usage: #sfschema:Account,Contact',
+  uri = 'sfschema://{objects}',
   schema = {
     type = 'object',
     required = { 'objects' },
