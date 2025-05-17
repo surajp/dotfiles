@@ -66,13 +66,23 @@ if [[ $- =~ i ]]; then
 
     temp_file="/tmp/customFields.json"
     jq 'del(.result.records[] | select(.EntityDefinition.QualifiedApiName == null))' "$customFieldsFile" > "$temp_file" && mv "$temp_file" "$customFieldsFile"
+
+    if [[ ! -f ~/.sobjtypes/sf_standard_schema.csv ]]; then
+      curl -sSL "https://gist.githubusercontent.com/surajp/2282582350226fc9e2a268633b5e06aa/raw/9efc2c60799965ab1554d30ad1987472cbf8c654/sfschema.txt" -o ~/.sobjtypes/sf_standard_schema.csv
+    fi
     local selected
     local precedingWord="${LBUFFER% *}"
     precedingWord="${precedingWord##* }"
     if [[ "$precedingWord" == "from" ]] || [[ "$precedingWord" == "FROM" ]]; then
-      selected="$(jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)"' "$customFieldsFile" | sort -u | $(__fzfcmd) -i)"
+      selected="$({
+        jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)"' "$customFieldsFile"
+        jq -Rr 'split(",") | .[0]' ~/.sobjtypes/sf_standard_schema.csv
+      } | sort -u | $(__fzfcmd) -i)"
     else
-      selected="$(jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile" | sort -u | $(__fzfcmd) -i)"
+      selected="$({
+        jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile"
+        jq -Rr 'split(",") | "\(.[0]).\(.[1])"' ~/.sobjtypes/sf_standard_schema.csv
+      } | sort -u | $(__fzfcmd) -i)"
     fi
     selected="${selected#*.}"
     LBUFFER="${LBUFFER:0:$CURSOR}$selected${LBUFFER:$CURSOR}"
