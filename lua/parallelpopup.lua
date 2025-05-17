@@ -1,5 +1,6 @@
 -- Run an asynchronous command in a popup that minimizes and is automatically restored when the command finishes execution
 local M = {}
+local HIGHLIGHT_NAMESPACE = vim.api.nvim_create_namespace('ParallelPopup')
 
 M.config = {
   timeout = 180000,
@@ -106,13 +107,12 @@ local function run_async_command(cmd)
     stderr = function(_, data)
       vim.schedule(function()
         if data then
-          print(data)
+          -- vim.notify("Error output received"..data, vim.log.levels.ERROR)
           local line_count_start = vim.api.nvim_buf_line_count(buf)
           vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data, "\n"))
           local line_count_end = vim.api.nvim_buf_line_count(buf)
           for i = line_count_start, line_count_end - 1 do
-          -- Use a built-in highlight group, e.g., 'Error' for red text
-            vim.api.nvim_buf_add_highlight(buf, -1, "Error", i, 0, -1)
+            vim.hl.range(buf, HIGHLIGHT_NAMESPACE, "Error", {i, 0}, {i, -1})
           end
         end
       end)
@@ -124,16 +124,16 @@ local function run_async_command(cmd)
       if data.code == 124 then
         local line_count = vim.api.nvim_buf_line_count(buf)
         vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
-        vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
+        vim.hl.range(buf, HIGHLIGHT_NAMESPACE, "Error", {line_count, 0}, {line_count, -1})
       end
-      vim.api.nvim_set_option_value("modifiable",false,{buf=buf})
       vim.keymap.set('n', 'qq',function() del_popup(buf) end,{buffer=buf})
       vim.keymap.set('n', '<leader>q',function() del_popup(buf) end,{buffer=buf})
-      
       -- Only restore if the popup was minimized
       if minimized == true then
         restore_popup()
       end
+      vim.cmd('AnsiEsc')
+      vim.api.nvim_set_option_value("modifiable",false,{buf=buf})
     end)
   end
   )
