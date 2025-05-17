@@ -51,7 +51,7 @@ vim.keymap.set('n', '<leader>ba', function()
     for line in existing:lines() do
       if line == file then
         existing:close()
-        print('Already bookmarked: ' .. file)
+        vim.notify('Already bookmarked: ' .. file, vim.log.levels.INFO)
         return
       end
     end
@@ -63,10 +63,10 @@ vim.keymap.set('n', '<leader>ba', function()
   if f then
     f:write(file .. '\n')
     f:close()
-    print('Bookmarked: ' .. file)
+    vim.notify('Bookmarked: ' .. file, vim.log.levels.INFO)
     update_bookmark_indicator()
   else
-    print('Error: Could not open bookmarks file')
+    vim.notify('Could not open bookmarks file', vim.log.levels.ERROR)
   end
 end, { desc = 'Bookmark add' })
 
@@ -88,7 +88,7 @@ vim.keymap.set('n', '<leader>br', function()
   end
 
   if #bookmarks == 0 then
-    print('No bookmarks to remove')
+    vim.notify('No bookmarks to remove', vim.log.levels.WARN)
     return
   end
 
@@ -117,7 +117,7 @@ vim.keymap.set('n', '<leader>br', function()
         f:write(bookmark .. '\n')
       end
       f:close()
-      print('Removed bookmark: ' .. current_file)
+      vim.notify('Removed bookmark: ' .. current_file, vim.log.levels.INFO)
       update_bookmark_indicator()
     end
   else
@@ -140,7 +140,7 @@ vim.keymap.set('n', '<leader>br', function()
             f:write(bookmark .. '\n')
           end
           f:close()
-          print('Removed bookmark: ' .. selected)
+          vim.notify('Removed bookmark: ' .. selected, vim.log.levels.INFO)
           -- Update indicator if removed file is current buffer
           if selected == vim.fn.expand('%:p') then
             update_bookmark_indicator()
@@ -182,7 +182,7 @@ vim.keymap.set('n', '<leader>bo', function()
             f:write(bookmark .. '\n')
           end
           f:close()
-          print('Removed bookmark: ' .. selected)
+          vim.notify('Removed bookmark: ' .. selected, vim.log.levels.INFO)
         end
       elseif key == 'ctrl-x' then
         -- Open in horizontal split
