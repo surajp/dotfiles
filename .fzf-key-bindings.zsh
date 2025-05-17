@@ -25,7 +25,7 @@ if [[ $- =~ i ]]; then
   }
 
   fzf-soql() {
-    local sobjtypesDir="$HOME/.sobjtypes"
+    local sobjtypesDir="$HOME/.sfmeta/sobjtypes"
     [[ ! -d "$sobjtypesDir" ]] && mkdir "$sobjtypesDir"
 
     local targetOrg=""
@@ -119,12 +119,14 @@ if [[ $- =~ i ]]; then
   bindkey '^]' fzf-sfdx-mdapiTypes
 
   fzf-sfdx-selectMetdata() {
+
+    local mdTypesDir="$HOME/.sfmeta/mdTypes"
+    [[ ! -d "$mdTypesDir" ]] && mkdir -p "$mdTypesDir"
+
     local mdType=${LBUFFER##* }
     [[ $mdType != *: ]] && return 0
-    if [[ ! -d ".mdtypes" ]]; then
-      mkdir .mdtypes
-    fi
     mdType=${mdType%:}
+
     local targetOrg=""
     if [[ $LBUFFER == *" -o "* ]]; then
       targetOrg=${LBUFFER##* -o }
@@ -133,6 +135,19 @@ if [[ $- =~ i ]]; then
       targetOrg=${LBUFFER##* --target-org }
       targetOrg=${targetOrg%% *}
     fi
+
+    local orgId="default"
+    if [[ -n "$targetOrg" ]]; then
+      orgId=$targetOrg
+    else
+      orgId=$(jq -r '.["target-org"] // empty' .sf/config.json) 2> /dev/null
+    fi
+
+    local orgDir="$mdTypesDir/$orgId"
+    [[ ! -d "$orgDir" ]] && mkdir "$orgDir"
+
+    local mdTypeFile="$orgDir/$mdType.json"
+
     local selected=""
     local shouldRefresh=false
     if [[ -n "$FZF_REFRESH" ]]; then
@@ -141,14 +156,14 @@ if [[ $- =~ i ]]; then
     if [[ "$LBUFFER" == *"REF=1"* ]]; then
       shouldRefresh=true
     fi
-    if [[ ! -f .mdtypes/$mdType.json || "$shouldRefresh" == true ]]; then
+    if [[ ! -f $mdTypeFile || "$shouldRefresh" == true ]]; then
       if [[ "$targetOrg" != "" ]]; then
-        sfdx force:mdapi:listmetadata -m "$mdType" -o "$targetOrg" --json > .mdtypes/$mdType.json &> /dev/null
+        sfdx force:mdapi:listmetadata -m "$mdType" -o "$targetOrg" --json > $mdTypeFile &> /dev/null
       else
-        sfdx force:mdapi:listmetadata -m "$mdType" --json > .mdtypes/$mdType.json &> /dev/null
+        sfdx force:mdapi:listmetadata -m "$mdType" --json > $mdTypeFile &> /dev/null
       fi
     fi
-    selected=$(jq -r '.result[].fullName' .mdtypes/$mdType.json | $(__fzfcmd) -m -i)
+    selected=$(jq -r '.result[].fullName' $mdTypeFile | $(__fzfcmd) -m -i)
 
     if [[ -n "$selected" ]]; then
       local formatted=""
