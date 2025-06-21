@@ -16,7 +16,7 @@ request=${@:3}
 json=$(sfdx force:org:display --verbose --json -u $orgName)
 sessionId=$(echo $json | jq -r '.result.accessToken')
 instanceUrl=$(echo $json | jq -r '.result.instanceUrl')
-echo $instanceUrl/services/data/$path
-echo $request
+# echo $instanceUrl/services/data/$path
+# echo $request
 curl -H "Authorization: Bearer $sessionId" -H "Content-Type: application/json" -H "Accept:application/json" $request $instanceUrl/services/data/$path
 echo "" #newline after output

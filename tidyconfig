@@ -1,0 +1,6 @@
+indent: auto
+indent-spaces: 4
+wrap: 120
+quiet: yes
+numeric-entities: yes
+break-before-br: no
