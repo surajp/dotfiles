@@ -32,7 +32,8 @@ if [[ $- =~ i ]]; then
 
   fzf-soql() {
     local sobjtypesDir="$HOME/.sobjtypes"
-    [[ ! -d "$sobjtypesDir" ]] && mkdir "$sobjtypesDir"
+    [[ ! -d "$sobjtypesDir" ]] && mkdir -p "$sobjtypesDir"
+    local standardSchemaFile="$sobjtypesDir/sf_standard_schema.csv"
 
     local targetOrg=""
     if [[ $READLINE_LINE == *" -o "* ]]; then
@@ -68,17 +69,17 @@ if [[ $- =~ i ]]; then
     if [[ ! -f "$customFieldsFile" || "$shouldRefresh" == true ]]; then
       echo "\nLoading data, please wait..." >&2
       if [[ -n "$targetOrg" ]]; then
-        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield" -t -o "$targetOrg" --json > "$customFieldsFile"
+        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield where (not developername like '%__del%')" -t -o "$targetOrg" --json > "$customFieldsFile"
       else
-        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield" -t --json > "$customFieldsFile"
+        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield where (not developername like '%__del%')" -t --json > "$customFieldsFile"
       fi
     fi
 
     temp_file="/tmp/customFields.json"
     jq 'del(.result.records[] | select(.EntityDefinition.QualifiedApiName == null))' "$customFieldsFile" > "$temp_file" && mv "$temp_file" "$customFieldsFile"
 
-    if [[ ! -f ~/.sobjtypes/sf_standard_schema.csv ]]; then
-      curl -sSL "https://gist.githubusercontent.com/surajp/2282582350226fc9e2a268633b5e06aa/raw/9efc2c60799965ab1554d30ad1987472cbf8c654/sfschema.txt" -o ~/.sobjtypes/sf_standard_schema.csv
+    if [[ ! -f $standardSchemaFile ]]; then
+      curl -sSL "https://gist.githubusercontent.com/surajp/2282582350226fc9e2a268633b5e06aa/raw/9efc2c60799965ab1554d30ad1987472cbf8c654/sfschema.txt" -o "$standardSchemaFile"
     fi
     local selected
     local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
@@ -87,18 +88,67 @@ if [[ $- =~ i ]]; then
     if [[ "$precedingWord" == "from" ]] || [[ "$precedingWord" == "FROM" ]]; then
       selected="$({
         jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)"' "$customFieldsFile"
-        jq -Rr 'split(",") | .[0]' ~/.sobjtypes/sf_standard_schema.csv
+        jq -Rr 'split(",") | .[0]' "$standardSchemaFile"
       } | sort -u | $(__fzfcmd) -i)"
     else
       selected="$({
         jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile"
-        jq -Rr 'split(",") | "\(.[0]).\(.[1])"' ~/.sobjtypes/sf_standard_schema.csv
-      } | sort -u | $(__fzfcmd) -i)"
+        jq -Rr 'split(",") | "\(.[0]).\(.[1])"' "$standardSchemaFile"
+      } | sort -u | $(__fzfcmd) -i --preview="__fzf_soql_preview {1} $orgId" --preview-window='right:wrap' --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up')"
     fi
     selected="${selected#*.}"
     READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
     READLINE_POINT=$((READLINE_POINT + ${#selected}))
   }
+
+  __fzf_soql_preview() {
+    local objectName="${1%%.*}"
+    local fieldName="${1#*.}"
+    local orgId="$2"
+    local orgDir="$HOME/.sobjtypes/$orgId/customFields"
+    [[ ! -d "$orgDir" ]] && mkdir -p "$orgDir"
+    local objectFieldsFile="$orgDir/${objectName}.json"
+
+    if [[ -f "$objectFieldsFile" && "$(cat $objectFieldsFile)" != "" ]]; then
+      jq -r --arg field "$fieldName" '.result.fields[] | select(.name == $field) | [
+        "Field: " + .name,
+        "Type: " + .type,
+        "Label: " + .label,
+        "Length: " + (.length // "N/A" | tostring),
+        "Required: " + (.nillable | not | tostring),
+        "Description: " + (.inlineHelpText // "N/A"),
+        "Picklist Values: " + (if .picklistValues then (.picklistValues | map(.value) | join(", ")) else "N/A" end),
+        "Reference To: " + (if .referenceTo then (.referenceTo | join(", ")) else "N/A" end),
+        "Formula: " + (.calculatedFormula | tostring),
+        "IdLookup: " + (.idLookup | tostring)
+      ][]' "$objectFieldsFile" 2> /dev/null
+    else
+      local targetOrgFlag=""
+      if [[ "$orgId" != "default" ]]; then
+        targetOrgFlag="-o $orgId"
+      fi
+
+      sfdx sobject:describe --sobject "$objectName" --json $targetOrgFlag > $objectFieldsFile
+      if [[ $? -ne 0 ]]; then
+        echo "Error retrieving object description for $objectName"
+        return 1
+      fi
+      jq -r --arg field "$fieldName" '.result.fields[] | select(.name == $field) | [
+        "Field: " + .name,
+        "Type: " + .type,
+        "Label: " + .label,
+        "Length: " + (.length // "N/A" | tostring),
+        "Required: " + (.nillable | not | tostring),
+        "Description: " + (.inlineHelpText // "N/A"),
+        "Picklist Values: " + (if .picklistValues then (.picklistValues | map(.value) | join(", ")) else "N/A" end),
+        "Reference To: " + (if .referenceTo then (.referenceTo | join(", ")) else "N/A" end),
+        "Formula: " + (.calculatedFormula | tostring),
+        "IdLookup: " + (.idLookup | tostring)
+      ][]' "$objectFieldsFile" 2> /dev/null || echo "Field information not available"
+    fi
+  }
+
+  export -f __fzf_soql_preview
 
   fzf-sfdx-alias() {
     local selected=$(cat ~/.sfdxaliases | jq -r '.. | objects | select(.username!=null) | .username+", "+.alias' | sort | uniq | $(__fzfcmd) -d ',' --preview "jq -r --arg sel {1} '[.. | objects | select(.username==\$sel) ][0] | del(.accessToken)' ~/.sfdxaliases" | awk -F "," 'function trim(s){sub(/^[ \t]+/,"",s);sub(/[ \t]+$/,"",s);return s} {print (trim($2)=="") ?$1:trim($2)}')

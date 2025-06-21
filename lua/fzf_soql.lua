@@ -169,9 +169,135 @@ function M.fzf_soql()
   vim.fn['fzf#run']({
     source = source_cmd,
     sink = 'FzfSoqlSelection',
-    options = '--prompt="SOQL> " --height=40% --layout=reverse --border'
+    options = '--prompt="SOQL> " --height=40% --layout=reverse --border --preview="__fzf_soql_preview {1}'..org_id..'" --preview-window="right:wrap" --bind="ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up"'
   })
 end
+
+
+local function fzf_soql_preview(object_field, org_id)
+  local object_name = object_field:match("^([^.]*)")
+  local field_name = object_field:match("%.(.*)$")
+  
+  if not object_name or not field_name then
+    return "Invalid field format"
+  end
+  
+  local org_dir = vim.fn.expand("~/.sobjtypes/" .. org_id .. "/customFields")
+  if vim.fn.isdirectory(org_dir) == 0 then
+    vim.fn.mkdir(org_dir, "p")
+  end
+  
+  local object_fields_file = org_dir .. "/" .. object_name .. ".json"
+  
+  -- Check if file exists and has content
+  if vim.fn.filereadable(object_fields_file) == 1 and vim.fn.getfsize(object_fields_file) > 0 then
+    local handle = io.open(object_fields_file, "r")
+    if handle then
+      local content = handle:read("*all")
+      handle:close()
+      
+      local success, data = pcall(vim.json.decode, content)
+      if success and data.result and data.result.fields then
+        for _, field in ipairs(data.result.fields) do
+          if field.name == field_name then
+            local preview_lines = {
+              "Field: " .. field.name,
+              "Type: " .. field.type,
+              "Label: " .. field.label,
+              "Length: " .. (field.length and tostring(field.length) or "N/A"),
+              "Required: " .. (field.nillable == false and "true" or "false"),
+              "Description: " .. (field.inlineHelpText or "N/A"),
+            }
+            
+            if field.picklistValues and #field.picklistValues > 0 then
+              local values = {}
+              for _, pv in ipairs(field.picklistValues) do
+                table.insert(values, pv.value)
+              end
+              table.insert(preview_lines, "Picklist Values: " .. table.concat(values, ", "))
+            else
+              table.insert(preview_lines, "Picklist Values: N/A")
+            end
+            
+            if field.referenceTo and #field.referenceTo > 0 then
+              table.insert(preview_lines, "Reference To: " .. table.concat(field.referenceTo, ", "))
+            else
+              table.insert(preview_lines, "Reference To: N/A")
+            end
+            
+            table.insert(preview_lines, "Formula: " .. (field.calculatedFormula or "N/A"))
+            table.insert(preview_lines, "IdLookup: " .. tostring(field.idLookup or false))
+            
+            return table.concat(preview_lines, "\n")
+          end
+        end
+      end
+    end
+  end
+  
+  -- If file doesn't exist or field not found, fetch object description
+  local target_org_flag = ""
+  if org_id ~= "default" then
+    target_org_flag = "-o " .. org_id
+  end
+  
+  local describe_cmd = string.format('sfdx sobject:describe --sobject "%s" --json %s', object_name, target_org_flag)
+  local output = vim.fn.system(describe_cmd)
+  
+  if vim.v.shell_error ~= 0 then
+    return "Error retrieving object description for " .. object_name
+  end
+  
+  -- Save the output to file for caching
+  local handle = io.open(object_fields_file, "w")
+  if handle then
+    handle:write(output)
+    handle:close()
+  end
+  
+  -- Parse and return field information
+  local success, data = pcall(vim.json.decode, output)
+  if success and data.result and data.result.fields then
+    for _, field in ipairs(data.result.fields) do
+      if field.name == field_name then
+        local preview_lines = {
+          "Field: " .. field.name,
+          "Type: " .. field.type,
+          "Label: " .. field.label,
+          "Length: " .. (field.length and tostring(field.length) or "N/A"),
+          "Required: " .. (field.nillable == false and "true" or "false"),
+          "Description: " .. (field.inlineHelpText or "N/A"),
+        }
+        
+        if field.picklistValues and #field.picklistValues > 0 then
+          local values = {}
+          for _, pv in ipairs(field.picklistValues) do
+            table.insert(values, pv.value)
+          end
+          table.insert(preview_lines, "Picklist Values: " .. table.concat(values, ", "))
+        else
+          table.insert(preview_lines, "Picklist Values: N/A")
+        end
+        
+        if field.referenceTo and #field.referenceTo > 0 then
+          table.insert(preview_lines, "Reference To: " .. table.concat(field.referenceTo, ", "))
+        else
+          table.insert(preview_lines, "Reference To: N/A")
+        end
+        
+        table.insert(preview_lines, "Formula: " .. (field.calculatedFormula or "N/A"))
+        table.insert(preview_lines, "IdLookup: " .. tostring(field.idLookup or false))
+        
+        return table.concat(preview_lines, "\n")
+      end
+    end
+  end
+  
+  return "Field information not available"
+end
+
+-- Export the preview function globally for fzf to use
+_G._fzf_soql_preview = fzf_soql_preview
 
 _G._fzf_soql_loaded = M
 return M
