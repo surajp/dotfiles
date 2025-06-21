@@ -15,225 +15,197 @@
 
 # Key bindings
 # ------------
-__fzf_select__() {
-	local cmd="${FZF_CTRL_T_COMMAND:-"command find -L . -mindepth 1 \\( -path '*/\\.*' -o -fstype 'sysfs' -o -fstype 'devfs' -o -fstype 'devtmpfs' -o -fstype 'proc' \\) -prune \
-    -o -type f -print \
-    -o -type d -print \
-    -o -type l -print 2> /dev/null | cut -b3-"}"
-	eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --preview='less {}' --reverse --bind=ctrl-z:ignore,alt-up:preview-page-up,alt-down:preview-page-down $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" $(__fzfcmd) -m "$@" | while read -r item; do
-		printf '%q ' "$item"
-	done
-	echo
-}
 
 if [[ $- =~ i ]]; then
+  declare -A commandsmap
+  commandsmap=(
+    ["heroku"]="$HOME/.herokucommands.json"
+    ["sfdx"]="$HOME/.sfdxcommands.json"
+    ["sf"]="$HOME/.sfcommands.json"
+  )
 
-	declare -A commandsmap
-	commandsmap=(
-		["heroku"]="$HOME/.herokucommands.json"
-		["sfdx"]="$HOME/.sfdxcommands.json"
-		["sf"]="$HOME/.sfcommands.json"
-	)
+  fzf-emojis() {
+    selectedSmiley="$(cat ~/.emojis.txt | $(__fzfcmd) | cut --fields=1 --delimiter=' ')"
+    READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selectedSmiley${READLINE_LINE:$READLINE_POINT}"
+    READLINE_POINT=$((READLINE_POINT + ${#selectedSmiley}))
+  }
 
-	__fzfcmd() {
-		[ -n "$TMUX_PANE" ] && { [ "${FZF_TMUX:-0}" != 0 ] || [ -n "$FZF_TMUX_OPTS" ]; } &&
-			echo "fzf-tmux ${FZF_TMUX_OPTS:--d${FZF_TMUX_HEIGHT:-40%}} -- " || echo "fzf"
-	}
+  fzf-soql() {
+    local sobjtypesDir="$HOME/.sobjtypes"
+    [[ ! -d "$sobjtypesDir" ]] && mkdir "$sobjtypesDir"
 
-	fzf-file-widget() {
-		local selected="$(__fzf_select__)"
-		READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
-		READLINE_POINT=$((READLINE_POINT + ${#selected}))
-	}
+    local targetOrg=""
+    if [[ $READLINE_LINE == *" -o "* ]]; then
+      targetOrg=${READLINE_LINE##* -o }
+      targetOrg=${targetOrg%% *}
+    elif [[ $READLINE_LINE == *" --target-org "* ]]; then
+      targetOrg=${READLINE_LINE##* --target-org }
+      targetOrg=${targetOrg%% *}
+    fi
 
-	__fzf_cd__() {
-		local cmd dir
-		cmd="${FZF_ALT_C_COMMAND:-"command find -L . -mindepth 1 \\( -path '*/\\.*' -o -fstype 'sysfs' -o -fstype 'devfs' -o -fstype 'devtmpfs' -o -fstype 'proc' \\) -prune \
-    -o -type d -print 2> /dev/null | cut -b3-"}"
-		dir=$(eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse --bind=ctrl-z:ignore $FZF_DEFAULT_OPTS $FZF_ALT_C_OPTS" $(__fzfcmd) +m) && printf 'cd %q' "$dir"
-	}
+    local orgId="default"
+    if [[ -n "$targetOrg" ]]; then
+      orgId=$targetOrg
+    else
+      if [[ -f .sf/config.json ]]; then
+        orgId=$(jq -r '.["target-org"] // empty' .sf/config.json)
+      else
+        return 1
+      fi
+    fi
 
-	__fzf_history__() {
-		local output
-		output=$(
-			builtin fc -lnr -2147483648 |
-				last_hist=$(HISTTIMEFORMAT='' builtin history 1) perl -n -l0 -e 'BEGIN { getc; $/ = "\n\t"; $HISTCMD = $ENV{last_hist} + 1 } s/^[ *]//; print $HISTCMD - $. . "\t$_" if !$seen{$_}++' |
-				FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} $FZF_DEFAULT_OPTS -n2..,.. --tiebreak=index --bind=ctrl-r:toggle-sort,ctrl-z:ignore $FZF_CTRL_R_OPTS +m --read0" $(__fzfcmd) --query "$READLINE_LINE"
-		) || return
-		READLINE_LINE=${output#*$'\t'}
-		if [ -z "$READLINE_POINT" ]; then
-			echo "$READLINE_LINE"
-		else
-			READLINE_POINT=0x7fffffff
-		fi
-	}
+    local orgDir="$sobjtypesDir/$orgId"
+    [[ ! -d "$orgDir" ]] && mkdir "$orgDir"
 
-	fzf-emojis() {
-		selectedSmiley="$(cat ~/.emojis.txt | $(__fzfcmd) | cut --fields=1 --delimiter=' ')"
-		READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selectedSmiley${READLINE_LINE:$READLINE_POINT}"
-		READLINE_POINT=$((READLINE_POINT + ${#selectedSmiley}))
-	}
+    local customFieldsFile="$orgDir/customFields.json"
+    local shouldRefresh=false
+    if [[ -n "$FZF_REFRESH" ]]; then
+      shouldRefresh=true
+    fi
+    if [[ "$READLINE_LINE" == *"REF=1"* ]]; then
+      shouldRefresh=true
+    fi
+    if [[ ! -f "$customFieldsFile" || "$shouldRefresh" == true ]]; then
+      echo "\nLoading data, please wait..." >&2
+      if [[ -n "$targetOrg" ]]; then
+        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield" -t -o "$targetOrg" --json > "$customFieldsFile"
+      else
+        sfdx data:query -q "select EntityDefinition.QualifiedApiName,DeveloperName,NamespacePrefix from customfield" -t --json > "$customFieldsFile"
+      fi
+    fi
 
-	fzf-soql() {
-		local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
-		local query="$(echo ${linethusfar%* } | awk -F '[ ,.]' '{print $NF}')"
-		if [[ -f "./schema.txt" ]]; then
-			if [[ "$linethusfar" != *" " && "$linethusfar" != *"." && "$linethusfar" != *"," ]]; then
-				local selected="$(cat ./schema.txt | $(__fzfcmd) -m -i --query $query | awk -F ' ' '{printf $1","}')"
-				local tempReadPoint=$((READLINE_POINT - ${#query}))
-				READLINE_LINE="${READLINE_LINE:0:$tempReadPoint}${READLINE_LINE:$READLINE_POINT}"
-				READLINE_POINT=$tempReadPoint
-			elif [[ "$query" = "from" && -f "./objects.txt" ]]; then
-				local selected="$(cat ./objects.txt | $(__fzfcmd) -i)"
-			else
-				local selected="$(cat ./schema.txt | $(__fzfcmd) -m -i | awk -F ' ' '{printf $1","}')"
-			fi
-			READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
-			READLINE_POINT=$((READLINE_POINT + ${#selected}))
-		fi
-	}
+    temp_file="/tmp/customFields.json"
+    jq 'del(.result.records[] | select(.EntityDefinition.QualifiedApiName == null))' "$customFieldsFile" > "$temp_file" && mv "$temp_file" "$customFieldsFile"
 
-	fzf-sfdx-alias() {
-		local selected="$(cat ~/.sfdxaliases | $(__fzfcmd) | awk -v i=1 '{while(i++<=NF){if(match($i,"@")){print $i;break}}}')"
-		READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
-		READLINE_POINT=$((READLINE_POINT + ${#selected}))
-	}
+    if [[ ! -f ~/.sobjtypes/sf_standard_schema.csv ]]; then
+      curl -sSL "https://gist.githubusercontent.com/surajp/2282582350226fc9e2a268633b5e06aa/raw/9efc2c60799965ab1554d30ad1987472cbf8c654/sfschema.txt" -o ~/.sobjtypes/sf_standard_schema.csv
+    fi
+    local selected
+    local linethusfar="${READLINE_LINE:0:$READLINE_POINT}"
+    local precedingWord="${linethusfar% *}"
+    precedingWord="${precedingWord##* }"
+    if [[ "$precedingWord" == "from" ]] || [[ "$precedingWord" == "FROM" ]]; then
+      selected="$({
+        jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)"' "$customFieldsFile"
+        jq -Rr 'split(",") | .[0]' ~/.sobjtypes/sf_standard_schema.csv
+      } | sort -u | $(__fzfcmd) -i)"
+    else
+      selected="$({
+        jq -r '.result.records[] | "\(.EntityDefinition.QualifiedApiName)\(if .NamespacePrefix != null then ".\(.NamespacePrefix)__" else "." end)\(.DeveloperName)__c"' "$customFieldsFile"
+        jq -Rr 'split(",") | "\(.[0]).\(.[1])"' ~/.sobjtypes/sf_standard_schema.csv
+      } | sort -u | $(__fzfcmd) -i)"
+    fi
+    selected="${selected#*.}"
+    READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+    READLINE_POINT=$((READLINE_POINT + ${#selected}))
+  }
 
-	fzf-sfdx-mdapiTypes() {
-		local selected="$(jq -r '.types | to_entries[] | select (.value.metadataApi=true).key' ~/.mdapiReport.json | $(__fzfcmd) -i)"
-		READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
-		READLINE_POINT=$((READLINE_POINT + ${#selected}))
-	}
+  fzf-sfdx-alias() {
+    local selected=$(cat ~/.sfdxaliases | jq -r '.. | objects | select(.username!=null) | .username+", "+.alias' | sort | uniq | $(__fzfcmd) -d ',' --preview "jq -r --arg sel {1} '[.. | objects | select(.username==\$sel) ][0] | del(.accessToken)' ~/.sfdxaliases" | awk -F "," 'function trim(s){sub(/^[ \t]+/,"",s);sub(/[ \t]+$/,"",s);return s} {print (trim($2)=="") ?$1:trim($2)}')
+    READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+    READLINE_POINT=$((READLINE_POINT + ${#selected}))
+  }
 
-	fzf_sfdx_flags() {
-		local cmd="${2%% *}"
-		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
-		thefile=${commandsmap[$cmd]}
-		if [[ $thefile == "" ]]; then
-			return 0
-		fi
-		local selected="$1"
-		local fullcmd=""
-		for i in "${@:2}"; do
-			fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
-		done
-		local ret=$(jq -r --arg sel "$selected" '.[] | select(.id==$sel) | .flags | keys[]' "$thefile" | fzf -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview="jq -r --arg sel '$selected' --arg key {} '.[] | select(.id==\$sel) | .flags | to_entries[] | select(.key==\$key) | [\"Command:\n$fullcmd\n\",\"Flag Description:\",.value][]' $thefile" --preview-window='right:wrap')
-		echo "${ret//$'\n'/ --}"
-	}
+  fzf-sfdx-mdapiTypes() {
+    local selected="$(jq -r '.types | to_entries[] | select (.value.channels.metadataApi=true).key' ~/.mdapiReport.json | $(__fzfcmd) -i)"
+    READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$selected${READLINE_LINE:$READLINE_POINT}"
+    READLINE_POINT=$((READLINE_POINT + ${#selected}))
+  }
 
-	fzf-autocomp() {
-		local fullcmd="$READLINE_LINE"
-		local cmd="${fullcmd%% *}"
-		cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
-		local thefile="${commandsmap[$cmd]:-}"
-		if [[ -z "$thefile" ]]; then
-			return 0
-		fi
+  fzf_sfdx_flags() {
+    local cmd="${2%% *}"
+    cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+    thefile=${commandsmap[$cmd]}
+    if [[ $thefile == "" ]]; then
+      return 0
+    fi
+    local selected="$1"
+    local fullcmd=""
+    for i in "${@:2}"; do
+      fullcmd+=" ${i//\"/\\\\\\\"}" #we have to triple escape the double quotes here as it will be used within double quotes again in the command below
+    done
+    local ret=$(jq -r --arg sel "$selected" '.[] | select(.id==$sel) | .flags | keys[]' "$thefile" | fzf -m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' --preview="jq -r --arg sel '$selected' --arg key {} '.[] | select(.id==\$sel) | .flags | to_entries[] | select(.key==\$key) | [\"Command:\n$fullcmd\n\",\"Flag Description:\",.value][]' $thefile" --preview-window='right:wrap')
+    echo "${ret//$'\n'/ --}"
+  }
 
-		local subcmd
-		subcmd=$(echo "${fullcmd#$cmd}" | awk -F " -" '{print $1}' | awk '{$1=$1};1')
-		local match
-		match=$(jq -r --arg subcmd "$subcmd" '.[] | select(.id==$subcmd)' "$thefile")
+  fzf-autocomp() {
+    local fullcmd="$READLINE_LINE"
+    local cmd="${fullcmd%% *}"
+    cmd="${cmd:-sfdx}" # Set cmd to "sfdx" if it's empty
+    local thefile="${commandsmap[$cmd]:-}"
+    if [[ -z "$thefile" ]]; then
+      return 0
+    fi
 
-		if [[ -n "$match" ]]; then
-			local flag
-			flag=$(fzf_sfdx_flags "$subcmd" "$fullcmd")
-			if [[ -n "$flag" ]]; then
-				READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}--$flag${READLINE_LINE:$READLINE_POINT}"
-				READLINE_POINT=$((READLINE_POINT + ${#flag} + 3))
-			fi
-		else
-			local querystr=""
-			if [[ -n "$subcmd" ]]; then
-				querystr="--query=$subcmd"
-			fi
-			local selected
-			selected=$(jq -r '.[].id' "$thefile" |
-				fzf +m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' \
-					--preview="jq -r --arg id {} '.[] | select(.id==\$id) | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+(select(has(\"usage\")).usage), \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]' $thefile" \
-					--preview-window='right:wrap' $querystr)
-			if [[ -n "$selected" ]]; then
-				READLINE_LINE="$cmd $selected"
+    local subcmd
+    subcmd=$(echo "${fullcmd#$cmd}" | awk -F " -" '{print $1}' | awk '{$1=$1};1')
+    local match
+    match=$(jq -r --arg subcmd "$subcmd" '.[] | select(.id==$subcmd)' "$thefile")
 
-				READLINE_POINT=$((READLINE_POINT + ${#cmd} + ${#selected} + 1))
-			fi
-		fi
-	}
+    if [[ -n "$match" ]]; then
+      local flag
+      flag=$(fzf_sfdx_flags "$subcmd" "$fullcmd")
+      if [[ -n "$flag" ]]; then
+        READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}--$flag${READLINE_LINE:$READLINE_POINT}"
+        READLINE_POINT=$((READLINE_POINT + ${#flag} + 3))
+      fi
+    else
+      local querystr=""
+      if [[ -n "$subcmd" ]]; then
+        querystr="--query=$subcmd"
+      fi
+      local selected
+      selected=$(jq -r '.[].id' "$thefile" |
+        fzf +m --bind='ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up' \
+          --preview="jq -r --arg id {} '.[] | select(.id==\$id) | [\"\nDescription:\n \"+.description,\"\nUsage:\n \"+(select(has(\"usage\")).usage), \"\nExamples:\n \"+(select(has(\"examples\")).examples | if type==\"array\" then join(\"\n\") else . end)][]' $thefile" \
+          --preview-window='right:wrap' $querystr)
+      if [[ -n "$selected" ]]; then
+        READLINE_LINE="$cmd $selected"
 
-	fzf-search-packages() {
-		read -p "Enter Package Name: " packagename
-		#echo $packagename
-		selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up | awk '{print $1}')"
-		# selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up --preview 'echo "{}" | awk ''{print $1}'' | apt show' --preview-window='right:wrap' | awk '{print $1}')"
-		if [[ "$selectedPackage" != "" ]]; then
-			echo "$(sudo apt-get install $selectedPackage)"
-		fi
-	}
+        READLINE_POINT=$((READLINE_POINT + ${#cmd} + ${#selected} + 1))
+      fi
+    fi
+  }
 
-	alias pacs='fzf-search-packages'
+  fzf-search-packages() {
+    read -p "Enter Package Name: " packagename
+    #echo $packagename
+    selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up | awk '{print $1}')"
+    # selectedPackage="$(apt-cache search $packagename | fzf -m --bind=ctrl-z:ignore,alt-j:preview-down,alt-k:preview-up --preview 'echo "{}" | awk ''{print $1}'' | apt show' --preview-window='right:wrap' | awk '{print $1}')"
+    if [[ "$selectedPackage" != "" ]]; then
+      echo "$(sudo apt-get install $selectedPackage)"
+    fi
+  }
 
-	# Required to refresh the prompt after fzf
-	bind -m emacs-standard '"\er": redraw-current-line'
+  alias pacs='fzf-search-packages'
 
-	bind -m vi-command '"\C-z": emacs-editing-mode'
-	bind -m vi-insert '"\C-z": emacs-editing-mode'
-	bind -m emacs-standard '"\C-z": vi-editing-mode'
+  # CTRL-3 - Paste the selected emoji into the command line
+  bind -m emacs-standard -x '"\C-3": fzf-emojis'
+  bind -m vi-command -x '"\C-3": fzf-emojis'
+  bind -m vi-insert -x '"\C-3": fzf-emojis'
 
-	if ((BASH_VERSINFO[0] < 4)); then
-		# CTRL-T - Paste the selected file path into the command line
-		bind -m emacs-standard '"\C-t": " \C-b\C-k \C-u`__fzf_select__`\e\C-e\er\C-a\C-y\C-h\C-e\e \C-y\ey\C-x\C-x\C-f"'
-		bind -m vi-command '"\C-t": "\C-z\C-t\C-z"'
-		bind -m vi-insert '"\C-t": "\C-z\C-t\C-z"'
+  # CTRL-e - Search for and paste the selected sfdx command onto the command line
+  bind -m emacs-standard -x '"\C-e": fzf-autocomp'
+  bind -m vi-command -x '"\C-e": fzf-autocomp'
+  bind -m vi-insert -x '"\C-e": fzf-autocomp'
 
-		# CTRL-R - Paste the selected command from history into the command line
-		bind -m emacs-standard '"\C-r": "\C-e \C-u\C-y\ey\C-u"$(__fzf_history__)"\e\C-e\er"'
-		bind -m vi-command '"\C-r": "\C-z\C-r\C-z"'
-		bind -m vi-insert '"\C-r": "\C-z\C-r\C-z"'
-	else
-		# CTRL-T - Paste the selected file path into the command line
-		bind -m emacs-standard -x '"\C-f": fzf-file-widget'
-		bind -m vi-command -x '"\C-f": fzf-file-widget'
-		bind -m vi-insert -x '"\C-f": fzf-file-widget'
+  # CTRL-n - Search for and paste the selected sfdx org from the authorized orglist onto the command line
+  bind -m emacs-standard -x '"\C-n": fzf-sfdx-alias'
+  bind -m vi-command -x '"\C-n": fzf-sfdx-alias'
+  bind -m vi-insert -x '"\C-n": fzf-sfdx-alias'
 
-		# CTRL-R - Paste the selected command from history into the command line
-		bind -m emacs-standard -x '"\C-r": __fzf_history__'
-		bind -m vi-command -x '"\C-r": __fzf_history__'
-		bind -m vi-insert -x '"\C-r": __fzf_history__'
+  # CTRL-y - Search for and paste the selected field or SObject into your SOQL query
+  bind -m emacs-standard -x '"\C-y": fzf-soql'
+  bind -m vi-command -x '"\C-y": fzf-soql'
+  bind -m vi-insert -x '"\C-y": fzf-soql'
 
-		# CTRL-3 - Paste the selected emoji into the command line
-		bind -m emacs-standard -x '"\C-3": fzf-emojis'
-		bind -m vi-command -x '"\C-3": fzf-emojis'
-		bind -m vi-insert -x '"\C-3": fzf-emojis'
-
-		# CTRL-e - Search for and paste the selected sfdx command onto the command line
-		bind -m emacs-standard -x '"\C-e": fzf-autocomp'
-		bind -m vi-command -x '"\C-e": fzf-autocomp'
-		bind -m vi-insert -x '"\C-e": fzf-autocomp'
-
-		# CTRL-n - Search for and paste the selected sfdx org from the authorized orglist onto the command line
-		bind -m emacs-standard -x '"\C-n": fzf-sfdx-alias'
-		bind -m vi-command -x '"\C-n": fzf-sfdx-alias'
-		bind -m vi-insert -x '"\C-n": fzf-sfdx-alias'
-
-		# CTRL-y - Search for and paste the selected field or SObject into your SOQL query
-		bind -m emacs-standard -x '"\C-y": fzf-soql'
-		bind -m vi-command -x '"\C-y": fzf-soql'
-		bind -m vi-insert -x '"\C-y": fzf-soql'
-
-		# CTRL-/ - Search for paste the selected metadata type onto the command line for retrieving
-		bind -m emacs-standard -x '"\C-_": fzf-sfdx-mdapiTypes'
-		bind -m vi-command -x '"\C-_": fzf-sfdx-mdapiTypes'
-		bind -m vi-insert -x '"\C-_": fzf-sfdx-mdapiTypes'
-
-	fi
-
-	# ALT-C - cd into the selected directory
-	bind -m emacs-standard '"\ec": " \C-b\C-k \C-u`__fzf_cd__`\e\C-e\er\C-m\C-y\C-h\e \C-y\ey\C-x\C-x\C-d"'
-	bind -m vi-command '"\ec": "\C-z\ec\C-z"'
-	bind -m vi-insert '"\ec": "\C-z\ec\C-z"'
+  # CTRL-/ - Search for paste the selected metadata type onto the command line for retrieving
+  bind -m emacs-standard -x '"\C-]": fzf-sfdx-mdapiTypes'
+  bind -m vi-command -x '"\C-]": fzf-sfdx-mdapiTypes'
+  bind -m vi-insert -x '"\C-]": fzf-sfdx-mdapiTypes'
 
 fi
 
 if [[ -f ~/fzf-extras.bash ]]; then
-	source ~/fzf-extras.bash
+  source ~/fzf-extras.bash
 fi

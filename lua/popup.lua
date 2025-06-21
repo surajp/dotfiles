@@ -50,25 +50,9 @@ local function join(arr,separator)
   return val
 end
 
-local function append_to_buf(buf,msg)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', true)
-  vim.api.nvim_buf_set_option(buf, 'readonly', false)
-  vim.api.nvim_buf_set_lines(buf, -1, -1, false, msg)
-  vim.api.nvim_buf_set_option(buf, 'readonly', true)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-end
-
-local function add_highlight(buf,highlight,start,numlines)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', true)
-  vim.api.nvim_buf_set_option(buf, 'readonly', false)
-  vim.api.nvim_buf_add_highlight(buf, -1, highlight, start, numlines, -1)
-  vim.api.nvim_buf_set_option(buf, 'readonly', true)
-  vim.api.nvim_buf_set_option(buf, 'modifiable', false)
-end
-
 local function create_popup()
   local buf = vim.api.nvim_create_buf(false, true)
-  append_to_buf(buf,{"Running command..."})
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, {"Running command..."})
   local opts = {
     relative = 'editor',
     row = M.config.top,
@@ -87,8 +71,7 @@ end
 local function run_async_command(cmd)
   local buf, win, opts = create_popup()
   local complete = false
-  -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, {join(cmd)})
-  append_to_buf(buf,{join(cmd)})
+  vim.api.nvim_buf_set_lines(buf, -1, -1, false, {join(cmd)})
   vim.keymap.set('n','<leader>pm',function() restore_popup(buf,opts) end,{})
 
   vim.system(cmd, {
@@ -97,8 +80,7 @@ local function run_async_command(cmd)
     stdout = function(_, data)
       vim.schedule(function()
         if data then
-          -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data,"\n"))
-          append_to_buf(buf,vim.split(data,"\n"))
+          vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data,"\n"))
         end
       end)
     end,
@@ -106,12 +88,11 @@ local function run_async_command(cmd)
       vim.schedule(function()
         if data then
           local line_count_start = vim.api.nvim_buf_line_count(buf)
-          -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data,"\n"))
-          append_to_buf(buf,vim.split(data,"\n"))
+          vim.api.nvim_buf_set_lines(buf, -1, -1, false, vim.split(data,"\n"))
           local line_count_end = vim.api.nvim_buf_line_count(buf)
           for i = line_count_start, line_count_end - 1 do
-            -- vim.api.nvim_buf_add_highlight(buf, -1, "Error", i, 0, -1)
-            add_highlight(buf,"Error", i, 0)
+            -- Use a built-in highlight group, e.g., 'Error' for red text
+            vim.api.nvim_buf_add_highlight(buf, -1, "Error", i, 0, -1)
           end
         end
       end)
@@ -122,12 +103,10 @@ local function run_async_command(cmd)
     vim.schedule(function()
       if data.code == 124 then
         local line_count = vim.api.nvim_buf_line_count(buf)
-        -- vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
-        append_to_buf(buf,{"Command timed out"})
-        -- vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
-        add_highlight(buf,"Error", line_count, 0)
+        vim.api.nvim_buf_set_lines(buf, -1, -1, false, {"Command timed out"})
+        vim.api.nvim_buf_add_highlight(buf, -1, "Error", line_count, 0, -1)
       end
-      vim.keymap.set('n', 'qq',function() vim.api.nvim_buf_delete(buf,{force=true}) end,{buffer=buf})
+      vim.keymap.set('n', '<leader>q',function() vim.api.nvim_buf_delete(buf,{force=true}) end,{buffer=buf})
       restore_popup(buf, opts)  -- Restore the window
       vim.keymap.del('n', '<leader>pq')
       vim.keymap.del('n', '<leader>pm')
